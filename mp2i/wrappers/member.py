@@ -8,7 +8,7 @@ from sqlalchemy import insert, select, update
 
 from mp2i.models import MemberModel
 from mp2i.utils import database
-from mp2i.cogs.utils.functions import get_role_by_name
+from mp2i.cogs.utils.functions import get_role_by_name, get_reactions_values
 
 
 class MemberWrapper:
@@ -46,13 +46,24 @@ class MemberWrapper:
         database.execute(
             update(MemberModel).where(MemberModel.id == self.member.id).values(**kwargs)
         )
+        self.__model = self._fetch()
 
     def register(self) -> NoReturn:
         """
         Insert the member in table, with optionals attributes
         """
+        role_name = None
+        for role in self.member.roles:
+            if role.name in get_reactions_values():
+                role_name = role.name
+
         database.execute(
-            insert(MemberModel).values(id=self.member.id, name=self.member.name)
+            insert(MemberModel).values(
+                id=self.member.id,
+                guild_id=self.guild.id,
+                name=self.member.name,
+                role=role_name,
+            )
         )
         self.__model = self._fetch()  # Update the model
 
@@ -60,10 +71,10 @@ class MemberWrapper:
         return self.__model is not None
 
     @property
-    def role(self) -> discord.Role:
-        return get_role_by_name(self.guild, self.__model.role.name)
+    def role(self) -> Optional[discord.Role]:
+        return get_role_by_name(self.guild, self.__model.role)
 
     @role.setter
-    def role(self, role: discord.Role | str):
-        role_name = role if isinstance(role, str) else role.name
+    def role(self, role: discord.Role | str | None):
+        role_name = role.name if isinstance(role, discord.Role) else role
         self.update(role=role_name)

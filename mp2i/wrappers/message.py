@@ -20,13 +20,12 @@ class MessageWrapper:
         Inserts a message row in messages table
         """
         if isinstance(self.message.channel, discord.DMChannel):
-            channel, guild_id = "DMChannel", None
+            channel = "DMChannel"
         else:
-            channel, guild_id = self.message.channel.name, self.message.guild.id
+            channel = self.message.channel.name
 
         database.execute(
             insert(MessageModel).values(
-                guild_id=guild_id,
                 author_id=self.message.author.id,
                 channel=channel,
                 date=datetime.datetime.now(),

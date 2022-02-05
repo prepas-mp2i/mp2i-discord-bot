@@ -17,7 +17,7 @@ def setup():
 
     if os.getenv("ENVIRONMENT") == "development":
         # All logger are inherited from the root logger
-        log_config["root"] = log_config["loggers"]["development"]
+        log_config["loggers"]["root"] = log_config["loggers"]["development"]
 
     # Create logs in current directory, does anything if it already exists
     os.makedirs("logs", exist_ok=True)

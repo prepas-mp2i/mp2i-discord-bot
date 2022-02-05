@@ -44,4 +44,4 @@ version = 1
 
     [loggers.development]
     level = "DEBUG"
-    handlers = ["console", "file"]
+    handlers = ["file", "console"]

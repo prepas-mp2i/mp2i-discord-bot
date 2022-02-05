@@ -5,6 +5,8 @@ import sqlalchemy
 import sqlalchemy.exc
 from sqlalchemy.orm import Session
 
+from mp2i.models import Base
+
 logger = logging.getLogger(__name__)
 
 if __database_url := os.getenv("DATABASE_URL"):
@@ -19,6 +21,8 @@ else:
         "Please, restart the script if this is not the desired behavior "
     )
     engine = sqlalchemy.create_engine("sqlite:///:memory:")
+# Creates tables from models
+Base.metadata.create_all(engine)
 
 
 def test_connection():
@@ -43,14 +47,16 @@ def test_connection():
     return True
 
 
-def execute(stmt):
+def execute(stmt, *args):
     """
     Creates a Session to execute the given statement.
     """
     with Session(engine, autocommit=True) as session:
         try:
             # https://docs.sqlalchemy.org/en/14/errors.html#error-lkrp
-            result = session.execute(stmt, execution_options={"prebuffer_rows": True})
+            result = session.execute(
+                stmt, *args, execution_options={"prebuffer_rows": True}
+            )
         except sqlalchemy.exc.DBAPIError as err:
             # https://docs.sqlalchemy.org/en/13/core/exceptions.html
             logger.error(

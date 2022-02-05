@@ -10,7 +10,7 @@ __Attention__ : Cette action est irréversible !
 
 :livre: Je suis un **prof** (de prépa, d'école, d'université...)
 
-:intégré: J'ai **intégré** une école d'ingénieur, une université, une ENS
+:ecrous: J'ai **intégré** une école d'ingénieur, une université, une ENS
 
 :ninja: Je suis un étudiant venant d'une **autre filière** que la MP2I
 

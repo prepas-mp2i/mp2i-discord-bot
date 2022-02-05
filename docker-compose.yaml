@@ -17,11 +17,12 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
+      - ./logs:/MP2I/logs
       - .:/MP2I
     env_file:
       - .env
     environment:
-      ENVIRONMENT: production
+      ENVIRONMENT: development
       DATABASE_URL: postgresql+psycopg2://root:root@postgres:5432/MP2I
     depends_on:
       - postgres

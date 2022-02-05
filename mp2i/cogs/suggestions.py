@@ -8,8 +8,6 @@ from mp2i import STATIC_DIR
 from mp2i.models import SuggestionModel
 from mp2i.utils import database
 
-from .utils.functions import is_suggestion_channel
-
 
 class Suggestion(Cog):
     """
@@ -19,13 +17,19 @@ class Suggestion(Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @staticmethod
+    def is_suggestion_channel(channel: discord.TextChannel) -> bool:
+        if not isinstance(channel, discord.DMChannel):
+            return "suggestion" in channel.name
+        return False
+
     @command(name="suggestions_rules", hidden=True)
     @is_owner()
     async def send_suggestions_rules(self, ctx):
         """
         Send the rules for suggestion channel
         """
-        if not is_suggestion_channel(ctx.channel):
+        if not self.is_suggestion_channel(ctx.channel):
             return
 
         await ctx.message.delete()
@@ -42,7 +46,7 @@ class Suggestion(Cog):
 
     @Cog.listener("on_message")
     async def make_suggestion(self, message):
-        if not is_suggestion_channel(message.channel):
+        if not self.is_suggestion_channel(message.channel):
             return
         try:
             await message.add_reaction("✅")
@@ -51,9 +55,9 @@ class Suggestion(Cog):
             pass
 
     @Cog.listener("on_raw_reaction_add")
-    async def decisive_reaction(self, payload):
+    async def close_suggestion(self, payload):
         """
-        Send result to all users when the owner add a reaction
+        Send result to all users when an admin add a reaction
         """
         channel = self.bot.get_channel(payload.channel_id)
         try:
@@ -62,16 +66,19 @@ class Suggestion(Cog):
             return
         if (
             str(payload.emoji) not in ("✅", "❌")
-            or not is_suggestion_channel(message)
-            or not await self.bot.is_owner(payload.member)
+            or not self.is_suggestion_channel(channel)
+            or not discord.utils.get(payload.member.roles, name="Administrateurs")
         ):
             return
 
         if accepted := str(payload.emoji) == "✅":
-            stmt = insert(SuggestionModel).values(
-                author=message.author.name, description=message.content
+            database.execute(
+                insert(SuggestionModel).values(
+                    author_id=message.author.id,
+                    date=datetime.now(),
+                    description=message.content,
+                )
             )
-            database.execute(stmt)
         for reaction in message.reactions:
             if str(reaction.emoji) not in ("✅", "❌"):
                 continue
