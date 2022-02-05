@@ -1,0 +1,59 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.1.0
+    hooks:
+    -   id: check-yaml
+        name: YAML Syntax
+    -   id: trailing-whitespace
+        name: Fix Trailing Whitespace
+    -   id: check-json
+        name: JSON Syntax
+    -   id: detect-private-key
+    -   id: check-added-large-files
+        name: Check Large Files
+    -   id: pretty-format-json
+        name: JSON Pretty Format
+        args:
+            - --autofix
+
+-   repo: https://github.com/psf/black
+    rev: 22.1.0
+    hooks:
+    -   id: black
+        name: Python Format (black)
+        language_version: python3.9
+
+-   repo: https://github.com/asottile/blacken-docs
+    rev: v1.12.1
+    hooks:
+    -   id: blacken-docs
+        name: Python Docs Format (black)
+        additional_dependencies: [black==22.1.0]
+
+-   repo: https://gitlab.com/pycqa/flake8
+    rev: 4.0.1
+    hooks:
+    -   id: flake8
+        name: Python Style (flake8)
+        args:
+            - --max-line-length=89
+
+-   repo: 'https://github.com/pre-commit/mirrors-autopep8'
+    rev: v1.6.0
+    hooks:
+      - id: autopep8
+        name: 'Python PEP Rules (autopep8)'
+        args:
+            - --in-place
+            - --aggressive
+            - --aggressive
+            - --experimental
+            - --list-fixes
+
+-   repo: https://github.com/asottile/pyupgrade
+    rev: v2.31.0
+    hooks:
+    -   id: pyupgrade
+        name: Python Upgradable Code
+        args:
+            - --keep-runtime-typing  # Prevents Union[str, int] -> str | int

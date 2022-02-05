@@ -1,0 +1,9 @@
+# IDE config folder
+.vscode/
+.idea/
+
+# Environments
+.env/
+.venv/
+
+.gitignore

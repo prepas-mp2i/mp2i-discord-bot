@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres
+    container_name: MP2I_PostgreSQL
+    environment:
+      - POSTGRES_DB=MP2I
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+    ports:
+      - "2345:5432"
+
+  bot:
+    container_name: MP2I_Bot
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/MP2I
+    env_file:
+      - .env
+    environment:
+      ENVIRONMENT: production
+      DATABASE_URL: postgresql+psycopg2://root:root@postgres:5432/MP2I
+    depends_on:
+      - postgres
