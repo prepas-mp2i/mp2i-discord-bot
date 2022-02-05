@@ -49,7 +49,10 @@ class Music(Cog):
             # if client is already connected
             video = Video(**v_infos)
             self.musics[ctx.guild].append(video)
-            await ctx.send(f"Musique ajoutée à la file d'attente: **{video.name}**")
+            await ctx.send(
+                f"Musique ajoutée à la file d'attente: **{video.name}**\n"
+                f"{video.url}"
+            )
         elif ctx.author.voice:
             voice_channel = ctx.author.voice.channel
             video = Video(**v_infos)

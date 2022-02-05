@@ -18,14 +18,15 @@
 
 **MP2I** is a Discord bot adapted from [PyBoss](https://github.com/ajayat/pyboss) bot created by [Adridri](https://github.com/ajayat).
 
-It provides somes features like:
+It provides some features like:
 
 - Roles selection
 - Music player
+- Suggestion automation
 - Custom commands (clear, profile ...)
 - Moderation
 
-## Softwares
+## Software
 
 **Python** <br>
 It's required to have python 3.9 or more installed on your system.

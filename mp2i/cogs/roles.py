@@ -73,9 +73,14 @@ class Roles(Cog):
         guild = database.execute(
             select(GuildModel).where(GuildModel.id == payload.guild_id)
         ).scalar_one_or_none()
+        member = MemberWrapper(payload.member)
 
-        if guild and guild.message_roles_id != payload.message_id:
-            return  # Exit if it is not the good message
+        if (
+            not guild
+            or guild.message_roles_id != payload.message_id
+            or member.id == self.bot.user.id
+        ):
+            return  # Exit if it is not the good message or self reaction
 
         member = MemberWrapper(payload.member)
         if member.role:
