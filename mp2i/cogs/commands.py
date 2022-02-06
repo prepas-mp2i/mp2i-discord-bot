@@ -3,7 +3,7 @@ from itertools import cycle
 from typing import Optional
 
 import discord
-from discord.ext import tasks
+from discord.ext import tasks, commands
 from discord.ext.commands import Cog, command, guild_only, is_owner
 
 from .utils import youtube
@@ -46,9 +46,10 @@ class Commands(Cog):
 
     @command()
     @guild_only()
+    @commands.has_role("Administrateurs")
     async def clear(self, ctx, n: int = 1):
         """
-        Supprime les n message du salon
+        Supprime les n messages du salon
         """
         await ctx.channel.purge(limit=int(n) + 1)
 

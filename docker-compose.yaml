@@ -18,7 +18,6 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./logs:/MP2I/logs
-      - .:/MP2I
     env_file:
       - .env
     environment:

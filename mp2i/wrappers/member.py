@@ -8,7 +8,7 @@ from sqlalchemy import insert, select, update
 
 from mp2i.models import MemberModel
 from mp2i.utils import database
-from mp2i.cogs.utils.functions import get_role_by_name, get_reactions_values
+from mp2i.cogs.utils.functions import get_role_by_name
 
 
 class MemberWrapper:
@@ -54,7 +54,7 @@ class MemberWrapper:
         """
         role_name = None
         for role in self.member.roles:
-            if role.name in get_reactions_values():
+            if role.name in ("Infiltré", "Prof", "Intégré", "Lycéen", "MP2I"):
                 role_name = role.name
 
         database.execute(

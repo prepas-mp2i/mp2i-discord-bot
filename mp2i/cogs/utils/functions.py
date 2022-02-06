@@ -1,11 +1,8 @@
-import json
 import logging
 from typing import Optional
 from functools import cache
 
 import discord
-
-from mp2i import STATIC_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -28,11 +25,3 @@ def get_role_by_name(guild: discord.Guild, name: str) -> Optional[discord.Role]:
 @cache
 def get_emoji_by_name(guild: discord.Guild, name: str) -> Optional[discord.Emoji]:
     return discord.utils.get(guild.emojis, name=name)
-
-
-@cache
-def get_reactions_values() -> list:
-    """Return a list of reactions values."""
-    with open(STATIC_DIR / "json/reactions.json", encoding="utf-8") as f:
-        reactions = json.load(f)
-    return reactions.values()

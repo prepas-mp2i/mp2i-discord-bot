@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import logging
 from datetime import datetime
 
@@ -24,10 +23,15 @@ class Roles(Cog):
     to choice his roles inside the guild
     """
 
+    ROLES_MAPPING = {
+        "MP2I": "MP2I",
+        "berceau": "Lycéen",
+        "ecrous": "Intégré",
+        "ninja": "Infiltré",
+    }
+
     def __init__(self, bot):
         self.bot = bot
-        with open(STATIC_DIR / "json/reactions.json", encoding="utf-8") as f:
-            self.reactions = json.load(f)
 
     @command(name="roles_selection", hidden=True)
     @is_owner()
@@ -38,20 +42,21 @@ class Roles(Cog):
         await ctx.message.delete()
         with open(STATIC_DIR / "text/roles.md", encoding="utf-8") as f:
             content = f.read()
-            for name in self.reactions:
+            for name in self.ROLES_MAPPING:
                 if emoji := get_emoji_by_name(ctx.guild, name):
                     content = content.replace(f":{name}:", str(emoji))
 
             embed = discord.Embed(
-                title="Bienvenue!", colour=0xFF22FF, description=content
+                title="Bienvenue!",
+                colour=0xFF22FF,
+                description=content,
+                timestamp=datetime.now(),
             )
             embed.set_thumbnail(url=ctx.guild.icon_url)
-            embed.set_footer(
-                text=f"Généré par {self.bot.user.name} | {datetime.now():%D - %H:%M}"
-            )
+            embed.set_footer(text=f"Généré par {self.bot.user.name}")
             message = await ctx.send(embed=embed)
 
-        for name in self.reactions:
+        for name in self.ROLES_MAPPING:
             if emoji := get_emoji_by_name(ctx.guild, name):
                 await message.add_reaction(str(emoji))
             else:
@@ -68,19 +73,13 @@ class Roles(Cog):
         """
         Update role from the user selection
         """
-        if not hasattr(payload, "guild_id"):
-            return  # Ignore DM
+        if not hasattr(payload, "guild_id") or payload.member.id == self.bot.user.id:
+            return  # Ignore DM and bot reaction
         guild = database.execute(
             select(GuildModel).where(GuildModel.id == payload.guild_id)
         ).scalar_one_or_none()
-        member = MemberWrapper(payload.member)
-
-        if (
-            not guild
-            or guild.message_roles_id != payload.message_id
-            or member.id == self.bot.user.id
-        ):
-            return  # Exit if it is not the good message or self reaction
+        if not guild or guild.message_roles_id != payload.message_id:
+            return  # Exit if it is not the good message
 
         member = MemberWrapper(payload.member)
         if member.role:
@@ -95,7 +94,7 @@ class Roles(Cog):
             )
             return
         try:
-            member.role = self.reactions[payload.emoji.name]
+            member.role = self.ROLES_MAPPING[payload.emoji.name]
             await member.add_roles(member.role)
         except KeyError:
             await member.send(f"{member.mention} Cette réaction est invalide")

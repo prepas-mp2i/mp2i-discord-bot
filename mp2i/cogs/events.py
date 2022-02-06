@@ -10,8 +10,6 @@ from mp2i.utils import database
 from mp2i.wrappers.member import MemberWrapper
 from mp2i.wrappers.message import MessageWrapper
 
-from .utils.functions import get_reactions_values
-
 logger = logging.getLogger(__name__)
 
 
@@ -67,11 +65,10 @@ class EventsCog(Cog):
         embed.set_author(name=member.name, url=member.avatar_url)
         embed.set_footer(text=f"{self.bot.user.name}")
 
-        news_channel = discord.utils.get(member.guild.channels, type="news")
-        if news_channel:
-            await news_channel.send(embed=embed)
+        if member.guild.system_channel:
+            await member.guild.system_channel.send(embed=embed)
         else:
-            logger.warning("Server doesn't have a news channel")
+            logger.warning("System channel is not set")
 
     @Cog.listener()
     async def on_message(self, msg):
@@ -93,7 +90,7 @@ class EventsCog(Cog):
             logger.error(f"The user {after.name} was not found in members table")
 
         for role in after.roles:
-            if role.name in get_reactions_values():
+            if role.name in ("Infiltré", "Prof", "Intégré", "Lycéen", "MP2I"):
                 member.role = role
                 break
         else:
