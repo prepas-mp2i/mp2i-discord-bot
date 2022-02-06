@@ -8,10 +8,11 @@ __Attention__ : Cette action est irréversible !
 
 :berceau: Je suis un **lycéen**
 
-:livre: Je suis un **prof** (de prépa, d'école, d'université...)
-
 :ecrous: J'ai **intégré** une école d'ingénieur, une université, une ENS
 
 :ninja: Je suis un étudiant venant d'une **autre filière** que la MP2I
 
-Si vous rencontrez un quelconque problème, veuillez contacter un modérateur.
+Si vous êtes un **professeur** (de prépa, d'école, d'université...),
+merci de contacter les admins pour vous faire attribuer le rôle.
+
+Si vous rencontrez un quelconque problème, veuillez contacter un admin.
