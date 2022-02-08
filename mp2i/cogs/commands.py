@@ -49,7 +49,7 @@ class Commands(Cog):
     @has_role("Administrateurs")
     async def clear(self, ctx, n: int = 1) -> None:
         """
-        Supprime les n messages du salon
+        Supprime les n derniers messages du salon
         """
         await ctx.channel.purge(limit=int(n) + 1)
 
@@ -74,7 +74,7 @@ class Commands(Cog):
         embed = discord.Embed(title="Profil", colour=0xFFA325)
         embed.set_author(name=member.name)
         embed.set_thumbnail(url=member.avatar_url)
-        embed.add_field(name="Name", value=member.mention, inline=True)
+        embed.add_field(name="Pseudo", value=member.mention, inline=True)
         embed.add_field(
             name="Membre depuis...", value=f"{member.joined_at:%d/%m/%Y}", inline=True
         )

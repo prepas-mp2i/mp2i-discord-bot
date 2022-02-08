@@ -37,7 +37,10 @@ class MemberWrapper:
         """
         try:
             return database.execute(
-                select(MemberModel).where(MemberModel.id == self.member.id)
+                select(MemberModel).where(
+                    MemberModel.id == self.member.id,
+                    MemberModel.guild_id == self.guild.id,
+                )
             ).scalar_one()
         except sqlalchemy.exc.NoResultFound:
             return None
