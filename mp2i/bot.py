@@ -21,7 +21,7 @@ def run(token=None) -> None:
     database.test_connection()
     # Create a bot instance and activate all intents (more access to members infos)
     intents = discord.Intents.all()
-    bot = commands.Bot(command_prefix="<", intents=intents, self_bot=False)
+    bot = commands.Bot(command_prefix="=", intents=intents, self_bot=False)
 
     # loads all available cogs
     for cog in resolver.find_available_cogs():

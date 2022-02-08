@@ -4,7 +4,8 @@
 <p align="center">
     <a href="https://github.com/prepas-mp2i/mp2i-discord-bot#overview">Overview</a> •
     <a href="https://github.com/prepas-mp2i/mp2i-discord-bot#software">Software</a> •
-    <a href="https://github.com/prepas-mp2i/mp2i-discord-bot#installation">Installation</a>
+    <a href="https://github.com/prepas-mp2i/mp2i-discord-bot#installation">Installation</a> •
+    <a href="https://github.com/prepas-mp2i/mp2i-discord-bot#todo">TODO</a>
 </p>
 
 ![GitHub top language: Python](https://img.shields.io/github/languages/top/prepas-mp2i/mp2i-discord-bot) &nbsp;
@@ -74,3 +75,23 @@ Run the command `python3 -m mp2i` on Linux or `py -m mp2i` on Windows.
 ```sh
 docker-compose up --build
 ```
+
+## TODO
+
+### Fin de discord.py, choix d'améliorations
+
+- Passer aux commandes slash, utiliser les nouveaux widgets: boutons et menus déroulants (SelectMenu).
+
+- Lib retenue : [PyCord](https://github.com/Pycord-Development/pycord) <br>
+Documentation: https://docs.pycord.dev/en/master/
+
+- Ajouter des fonctionnalités.
+
+### Exemples d'améliorations
+
+- Utiliser des boutons pour les suggestions.
+
+- Embellir la commande help (avec un help pour chaque sous groupe de commande)
+avec un Embed ou SelectMenu.
+
+- Utiliser un menu déroulant pour le choix des rôles.
