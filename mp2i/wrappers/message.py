@@ -1,5 +1,4 @@
 import datetime
-from typing import NoReturn
 
 import discord
 from sqlalchemy import insert
@@ -15,7 +14,7 @@ class MessageWrapper:
     def __getattr__(self, name: str):
         return getattr(self.message, name)
 
-    def insert(self) -> NoReturn:
+    def insert(self) -> None:
         """
         Inserts a message row in messages table
         """

@@ -1,0 +1,47 @@
+bot:
+  name: MP2I
+
+guilds:
+  872138069594214410:
+    name: Prépas MP2I
+    link: https://discord.gg/w4ugrWy84W
+    roles:
+      872159565741969409:
+        name: Lycéen
+        emoji: berceau
+      872148548211318856:
+        name: Prof
+        emoji: livre
+      872150707250274355:
+        name: Intégré
+        emoji: ecrous
+      872139100805804082:
+        name: Infiltré
+        emoji: ninja
+      872139011106431016:
+        name: MP2I
+        emoji: MP2I
+    channels:
+      suggestion: 872139321497497610
+
+  939262781629276200:
+    name: Prépas MP2I [Test]
+    link: https://discord.gg/AGtsn9cQ8Z
+    roles:
+      939262781629276201:
+        name: Lycéen
+        emoji: berceau
+      939262781629276206:
+        name: Prof
+        emoji: livre
+      939262781629276203:
+        name: Intégré
+        emoji: ecrous
+      939262781629276202:
+        name: Infiltré
+        emoji: ninja
+      939262781629276204:
+        name: MP2I
+        emoji: MP2I
+    channels:
+      suggestion: 939262782073897053

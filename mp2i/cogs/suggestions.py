@@ -7,6 +7,7 @@ from sqlalchemy import insert
 from mp2i import STATIC_DIR
 from mp2i.models import SuggestionModel
 from mp2i.utils import database
+from mp2i.wrappers.guild import GuildWrapper
 
 
 class Suggestion(Cog):
@@ -18,14 +19,14 @@ class Suggestion(Cog):
         self.bot = bot
 
     @staticmethod
-    def is_suggestion_channel(channel: discord.TextChannel) -> bool:
-        if not isinstance(channel, discord.DMChannel):
-            return "suggestion" in channel.name
-        return False
+    def is_suggestion_channel(chan: discord.TextChannel) -> bool:
+        if isinstance(chan, discord.DMChannel):
+            return False
+        return GuildWrapper(chan.guild).config.channels.suggestion == chan.id
 
     @command(name="suggestions_rules", hidden=True)
     @is_owner()
-    async def send_suggestions_rules(self, ctx):
+    async def send_suggestions_rules(self, ctx) -> None:
         """
         Send the rules for suggestion channel
         """
@@ -46,7 +47,7 @@ class Suggestion(Cog):
         await ctx.send(embed=embed)
 
     @Cog.listener("on_message")
-    async def make_suggestion(self, message):
+    async def make_suggestion(self, message) -> None:
         if not self.is_suggestion_channel(message.channel):
             return
         try:
@@ -56,21 +57,21 @@ class Suggestion(Cog):
             pass
 
     @Cog.listener("on_raw_reaction_add")
-    async def close_suggestion(self, payload):
+    async def close_suggestion(self, payload) -> None:
         """
         Send result to all users when an admin add a reaction
         """
-        channel = self.bot.get_channel(payload.channel_id)
+        if str(payload.emoji) not in ("✅", "❌"):
+            return
         try:
+            channel = self.bot.get_channel(payload.channel_id)
             message = await channel.fetch_message(payload.message_id)
         except discord.errors.NotFound:
             return
-        if (
-            str(payload.emoji) not in ("✅", "❌")
-            or not self.is_suggestion_channel(channel)
-            or not discord.utils.get(payload.member.roles, name="Administrateurs")
-        ):
+        if not self.is_suggestion_channel(channel):
             return
+        if not discord.utils.get(payload.member.roles, name="Administrateurs"):
+            return  # only admin can close a suggestion
 
         if accepted := str(payload.emoji) == "✅":
             database.execute(
@@ -88,9 +89,10 @@ class Suggestion(Cog):
                     await self.send_dm_suggestion_state(user, accepted, message)
         await message.delete()
 
-    async def send_dm_suggestion_state(self, user, accepted: bool, suggestion):
+    async def send_dm_suggestion_state(self, user, accepted, suggestion) -> None:
         """
-        Send a message to a member who has voted to inform of the state of the reaction
+        Send a message to a member who has voted to inform
+        of the state of the reaction
         """
         citation = "\n> ".join(suggestion.content.split("\n"))
 
@@ -100,7 +102,7 @@ class Suggestion(Cog):
                 title="Suggestion acceptée!",
                 description="**Félicitations!** "
                 f"La suggestion de **{suggestion.author.name}** "
-                f"pour laquelle vous avez voté a été acceptée:\n> {citation} \n\n"
+                f"pour laquelle vous avez voté a été acceptée:\n> {citation} \n"
                 "__Note__: \n Il faut parfois attendre plusieurs jours "
                 "avant qu'elle soit effective",
             )
@@ -110,7 +112,7 @@ class Suggestion(Cog):
                 title="Suggestion refusée!",
                 description=f"**Mauvaise nouvelle...** la suggestion de "
                 f"**{suggestion.author.name}** pour laquelle vous avez voté "
-                f"a été malheureusement refusée:\n> {citation}\n\n",
+                f"a été malheureusement refusée:\n> {citation}\n",
             )
         file = discord.File(STATIC_DIR / "img/alert.png")
         embed.set_thumbnail(url="attachment://alert.png")
@@ -120,5 +122,5 @@ class Suggestion(Cog):
         await user.send(file=file, embed=embed)
 
 
-def setup(bot):
+def setup(bot) -> None:
     bot.add_cog(Suggestion(bot))

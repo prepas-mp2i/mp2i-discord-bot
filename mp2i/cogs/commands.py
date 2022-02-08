@@ -3,10 +3,11 @@ from itertools import cycle
 from typing import Optional
 
 import discord
-from discord.ext import tasks, commands
-from discord.ext.commands import Cog, command, guild_only, is_owner
+from discord.ext import tasks
+from discord.ext.commands import Cog, command, guild_only, is_owner, has_role
 
 from .utils import youtube
+from mp2i.wrappers.member import MemberWrapper
 
 logger = logging.getLogger(__name__)
 
@@ -16,14 +17,13 @@ class Commands(Cog):
         self.bot = bot
         self.status = cycle((discord.Game(name=f"{bot.command_prefix}help"),))
 
-    @command(aliases=["status"])
+    @command(name="status")
     @guild_only()
     @is_owner()
-    async def change_status(self, ctx, *params):
+    async def change_status(self, ctx, *, query: str) -> None:
         """
         Change le status du bot par des vidéos correspondantes à la recherche
         """
-        query = " ".join(params)
         videos = []
         for video in youtube.search(query, n=50):
             videos.append(discord.Streaming(**video))
@@ -34,20 +34,20 @@ class Commands(Cog):
             await ctx.send("Aucune vidéo n'a été trouvée")
 
     @tasks.loop(seconds=30)
-    async def loop_status(self):
+    async def loop_status(self) -> None:
         try:
             await self.bot.change_presence(activity=next(self.status))
         except discord.errors.HTTPException:
             logger.error("Can't change bot presence")
 
     @Cog.listener("on_ready")
-    async def before_loop_status(self):
+    async def before_loop_status(self) -> None:
         self.loop_status.start()
 
     @command()
     @guild_only()
-    @commands.has_role("Administrateurs")
-    async def clear(self, ctx, n: int = 1):
+    @has_role("Administrateurs")
+    async def clear(self, ctx, n: int = 1) -> None:
         """
         Supprime les n messages du salon
         """
@@ -55,7 +55,7 @@ class Commands(Cog):
 
     @command()
     @guild_only()
-    async def send(self, ctx, *, message: str):
+    async def send(self, ctx, *, message: str) -> None:
         """
         Envoie un message dans le salon actuel
         """
@@ -64,24 +64,24 @@ class Commands(Cog):
 
     @command(name="profile", aliases=["member_info"])
     @guild_only()
-    async def profile(self, ctx, member: Optional[discord.Member]):
+    async def profile(self, ctx, member: Optional[MemberWrapper] = None) -> None:
         """
         Consulter les infos d'un membre
         """
         if not member:
-            member = ctx.author
+            member = MemberWrapper(ctx.author)
 
         embed = discord.Embed(title="Profil", colour=0xFFA325)
         embed.set_author(name=member.name)
         embed.set_thumbnail(url=member.avatar_url)
         embed.add_field(name="Name", value=member.mention, inline=True)
         embed.add_field(
-            name="Membre depuis...",
-            value=f"{member.joined_at:%d/%m/%Y}",
-            inline=True,
+            name="Membre depuis...", value=f"{member.joined_at:%d/%m/%Y}", inline=True
         )
+        if member.role:
+            embed.add_field(name="Rôle", value=member.role.name, inline=True)
         await ctx.send(embed=embed)
 
 
-def setup(bot):
+def setup(bot) -> None:
     bot.add_cog(Commands(bot))

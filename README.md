@@ -3,7 +3,7 @@
 
 <p align="center">
     <a href="https://github.com/prepas-mp2i/mp2i-discord-bot#overview">Overview</a> •
-    <a href="https://github.com/prepas-mp2i/mp2i-discord-bot#softwares">Sofwares</a> •
+    <a href="https://github.com/prepas-mp2i/mp2i-discord-bot#software">Software</a> •
     <a href="https://github.com/prepas-mp2i/mp2i-discord-bot#installation">Installation</a>
 </p>
 
@@ -11,7 +11,7 @@
 ![Python3.9](https://img.shields.io/badge/python-3.9-red) &nbsp;
 [![discord.py](https://img.shields.io/badge/discord-py-orange.svg)](https://github.com/Rapptz/discord.py) &nbsp;
 ![GitHub repo size](https://img.shields.io/github/repo-size/prepas-mp2i/mp2i-discord-bot) &nbsp;
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE) &nbsp;
+[![License](https://img.shields.io/badge/license-Mozilla%20Public%20License%202.0-green)](LICENSE) &nbsp;
 ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/prepas-mp2i/mp2i-discord-bot) &nbsp;
 
 ## Overview
@@ -48,6 +48,8 @@ ENVIRONMENT = production
 DATABASE_URL = mysql+mysqlconnector://user:password@host:port/database
 # For YouTube API (optional).
 API_DEVELOPER_KEY = <youtube_api_developer_key>
+# Timezone
+TZ = Europe/Paris
 ```
 
 - ### Using Pipenv
@@ -65,7 +67,7 @@ It will install packages in the virtual environment (recommended).
 pipenv install
 ```
 
-Run the script `mp2i/__main__.py` or run `python3 -m mp2i`
+Run the command `python3 -m mp2i` on Linux or `py -m mp2i` on Windows.
 
 - ### Using Docker
 

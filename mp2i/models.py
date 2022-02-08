@@ -10,7 +10,7 @@ class GuildModel(Base):
     id: int = Column(BigInteger, primary_key=True)
     name: str = Column(String(50))
     members = relationship("MemberModel", cascade="all, delete")
-    message_roles_id: int = Column(BigInteger, unique=True, nullable=True)
+    roles_message_id: int = Column(BigInteger, unique=True, nullable=True)
 
     def __repr__(self):
         return f"Guild(id={self.id}, name={self.name})"
@@ -52,4 +52,6 @@ class SuggestionModel(Base):
     description: str = Column(Text)
 
     def __repr__(self):
-        return f"Special(author={self.author_id}, description={self.description:30.30}"
+        return (
+            f"Suggestion(author={self.author_id}, description={self.description:30.30}"
+        )

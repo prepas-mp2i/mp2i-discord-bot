@@ -6,8 +6,12 @@ ENV PYTHONUNBUFFERED=1 \
     PIPENV_IGNORE_VIRTUALENVS=1 \
     PIPENV_NOSPIN=1
 
+# Configure timezone
+RUN apt-get update -qq && apt-get -q autoremove -y tzdata
+ENV TZ Europe/Paris
+
 # Install ffmpeg
-RUN apt-get update -qq && apt-get -qq install -y libpq-dev gcc ffmpeg
+RUN apt-get -qq install -y libpq-dev gcc ffmpeg
 
 # Install pipenv
 RUN pip install -U pipenv
@@ -16,7 +20,7 @@ WORKDIR /MP2I
 
 # Install project dependencies
 COPY Pipfile* ./
-RUN pipenv install --system --deploy
+RUN pipenv install --system
 
 # Clean unused packages
 RUN apt-get -qq autoremove -y gcc

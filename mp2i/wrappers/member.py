@@ -1,14 +1,12 @@
-from __future__ import annotations
-
-from typing import NoReturn, Optional
+from typing import Optional
 
 import discord
+from discord.ext.commands import MemberConverter
 import sqlalchemy.exc
 from sqlalchemy import insert, select, update
 
 from mp2i.models import MemberModel
 from mp2i.utils import database
-from mp2i.cogs.utils.functions import get_role_by_name
 
 
 class MemberWrapper:
@@ -28,6 +26,11 @@ class MemberWrapper:
     def __getattr__(self, name: str):
         return getattr(self.member, name)
 
+    @classmethod
+    async def convert(cls, ctx, member):
+        member = await MemberConverter().convert(ctx, member)
+        return cls(member)
+
     def _fetch(self) -> Optional[MemberModel]:
         """
         Fetch from the database and returns the member if exists
@@ -39,7 +42,7 @@ class MemberWrapper:
         except sqlalchemy.exc.NoResultFound:
             return None
 
-    def update(self, **kwargs):
+    def update(self, **kwargs) -> None:
         """
         Accept keyword arguments only matching with a column in members table
         """
@@ -48,21 +51,14 @@ class MemberWrapper:
         )
         self.__model = self._fetch()
 
-    def register(self) -> NoReturn:
+    def register(self) -> None:
         """
         Insert the member in table, with optionals attributes
         """
-        role_name = None
-        for role in self.member.roles:
-            if role.name in ("Infiltré", "Prof", "Intégré", "Lycéen", "MP2I"):
-                role_name = role.name
 
         database.execute(
             insert(MemberModel).values(
-                id=self.member.id,
-                guild_id=self.guild.id,
-                name=self.member.name,
-                role=role_name,
+                id=self.member.id, guild_id=self.guild.id, name=self.member.name
             )
         )
         self.__model = self._fetch()  # Update the model
@@ -72,9 +68,4 @@ class MemberWrapper:
 
     @property
     def role(self) -> Optional[discord.Role]:
-        return get_role_by_name(self.guild, self.__model.role)
-
-    @role.setter
-    def role(self, role: discord.Role | str | None):
-        role_name = role.name if isinstance(role, discord.Role) else role
-        self.update(role=role_name)
+        return discord.utils.get(self.guild.roles, name=self.__model.role)

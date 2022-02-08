@@ -1,18 +1,12 @@
-from __future__ import annotations
-
 import logging
 from datetime import datetime
 
 import discord
 from discord.ext.commands import Cog, command, is_owner
-from sqlalchemy import select, update
 
 from mp2i import STATIC_DIR
-from mp2i.models import GuildModel
-from mp2i.utils import database
 from mp2i.wrappers.member import MemberWrapper
-
-from .utils.functions import get_emoji_by_name
+from mp2i.wrappers.guild import GuildWrapper
 
 logger = logging.getLogger(__name__)
 
@@ -23,89 +17,76 @@ class Roles(Cog):
     to choice his roles inside the guild
     """
 
-    ROLES_MAPPING = {
-        "MP2I": "MP2I",
-        "berceau": "Lycéen",
-        "ecrous": "Intégré",
-        "ninja": "Infiltré",
-    }
-
     def __init__(self, bot):
         self.bot = bot
 
     @command(name="roles_selection", hidden=True)
     @is_owner()
-    async def send_selection(self, ctx):
+    async def send_selection(self, ctx) -> None:
         """
         Generate a message to select a role in order to manage permissions
         """
         await ctx.message.delete()
+        guild = GuildWrapper(ctx.guild)
+
         with open(STATIC_DIR / "text/roles.md", encoding="utf-8") as f:
             content = f.read()
-            for name in self.ROLES_MAPPING:
-                if emoji := get_emoji_by_name(ctx.guild, name):
-                    content = content.replace(f":{name}:", str(emoji))
+            for role in guild.config.roles.values():
+                if emoji := guild.get_emoji_by_name(role.emoji):
+                    content = content.replace(f"({role.name})", str(emoji))
 
             embed = discord.Embed(
-                title="Bienvenue!",
+                title="Bienvenue sur le serveur des prépas MP2I !",
                 colour=0xFF22FF,
                 description=content,
                 timestamp=datetime.now(),
             )
-            embed.set_thumbnail(url=ctx.guild.icon_url)
+            embed.set_thumbnail(url=guild.icon_url)
             embed.set_footer(text=f"Généré par {self.bot.user.name}")
             message = await ctx.send(embed=embed)
 
-        for name in self.ROLES_MAPPING:
-            if emoji := get_emoji_by_name(ctx.guild, name):
-                await message.add_reaction(str(emoji))
+        for role in guild.config.roles.values():
+            if emoji := guild.get_emoji_by_name(role.emoji):
+                await message.add_reaction(emoji)
             else:
-                logger.error(f"{name} emoji not found")
-
-        database.execute(
-            update(GuildModel)
-            .where(GuildModel.id == ctx.guild.id)
-            .values(message_roles_id=message.id)
-        )
+                logger.error(f"{role.emoji} emoji not found")
+        guild.roles_message_id = message.id
 
     @Cog.listener("on_raw_reaction_add")
-    async def on_selection(self, payload):
+    async def on_selection(self, payload) -> None:
         """
         Update role from the user selection
         """
         if not hasattr(payload, "guild_id") or payload.member.id == self.bot.user.id:
             return  # Ignore DM and bot reaction
-        guild = database.execute(
-            select(GuildModel).where(GuildModel.id == payload.guild_id)
-        ).scalar_one_or_none()
-        if not guild or guild.message_roles_id != payload.message_id:
-            return  # Exit if it is not the good message
+
+        guild = GuildWrapper(self.bot.get_guild(payload.guild_id))
+        if guild.roles_message_id != payload.message_id:
+            return  # Ignore if it is not the good message
 
         member = MemberWrapper(payload.member)
+        emoji_role = guild.get_role_by_emoji_name(payload.emoji.name)
+        if emoji_role is None:
+            await member.send("Cette réaction est invalide")
+            return
         if member.role:
-            # remove reaction from the message if member has already a role
-            msg = await self.bot.get_channel(payload.channel_id).fetch_message(
-                payload.message_id
-            )
-            await msg.remove_reaction(payload.emoji, member)
+            if member.role.name == emoji_role:
+                return  # Ignore if the member select its role again
+            # Remove reaction from the message if member has already a role
+            channel = self.bot.get_channel(payload.channel_id)
+            message = await channel.fetch_message(payload.message_id)
+            await message.remove_reaction(payload.emoji, member)
             await member.send(
-                f"{member.mention} Vous ne pouvez pas re choisir un rôle.\n"
+                f"Votre rôle actuel est **{member.role.name}**.\n"
                 "Contactez un administrateur si vous avez choisi par erreur."
             )
             return
         try:
-            member.role = self.ROLES_MAPPING[payload.emoji.name]
+            member.update(role=emoji_role)
             await member.add_roles(member.role)
-        except KeyError:
-            await member.send(f"{member.mention} Cette réaction est invalide")
-        except AttributeError:
-            logger.error(f"The user {member.name} was not registered in members table")
-        except discord.errors.Forbidden:
-            logger.error(
-                f"Missing permissions to give the @{member.role.name} "
-                f"role to {member.name}"
-            )
+        except discord.errors.Forbidden as err:
+            logger.error(err)
 
 
-def setup(bot):
+def setup(bot) -> None:
     bot.add_cog(Roles(bot))
