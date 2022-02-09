@@ -70,7 +70,7 @@ class Roles(Cog):
             await member.send("Cette réaction est invalide")
             return
         if member.role:
-            if member.role.name == emoji_role:
+            if member.role is emoji_role:
                 return  # Ignore if the member select its role again
             # Remove reaction from the message if member has already a role
             channel = self.bot.get_channel(payload.channel_id)
@@ -82,7 +82,7 @@ class Roles(Cog):
             )
             return
         try:
-            member.update(role=emoji_role)
+            member.update(role=emoji_role.name)
             await member.add_roles(member.role)
         except discord.errors.Forbidden as err:
             logger.error(err)

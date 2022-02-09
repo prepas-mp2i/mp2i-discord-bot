@@ -52,7 +52,7 @@ class GuildWrapper:
 
     @cache
     def get_role_by_emoji_name(self, name: str) -> Optional[str]:
-        return discord.utils.get(self.config.roles.values(), emoji=name).name
+        return discord.utils.get(self.config.roles.values(), emoji=name)
 
     @cache
     def get_emoji_by_name(self, name: str) -> Optional[discord.Emoji]:

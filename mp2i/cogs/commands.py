@@ -5,9 +5,13 @@ from typing import Optional
 import discord
 from discord.ext import tasks
 from discord.ext.commands import Cog, command, guild_only, is_owner, has_role
+from sqlalchemy import func, select
+
+from mp2i.utils import database
+from mp2i.wrappers.guild import GuildWrapper
+from mp2i.models import MessageModel
 
 from .utils import youtube
-from mp2i.wrappers.member import MemberWrapper
 
 logger = logging.getLogger(__name__)
 
@@ -62,24 +66,48 @@ class Commands(Cog):
         await ctx.send(message)
         await ctx.message.delete()
 
-    @command(name="profile", aliases=["member_info"])
+    @command(aliases=["member_info"])
     @guild_only()
-    async def profile(self, ctx, member: Optional[MemberWrapper] = None) -> None:
+    async def profile(self, ctx, member: Optional[discord.Member] = None) -> None:
         """
         Consulter les infos d'un membre
         """
         if not member:
-            member = MemberWrapper(ctx.author)
+            member = ctx.author
 
         embed = discord.Embed(title="Profil", colour=0xFFA325)
         embed.set_author(name=member.name)
         embed.set_thumbnail(url=member.avatar_url)
         embed.add_field(name="Pseudo", value=member.mention, inline=True)
         embed.add_field(
-            name="Membre depuis...", value=f"{member.joined_at:%d/%m/%Y}", inline=True
+            name="Membre depuis", value=f"{member.joined_at:%d/%m/%Y}", inline=True
         )
-        if member.role:
-            embed.add_field(name="Rôle", value=member.role.name, inline=True)
+        number_of_messages = database.execute(
+            select([func.count(MessageModel.id)], MessageModel.author_id == member.id)
+        ).scalar_one()
+        embed.add_field(name="Messages", value=number_of_messages, inline=True)
+        embed.add_field(
+            name="Rôles",
+            inline=True,
+            value=" ".join(r.mention for r in member.roles if r.name != "@everyone"),
+        )
+        await ctx.send(embed=embed)
+
+    @command(aliases=["server_profile"])
+    @guild_only()
+    async def server_info(self, ctx) -> None:
+        """
+        Consulter les infos du serveur
+        """
+        guild = GuildWrapper(ctx.guild)
+        embed = discord.Embed(title="Infos du serveur", colour=0xFFA325)
+        embed.set_author(name=guild.name)
+        embed.set_thumbnail(url=guild.icon_url)
+        embed.add_field(name="Membres", value=len(guild.members), inline=True)
+
+        for role_id, role in guild.config.roles.items():
+            number = len(guild.get_role(role_id).members)
+            embed.add_field(name=f"{role['name']}", value=number, inline=True)
         await ctx.send(embed=embed)
 
 

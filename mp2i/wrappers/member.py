@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 import discord
@@ -8,6 +9,8 @@ from sqlalchemy import insert, select, update
 from mp2i.models import MemberModel
 from mp2i.utils import database
 
+logger = logging.getLogger(__name__)
+
 
 class MemberWrapper:
     """
@@ -17,7 +20,7 @@ class MemberWrapper:
 
     def __init__(self, member: discord.Member):
         """
-        Représente a member with additional attributes
+        Represents a member with additional attributes
         """
         self.member = member
         self.guild = member.guild
@@ -50,7 +53,11 @@ class MemberWrapper:
         Accept keyword arguments only matching with a column in members table
         """
         database.execute(
-            update(MemberModel).where(MemberModel.id == self.member.id).values(**kwargs)
+            update(MemberModel)
+            .where(
+                MemberModel.id == self.member.id, MemberModel.guild_id == self.guild.id
+            )
+            .values(**kwargs)
         )
         self.__model = self._fetch()
 
@@ -71,4 +78,8 @@ class MemberWrapper:
 
     @property
     def role(self) -> Optional[discord.Role]:
-        return discord.utils.get(self.guild.roles, name=self.__model.role)
+        if self.exists():
+            return discord.utils.get(self.guild.roles, name=self.__model.role)
+        else:
+            logger.error(f"{self.name} is not in the database")
+            return None
