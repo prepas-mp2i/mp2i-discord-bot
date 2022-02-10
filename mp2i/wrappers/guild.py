@@ -14,7 +14,7 @@ from mp2i.utils.dotdict import DefaultDotDict
 class GuildWrapper:
     def __init__(self, guild: discord.Guild):
         self.guild = guild
-        self.config = DefaultDotDict(list, CONFIG).guilds[guild.id]
+        self.config = DefaultDotDict(dict, CONFIG).guilds[guild.id]
         self.__model = self._fetch()
 
     def __getattr__(self, name: str):

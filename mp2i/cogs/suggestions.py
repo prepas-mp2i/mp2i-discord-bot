@@ -47,12 +47,12 @@ class Suggestion(Cog):
         await ctx.send(embed=embed)
 
     @Cog.listener("on_message")
-    async def make_suggestion(self, message) -> None:
-        if not self.is_suggestion_channel(message.channel):
+    async def make_suggestion(self, msg) -> None:
+        if msg.author.bot or not self.is_suggestion_channel(msg.channel):
             return
         try:
-            await message.add_reaction("✅")
-            await message.add_reaction("❌")
+            await msg.add_reaction("✅")
+            await msg.add_reaction("❌")
         except discord.errors.NotFound:
             pass
 
