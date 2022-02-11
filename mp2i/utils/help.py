@@ -39,11 +39,10 @@ class CustomHelpCommand(DefaultHelpCommand):
         Indents a list of commands after the specified heading.
         """
         self.paginator.add_line(f"**{heading}**")
-        space = "᲼"
+        prefix = self.context.bot.command_prefix
 
         for command in commands:
-            name = command.name
-            entry = f"{space}`{name:<{max_size}}`{2*space}{command.short_doc}"
+            entry = f"`{prefix}{command.name:<{max_size}}`᲼᲼{command.short_doc}"
             self.paginator.add_line(self.shorten_text(entry))
 
     async def send_pages(self):

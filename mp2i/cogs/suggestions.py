@@ -73,6 +73,7 @@ class Suggestion(Cog):
         if not await self.bot.is_owner(payload.member):
             return  # only owner can close a suggestion
 
+        citation = "\n> ".join(suggestion.content.split("\n"))
         if accepted := str(payload.emoji) == "✅":
             database.execute(
                 insert(SuggestionModel).values(
@@ -81,13 +82,13 @@ class Suggestion(Cog):
                     description=suggestion.content,
                 )
             )
-        citation = "\n> ".join(suggestion.content.split("\n"))
+            citation += "\n\n __Note__: Il faut parfois attendre plusieurs"
+            " jours avant qu'elle soit effective"
+
         embed = discord.Embed(
             colour=0xFF22BB,
             title=f"Suggestion {'acceptée' if accepted else 'refusée'}",
-            description=f"{citation} \n"
-            "__Note__: \n Il faut parfois attendre plusieurs jours "
-            "avant qu'elle soit effective",
+            description=f"> {citation}",
         )
         file = discord.File(STATIC_DIR / "img/alert.png")
         embed.set_thumbnail(url="attachment://alert.png")

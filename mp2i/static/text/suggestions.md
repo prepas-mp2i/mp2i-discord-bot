@@ -4,8 +4,6 @@
 
 ❌ S'opposer à une suggestion
 
-Voter pour une suggestion donne plus de chances à celle-ci d'être réalisée !
+Voter pour une suggestion donne plus de chances à celle-ci d'être acceptée !
 
-**Info** : Le vote de l'administrateur est décisif ! Il permettra de la refuser ou de l'accepter et vous serez notifiés en privé de l'état de vos suggestions.
-
-Soyez créatifs !
+**Info** : Le vote de l'administrateur est décisif ! Un message sera envoyé dans le salon pour notifier de l'issue d'une suggestion.
