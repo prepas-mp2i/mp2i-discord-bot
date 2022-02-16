@@ -73,8 +73,13 @@ class Suggestion(Cog):
         if not await self.bot.is_owner(payload.member):
             return  # only owner can close a suggestion
 
-        citation = "\n> ".join(suggestion.content.split("\n"))
-        if accepted := str(payload.emoji) == "✅":
+        accept = discord.utils.get(suggestion.reactions, emoji="✅")
+        decline = discord.utils.get(suggestion.reactions, emoji="❌")
+        citation = (
+            "\n> ".join(suggestion.content.split("\n"))
+            + f"\n\n✅: {accept.count-1} vote(s), ❌: {decline.count-1} vote(s)"
+        )
+        if accepted := str(payload.emoji) == accept.emoji:
             database.execute(
                 insert(SuggestionModel).values(
                     author_id=suggestion.author.id,
@@ -82,8 +87,8 @@ class Suggestion(Cog):
                     description=suggestion.content,
                 )
             )
-            citation += "\n\n __Note__: Il faut parfois attendre plusieurs"
-            " jours avant qu'elle soit effective"
+            citation += "\n__Note__: Il faut parfois attendre plusieurs jours\
+                avant qu'elle soit effective"
 
         embed = discord.Embed(
             colour=0xFF22BB,

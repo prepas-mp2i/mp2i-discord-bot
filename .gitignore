@@ -10,6 +10,7 @@
 *.env
 *.sql
 *.flake8
+bot-config-test.yaml
 
 ### Python template
 # Byte-compiled / optimized / DLL files
