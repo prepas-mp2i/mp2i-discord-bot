@@ -8,7 +8,7 @@ from mp2i.utils import database, resolver
 from mp2i.utils.help import CustomHelpCommand
 
 # Create a logger for this file, __name__ will take the package name if this file
-# will do not run as a scrip
+# will do not run as a script
 logger = logging.getLogger(__name__)
 TOKEN = os.getenv("DISCORD_TOKEN")
 
