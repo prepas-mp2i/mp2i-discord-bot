@@ -94,7 +94,9 @@ class EventsCog(Cog):
         member = MemberWrapper(after)
         guild = GuildWrapper(after.guild)
         if not member.exists():
-            logger.error(f"The user {after.name} is not a registered member")
+            logger.warning(
+                f"The user {after.name} was not a registered member")
+            member.register()
 
         for role in after.roles:
             if role.id in guild.config.roles:

@@ -83,13 +83,15 @@ class Commands(Cog):
             name="Membre depuis", value=f"{member.joined_at:%d/%m/%Y}", inline=True
         )
         number_of_messages = database.execute(
-            select([func.count(MessageModel.id)], MessageModel.author_id == member.id)
+            select([func.count(MessageModel.id)],
+                   MessageModel.author_id == member.id)
         ).scalar_one()
         embed.add_field(name="Messages", value=number_of_messages, inline=True)
         embed.add_field(
             name="Rôles",
             inline=True,
-            value=" ".join(r.mention for r in member.roles if r.name != "@everyone"),
+            value=" ".join(
+                r.mention for r in member.roles if r.name != "@everyone"),
         )
         await ctx.send(embed=embed)
 
@@ -109,6 +111,19 @@ class Commands(Cog):
             number = len(guild.get_role(role_id).members)
             embed.add_field(name=f"{role['name']}", value=number, inline=True)
         await ctx.send(embed=embed)
+
+    @command()
+    @guild_only()
+    async def referents(self, ctx) -> None:
+        """
+        Liste les étudiants référents du serveur
+        """
+        message = f"Liste des étudiants référents du serveur {ctx.guild.name}:\n"
+        for member in ctx.guild.members:
+            if discord.utils.get(member.roles, name="Référent"):
+                message += f"- {member.mention} - ({member.status})\n"
+        await ctx.send(message,
+                       allowed_mentions=discord.AllowedMentions(users=False))
 
 
 def setup(bot) -> None:

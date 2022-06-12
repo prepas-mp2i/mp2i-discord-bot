@@ -1,5 +1,5 @@
-from sqlalchemy import BigInteger, Column, DateTime, String, Text, ForeignKey
 from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy import BigInteger, Column, DateTime, String, Text, ForeignKey
 
 Base = declarative_base()
 
@@ -20,7 +20,8 @@ class MemberModel(Base):
     __tablename__ = "members"
 
     id: int = Column(BigInteger, primary_key=True)
-    guild_id: int = Column(BigInteger, ForeignKey("guilds.id", ondelete="CASCADE"))
+    guild_id: int = Column(BigInteger,
+                           ForeignKey("guilds.id", ondelete="CASCADE"))
     name: str = Column(String(50))
     role: str = Column(String(50), nullable=True)
 
@@ -32,7 +33,8 @@ class MessageModel(Base):
     __tablename__ = "messages"
 
     id: int = Column(BigInteger, primary_key=True)
-    author_id: int = Column(BigInteger, ForeignKey("members.id", ondelete="CASCADE"))
+    author_id: int = Column(BigInteger,
+                            ForeignKey("members.id", ondelete="CASCADE"))
     channel: str = Column(String(50))
     date = Column(DateTime)
     content: str = Column(Text, nullable=True)
@@ -47,7 +49,8 @@ class SuggestionModel(Base):
     __tablename__ = "suggestions"
 
     id: int = Column(BigInteger, primary_key=True, autoincrement=True)
-    author_id: int = Column(BigInteger, ForeignKey("members.id", ondelete="CASCADE"))
+    author_id: int = Column(BigInteger,
+                            ForeignKey("members.id", ondelete="CASCADE"))
     date = Column(DateTime, nullable=True)
     description: str = Column(Text)
 
