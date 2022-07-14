@@ -1,6 +1,7 @@
 import logging
 from itertools import cycle
 from typing import Optional
+from datetime import datetime
 
 import discord
 from discord.ext import tasks
@@ -83,15 +84,13 @@ class Commands(Cog):
             name="Membre depuis", value=f"{member.joined_at:%d/%m/%Y}", inline=True
         )
         number_of_messages = database.execute(
-            select([func.count(MessageModel.id)],
-                   MessageModel.author_id == member.id)
+            select([func.count(MessageModel.id)], MessageModel.author_id == member.id)
         ).scalar_one()
         embed.add_field(name="Messages", value=number_of_messages, inline=True)
         embed.add_field(
             name="Rôles",
             inline=True,
-            value=" ".join(
-                r.mention for r in member.roles if r.name != "@everyone"),
+            value=" ".join(r.mention for r in member.roles if r.name != "@everyone"),
         )
         await ctx.send(embed=embed)
 
@@ -118,12 +117,22 @@ class Commands(Cog):
         """
         Liste les étudiants référents du serveur
         """
-        message = f"Liste des étudiants référents du serveur {ctx.guild.name}:\n"
+        content = ""
         for member in ctx.guild.members:
             if discord.utils.get(member.roles, name="Référent"):
-                message += f"- {member.mention} - ({member.status})\n"
-        await ctx.send(message,
-                       allowed_mentions=discord.AllowedMentions(users=False))
+                content += (
+                    f"- {member.nick} (`{member.name}#{member.discriminator}`"
+                    f" - {member.status})\n"
+                )
+        embed = discord.Embed(
+            title=f"Liste des étudiants référents du serveur {ctx.guild.name}",
+            colour=0xFF66FF,
+            description=content,
+            timestamp=datetime.now(),
+        )
+        embed.set_thumbnail(url=ctx.guild.icon_url)
+        embed.set_footer(text=self.bot.user.name)
+        await ctx.send(embed=embed)
 
 
 def setup(bot) -> None:
