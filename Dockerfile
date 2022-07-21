@@ -10,8 +10,8 @@ ENV PYTHONUNBUFFERED=1 \
 RUN apt-get update -qq && apt-get -q autoremove -y tzdata
 ENV TZ Europe/Paris
 
-# Install ffmpeg
-RUN apt-get -qq install -y libpq-dev gcc ffmpeg
+# Install git, ffmpeg and needed package to compile psycopg2
+RUN apt-get -qq install -y git libpq-dev gcc ffmpeg
 
 # Install pipenv
 RUN pip install -U pipenv

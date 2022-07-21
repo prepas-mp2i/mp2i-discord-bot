@@ -120,5 +120,5 @@ class Music(Cog):
         self.musics[ctx.guild] = []
 
 
-def setup(bot) -> None:
-    bot.add_cog(Music(bot))
+async def setup(bot) -> None:
+    await bot.add_cog(Music(bot))

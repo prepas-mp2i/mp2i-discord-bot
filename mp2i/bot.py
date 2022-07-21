@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 
-def run(token=None) -> None:
+async def run(token=None) -> None:
     """
     Runs the bot.
     token: Optional. You can pass your Discord token here or in a .env file
@@ -31,6 +31,6 @@ def run(token=None) -> None:
 
     # loads all available cogs
     for cog in resolver.find_available_cogs():
-        bot.load_extension(cog.__name__)
+        await bot.load_extension(cog.__name__)
 
-    bot.run(token or TOKEN)  # raise LoginFailure if the token is invalid
+    await bot.start(token or TOKEN)  # raise LoginFailure if the token is invalid

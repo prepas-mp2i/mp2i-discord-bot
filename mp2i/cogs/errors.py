@@ -25,8 +25,8 @@ class ErrorHandler(Cog):
             await ctx.send("Votre argument est invalide.")
 
 
-def setup(bot) -> None:
+async def setup(bot) -> None:
     """
     Loads the ErrorHandler cog.
     """
-    bot.add_cog(ErrorHandler(bot))
+    await bot.add_cog(ErrorHandler(bot))

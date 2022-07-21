@@ -103,5 +103,5 @@ class Suggestion(Cog):
         await suggestion.delete()
 
 
-def setup(bot) -> None:
-    bot.add_cog(Suggestion(bot))
+async def setup(bot) -> None:
+    await bot.add_cog(Suggestion(bot))

@@ -88,5 +88,5 @@ class Roles(Cog):
             logger.error(err)
 
 
-def setup(bot) -> None:
-    bot.add_cog(Roles(bot))
+async def setup(bot) -> None:
+    await bot.add_cog(Roles(bot))

@@ -94,8 +94,7 @@ class EventsCog(Cog):
         member = MemberWrapper(after)
         guild = GuildWrapper(after.guild)
         if not member.exists():
-            logger.warning(
-                f"The user {after.name} was not a registered member")
+            logger.warning(f"The user {after.name} was not a registered member")
             member.register()
 
         for role in after.roles:
@@ -106,5 +105,5 @@ class EventsCog(Cog):
             member.update(role=None)
 
 
-def setup(bot) -> None:
-    bot.add_cog(EventsCog(bot))
+async def setup(bot) -> None:
+    await bot.add_cog(EventsCog(bot))
