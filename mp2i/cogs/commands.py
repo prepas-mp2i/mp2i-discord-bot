@@ -1,3 +1,4 @@
+import re
 import logging
 from itertools import cycle
 from typing import Optional
@@ -71,7 +72,7 @@ class Commands(Cog):
     @guild_only()
     async def profile(self, ctx, member: Optional[discord.Member] = None) -> None:
         """
-        Consulter les infos d'un membre
+        Consulte les infos d'un membre
         """
         if not member:
             member = ctx.author
@@ -98,7 +99,7 @@ class Commands(Cog):
     @guild_only()
     async def server_info(self, ctx) -> None:
         """
-        Consulter les infos du serveur
+        Consulte les infos du serveur
         """
         guild = GuildWrapper(ctx.guild)
         embed = discord.Embed(title="Infos du serveur", colour=0xFFA325)
@@ -133,6 +134,18 @@ class Commands(Cog):
         embed.set_thumbnail(url=ctx.guild.icon_url)
         embed.set_footer(text=self.bot.user.name)
         await ctx.send(embed=embed)
+
+    @Cog.listener("on_message")
+    async def unbinarize(self, msg: discord.Message):
+        """
+        Vérifie si le message est un texte binaire et le convertit en ASCII
+        """
+        if not re.fullmatch(r"([01]{8}\s?)+", msg.content):
+            return
+        await msg.channel.send(
+            f"{msg.author.mention}: "
+            + "".join(chr(int(b, 2)) for b in re.findall("[01]{8}", msg.content))
+        )
 
 
 async def setup(bot) -> None:
