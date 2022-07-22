@@ -42,7 +42,7 @@ class Suggestion(Cog):
             colour=0xFF66FF,
             timestamp=datetime.now(),
         )
-        embed.set_thumbnail(url=ctx.guild.icon_url)
+        embed.set_thumbnail(url=ctx.guild.icon.url)
         embed.set_footer(text=f"Généré par {self.bot.user.name}")
         await ctx.send(embed=embed)
 
@@ -53,6 +53,9 @@ class Suggestion(Cog):
         try:
             await msg.add_reaction("✅")
             await msg.add_reaction("❌")
+            await msg.channel.create_thread(
+                name=f"Suggestion de {msg.author.name}", message=msg
+            )
         except discord.errors.NotFound:
             pass
 

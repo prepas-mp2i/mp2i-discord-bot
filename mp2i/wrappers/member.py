@@ -78,8 +78,18 @@ class MemberWrapper:
 
     @property
     def role(self) -> Optional[discord.Role]:
-        if self.exists():
-            return discord.utils.get(self.guild.roles, name=self.__model.role)
-        else:
+        if not self.exists():
             logger.error(f"{self.name} is not in the database")
-            return None
+        return discord.utils.get(self.guild.roles, name=self.__model.role)
+
+    @property
+    def messages_count(self) -> int:
+        if not self.exists():
+            logger.error(f"{self.name} is not in the database")
+        return self.__model.messages_count
+
+    @messages_count.setter
+    def messages_count(self, value: int) -> None:
+        if not self.exists():
+            logger.error(f"{self.name} is not in the database")
+        self.update(messages_count=value)

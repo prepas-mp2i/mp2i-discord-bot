@@ -21,6 +21,9 @@ guilds:
       872139011106431016:
         name: MP2I
         emoji: MP2I
+      999760111838970007:
+        name: MPI
+        emoji: MPI
     channels:
       suggestion: 940718694357676042
 
@@ -43,5 +46,8 @@ guilds:
       939262781629276204:
         name: MP2I
         emoji: MP2I
+      999791743987884202:
+        name: MPI
+        emoji: MPI
     channels:
       suggestion: 939262782073897053

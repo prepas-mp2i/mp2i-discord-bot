@@ -28,9 +28,11 @@ class EventsCog(Cog):
     @Cog.listener()
     async def on_message(self, msg: discord.Message) -> None:
         """
-        Log message in database and obtain few XP
+        Log message in database and update message count
         """
         MessageWrapper(msg).insert()
+        member = MemberWrapper(msg.author)
+        member.messages_count += 1
 
     @Cog.listener()
     async def on_guild_join(self, guild) -> None:
@@ -74,8 +76,8 @@ class EventsCog(Cog):
             description=text,
             timestamp=datetime.now(),
         )
-        embed.set_thumbnail(url=member.avatar_url)
-        embed.set_author(name=member.name, url=member.avatar_url)
+        embed.set_thumbnail(url=member.avatar.url)
+        embed.set_author(name=member.name, url=member.avatar.url)
         embed.set_footer(text=f"{self.bot.user.name}")
 
         if member.guild.system_channel:

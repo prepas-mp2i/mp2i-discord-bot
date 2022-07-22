@@ -11,6 +11,8 @@ __Attention__ : Cette action est irréversible !
 
 (MP2I) Je suis un **étudiant** en **MP2I**
 
+(MPI) Je suis un **étudiant** en **MPI**
+
 Si vous êtes un **professeur** (de prépa, d'école, d'université...),
 merci de contacter les admins pour vous faire attribuer le rôle.
 

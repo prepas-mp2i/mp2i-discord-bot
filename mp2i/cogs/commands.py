@@ -7,11 +7,9 @@ from datetime import datetime
 import discord
 from discord.ext import tasks
 from discord.ext.commands import Cog, command, guild_only, is_owner, has_role
-from sqlalchemy import func, select
 
-from mp2i.utils import database
 from mp2i.wrappers.guild import GuildWrapper
-from mp2i.models import MessageModel
+from mp2i.wrappers.member import MemberWrapper
 
 from .utils import youtube
 
@@ -74,20 +72,15 @@ class Commands(Cog):
         """
         Consulte les infos d'un membre
         """
-        if not member:
-            member = ctx.author
-
+        member = MemberWrapper(member or ctx.author)
         embed = discord.Embed(title="Profil", colour=0xFFA325)
         embed.set_author(name=member.name)
-        embed.set_thumbnail(url=member.avatar_url)
+        embed.set_thumbnail(url=member.avatar.url)
         embed.add_field(name="Pseudo", value=member.mention, inline=True)
         embed.add_field(
             name="Membre depuis", value=f"{member.joined_at:%d/%m/%Y}", inline=True
         )
-        number_of_messages = database.execute(
-            select([func.count(MessageModel.id)], MessageModel.author_id == member.id)
-        ).scalar_one()
-        embed.add_field(name="Messages", value=number_of_messages, inline=True)
+        embed.add_field(name="Messages", value=member.messages_count, inline=True)
         embed.add_field(
             name="Rôles",
             inline=True,
@@ -104,7 +97,7 @@ class Commands(Cog):
         guild = GuildWrapper(ctx.guild)
         embed = discord.Embed(title="Infos du serveur", colour=0xFFA325)
         embed.set_author(name=guild.name)
-        embed.set_thumbnail(url=guild.icon_url)
+        embed.set_thumbnail(url=guild.icon.url)
         embed.add_field(name="Membres", value=len(guild.members), inline=True)
 
         for role_id, role in guild.config.roles.items():
@@ -131,7 +124,7 @@ class Commands(Cog):
             description=content,
             timestamp=datetime.now(),
         )
-        embed.set_thumbnail(url=ctx.guild.icon_url)
+        embed.set_thumbnail(url=ctx.guild.icon.url)
         embed.set_footer(text=self.bot.user.name)
         await ctx.send(embed=embed)
 

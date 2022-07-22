@@ -55,5 +55,5 @@ class CustomHelpCommand(DefaultHelpCommand):
 
         for page in self.paginator.pages:
             embed = discord.Embed(title=title, description=page, color=0xEE22EE)
-            embed.set_thumbnail(url=self.context.guild.icon_url)
+            embed.set_thumbnail(url=self.context.guild.icon.url)
             await destination.send(embed=embed)

@@ -26,7 +26,6 @@ class Roles(Cog):
         """
         Generate a message to select a role in order to manage permissions
         """
-        await ctx.message.delete()
         guild = GuildWrapper(ctx.guild)
 
         with open(STATIC_DIR / "text/roles.md", encoding="utf-8") as f:
@@ -36,13 +35,13 @@ class Roles(Cog):
                     content = content.replace(f"({role.name})", str(emoji))
 
             embed = discord.Embed(
-                title="Bienvenue sur le serveur des prépas MP2I !",
+                title="Bienvenue sur le serveur des prépas MP2I/MPI !",
                 colour=0xFF22FF,
                 description=content,
                 timestamp=datetime.now(),
             )
-            embed.set_thumbnail(url=guild.icon_url)
-            embed.set_footer(text=f"Généré par {self.bot.user.name}")
+            embed.set_thumbnail(url=guild.icon.url)
+            embed.set_footer(text=self.bot.user.name)
             message = await ctx.send(embed=embed)
 
         for role in guild.config.roles.values():
@@ -50,7 +49,9 @@ class Roles(Cog):
                 await message.add_reaction(emoji)
             else:
                 logger.error(f"{role.emoji} emoji not found")
+
         guild.roles_message_id = message.id
+        await ctx.message.delete()
 
     @Cog.listener("on_raw_reaction_add")
     async def on_selection(self, payload) -> None:
