@@ -26,6 +26,7 @@ class MessageWrapper:
         database.execute(
             insert(MessageModel).values(
                 author_id=self.message.author.id,
+                guild_id=self.message.guild.id,
                 channel=channel,
                 date=datetime.datetime.now(),
                 content=self.message.content,

@@ -75,7 +75,8 @@ class Roles(Cog):
             message = await channel.fetch_message(payload.message_id)
             # Remove all other member's reaction from the message
             for role in guild.config.roles.values():
-                if (emoji := guild.get_emoji_by_name(role.emoji)) != payload.emoji:
+                emoji = guild.get_emoji_by_name(role.emoji)
+                if emoji and emoji != payload.emoji:
                     await message.remove_reaction(emoji, member)
             # Remove all member's config roles
             await member.remove_roles(*map(guild.get_role, guild.config.roles))
