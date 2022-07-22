@@ -45,7 +45,7 @@ class Roles(Cog):
             message = await ctx.send(embed=embed)
 
         for role in guild.config.roles.values():
-            if emoji := guild.get_emoji_by_name(role.emoji):
+            if (emoji := guild.get_emoji_by_name(role.emoji)) and role.emoji != "Prof":
                 await message.add_reaction(emoji)
             else:
                 logger.error(f"{role.emoji} emoji not found")
@@ -69,22 +69,19 @@ class Roles(Cog):
         emoji_role = guild.get_role_by_emoji_name(payload.emoji.name)
         if emoji_role is None:
             await member.send("Cette réaction est invalide")
-            return
-        if member.role:
-            if member.role is emoji_role:
-                return  # Ignore if the member select its role again
-            # Remove reaction from the message if member has already a role
+            return  # This emoji is not mapped to an authorized role
+        try:
             channel = self.bot.get_channel(payload.channel_id)
             message = await channel.fetch_message(payload.message_id)
-            await message.remove_reaction(payload.emoji, member)
-            await member.send(
-                f"Votre rôle actuel est **{member.role.name}**.\n"
-                "Contactez un administrateur si vous avez choisi par erreur."
-            )
-            return
-        try:
+            # Remove all other member's reaction from the message
+            for role in guild.config.roles.values():
+                if (emoji := guild.get_emoji_by_name(role.emoji)) != payload.emoji:
+                    await message.remove_reaction(emoji, member)
+            # Remove all member's config roles
+            await member.remove_roles(*map(guild.get_role, guild.config.roles))
             member.update(role=emoji_role.name)
-            await member.add_roles(member.role)
+            await member.add_roles(member.role)  # Add the new role from the database
+
         except discord.errors.Forbidden as err:
             logger.error(err)
 
