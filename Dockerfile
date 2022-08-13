@@ -1,34 +1,25 @@
-FROM python:3.9-slim
+FROM python:3.9-slim-buster
 # slim=debian-based. Not using alpine because it has poor python3 support.
 
-# Set pip to have cleaner logs and no saved cache
+# Set pip to have cleaner logs
 ENV PYTHONUNBUFFERED=1 \
-    PIPENV_IGNORE_VIRTUALENVS=1 \
     PIPENV_NOSPIN=1
-
 # Configure timezone
-RUN apt-get update -qq && apt-get -q autoremove -y tzdata
 ENV TZ Europe/Paris
 
-# Install git, ffmpeg and needed package to compile psycopg2
-RUN apt-get -qq install -y git libpq-dev gcc ffmpeg
-
-# Install pipenv
-RUN pip install -U pipenv
-
-WORKDIR /MP2I
+# Install git and Pipenv
+RUN apt-get update -qq \
+    && apt-get install -y -qq --no-install-recommends git \
+    && pip install -U pipenv \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install project dependencies
 COPY Pipfile* ./
 RUN pipenv install --system
 
-# Clean unused packages
-RUN apt-get -qq autoremove -y gcc
-RUN rm -rf /var/lib/apt/lists/* && apt-get autoremove --purge -y -qq
-
-# Copy the source code in last to optimize rebuilding the image
+# Set a working directory
+WORKDIR /MP2I
+# Copy the source code into the image
 COPY . .
-
 # Run the bot
-ENTRYPOINT ["python"]
-CMD ["-m", "mp2i"]
+CMD ["python", "-m", "mp2i"]
