@@ -58,6 +58,12 @@ class GuildWrapper:
     def get_emoji_by_name(self, name: str) -> Optional[discord.Emoji]:
         return discord.utils.get(self.guild.emojis, name=name)
 
+    def get_role_of_member(self, member: discord.Member) -> Optional[str]:
+        for role in member.roles:
+            if role.id in self.config.roles:
+                return role.name
+        return None
+
     @property
     def roles_message_id(self) -> Optional[int]:
         return self.__model.roles_message_id

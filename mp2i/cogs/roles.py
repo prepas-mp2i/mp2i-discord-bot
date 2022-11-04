@@ -66,6 +66,10 @@ class Roles(Cog):
             return  # Ignore if it is not the good message
 
         member = MemberWrapper(payload.member)
+        if not member.exists():
+            logger.warning(f"The user {member.name} was not a registered member")
+            member.register(role=guild.get_role_of_member(member))
+
         emoji_role = guild.get_role_by_emoji_name(payload.emoji.name)
         if emoji_role is None:
             await member.send("Cette réaction est invalide")

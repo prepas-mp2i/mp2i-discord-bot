@@ -55,20 +55,23 @@ class MemberWrapper:
         database.execute(
             update(MemberModel)
             .where(
-                MemberModel.id == self.member.id, MemberModel.guild_id == self.guild.id
+                MemberModel.id == self.member.id,
+                MemberModel.guild_id == self.guild.id,
             )
             .values(**kwargs)
         )
         self.__model = self._fetch()
 
-    def register(self) -> None:
+    def register(self, role=None) -> None:
         """
         Insert the member in table, with optionals attributes
         """
-
         database.execute(
             insert(MemberModel).values(
-                id=self.member.id, guild_id=self.guild.id, name=self.member.name
+                id=self.member.id,
+                guild_id=self.guild.id,
+                name=self.member.name,
+                role=role,
             )
         )
         self.__model = self._fetch()  # Update the model
@@ -78,18 +81,12 @@ class MemberWrapper:
 
     @property
     def role(self) -> Optional[discord.Role]:
-        if self.exists():
-            return discord.utils.get(self.guild.roles, name=self.__model.role)
-        logger.error(f"{self.name} is not in the database")
+        return discord.utils.get(self.guild.roles, name=self.__model.role)
 
     @property
     def messages_count(self) -> int:
-        if self.exists():
-            return self.__model.messages_count
-        logger.error(f"{self.name} is not in the database")
+        return self.__model.messages_count
 
     @messages_count.setter
     def messages_count(self, value: int) -> None:
-        if self.exists():
-            self.update(messages_count=value)
-        logger.error(f"{self.name} is not in the database")
+        self.update(messages_count=value)

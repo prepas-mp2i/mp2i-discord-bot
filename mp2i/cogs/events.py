@@ -30,8 +30,12 @@ class EventsCog(Cog):
         """
         Log message in database and update message count
         """
-        MessageWrapper(msg).insert()
         member = MemberWrapper(msg.author)
+        if not member.exists():
+            logger.warning(f"The user {member.name} was not a registered member")
+            member.register(GuildWrapper(msg.guild).get_role_of_member(member))
+
+        MessageWrapper(msg).insert()
         member.messages_count += 1
 
     @Cog.listener()
@@ -43,10 +47,7 @@ class EventsCog(Cog):
         guild.register()
 
         for member in map(MemberWrapper, guild.members):
-            member.register()
-            for role in member.roles:
-                if role.id in guild.config.roles:
-                    member.update(role=role.name)
+            member.register(role=guild.get_role_of_member(member))
 
     @Cog.listener()
     async def on_guild_remove(self, guild) -> None:
@@ -92,19 +93,12 @@ class EventsCog(Cog):
         """
         if before.roles == after.roles:
             return
-
         member = MemberWrapper(after)
         guild = GuildWrapper(after.guild)
+
         if not member.exists():
             logger.warning(f"The user {after.name} was not a registered member")
-            member.register()
-
-        for role in after.roles:
-            if role.id in guild.config.roles:
-                member.update(role=role.name)
-                break
-        else:
-            member.update(role=None)
+            member.register(guild.get_role_of_member(after))
 
 
 async def setup(bot) -> None:
