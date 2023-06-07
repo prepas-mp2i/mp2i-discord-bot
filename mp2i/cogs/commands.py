@@ -114,10 +114,10 @@ class Commands(Cog):
         content = ""
         for member in ctx.guild.members:
             if discord.utils.get(member.roles, name="Référent"):
-                content += (
-                    f"- {member.nick} (`{member.name}#{member.discriminator}`"
-                    f" - {member.status})\n"
-                )
+                content += f"- {member.nick} (`{member.name}"
+                if member.disciminator != 0:
+                    content += f"#{member.discriminator}"
+                content += f"` - {member.status})\n"
         embed = discord.Embed(
             title=f"Liste des étudiants référents du serveur {ctx.guild.name}",
             colour=0xFF66FF,
