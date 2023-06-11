@@ -73,3 +73,20 @@ class SuggestionModel(Base):
         return (
             f"Suggestion(author={self.author_id}, description={self.description:30.30}"
         )
+
+class SanctionModel(Base):
+    __tablename__ = "sanctions"
+
+    id: int = Column(BigInteger, primary_key=True, autoincrement=True)
+    by_id: int = Column(BigInteger)
+    to_id: int = Column(BigInteger, ForeignKey("guilds.id", ondelete="CASCADE"))
+    guild_id: int = Column(BigInteger, ForeignKey("guilds.id", ondelete="CASCADE"))
+    date = Column(DateTime, nullable=True)
+    type: str = Column(String(50))
+    description: str = Column(Text)
+
+    def __repr__(self):
+        return (
+            f"Sanction(by={self.by_id}, to={self.to_id}, type={self.type}," 
+            f"description={self.description:30.30}"
+        )

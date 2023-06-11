@@ -63,6 +63,10 @@ class GuildWrapper:
             if role.id in self.config.roles:
                 return role.name
         return None
+    
+    @cache
+    def get_log_channel(self) -> Optional[discord.TextChannel]:
+        return discord.utils.get(self.text_channels, id=self.config.channels.log)
 
     @property
     def roles_message_id(self) -> Optional[int]:

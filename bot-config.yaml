@@ -26,6 +26,7 @@ guilds:
         emoji: MPI
     channels:
       suggestion: 940718694357676042
+      log: 1117429400200298558
 
   939262781629276200:
     name: Prépas MP2I [Test]
@@ -51,3 +52,4 @@ guilds:
         emoji: MPI
     channels:
       suggestion: 939262782073897053
+      log: 1117429934336508005

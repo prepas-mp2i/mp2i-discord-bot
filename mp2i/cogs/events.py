@@ -100,6 +100,47 @@ class EventsCog(Cog):
             logger.warning(f"The user {after.name} was not a registered member")
             member.register(guild.get_role_of_member(after))
 
+    @Cog.listener()
+    async def on_message_delete(self, msg: discord) -> None:
+        """
+        When a message is deleted, send logs in the log channel
+        """
+        log_channel = GuildWrapper(msg.guild).get_log_channel()
+        if not log_channel or msg.author.bot:
+            return
+        
+        member = MemberWrapper(msg.author)
+        embed = discord.Embed(
+            title="Message supprimé",
+            colour=0xFF0000,
+            description=f"Message de {member.mention} supprimé dans {msg.channel.mention}",
+            timestamp=datetime.now(),
+        )
+        embed.add_field(name="Message original", value=f">>> {msg.content}")
+        embed.set_footer(text=self.bot.user.name)
+        await log_channel.send(embed=embed)
 
+    @Cog.listener()
+    async def on_message_edit(self, before, after) -> None:
+        """
+        When a message is edited, send logs in the log channel
+        """
+        log_channel = GuildWrapper(before.guild).get_log_channel()
+        if not log_channel or before.author.bot:
+            return
+        
+        member = MemberWrapper(before.author)
+        embed = discord.Embed(
+            title="Message modifié",
+            colour=0xFF22FF,
+            description=f"Message de {member.mention} modifié dans {before.channel.mention}\n",
+            timestamp=datetime.now(),
+        )
+        embed.add_field(name="Lien du nouveau message", value=after.jump_url)
+        embed.add_field(name="Message original", value=f">>> {before.content}")
+        embed.set_footer(text=self.bot.user.name)
+        await log_channel.send(embed=embed)
+
+  
 async def setup(bot) -> None:
     await bot.add_cog(EventsCog(bot))
