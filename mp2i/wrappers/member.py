@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import Optional, Self
 
 import discord
 from discord.ext.commands import MemberConverter
@@ -90,3 +90,11 @@ class MemberWrapper:
     @messages_count.setter
     def messages_count(self, value: int) -> None:
         self.update(messages_count=value)
+
+    @property
+    def profile_color(self) -> str:
+        return self.__model.profile_color
+
+    @profile_color.setter
+    def profile_color(self, value: str):
+        self.update(profile_color=value)

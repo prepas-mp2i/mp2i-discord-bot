@@ -73,7 +73,7 @@ class Commands(Cog):
         Consulte les infos d'un membre
         """
         member = MemberWrapper(member or ctx.author)
-        embed = discord.Embed(title="Profil", colour=0xFFA325)
+        embed = discord.Embed(title="Profil", colour=member.profile_color)
         embed.set_author(name=member.name)
         embed.set_thumbnail(url=member.avatar.url)
         embed.add_field(name="Pseudo", value=member.mention, inline=True)
@@ -87,6 +87,15 @@ class Commands(Cog):
             value=" ".join(r.mention for r in member.roles if r.name != "@everyone"),
         )
         await ctx.send(embed=embed)
+
+    @command(name="profile_color")
+    @guild_only()
+    async def change_profile_color(self, ctx, color: str) -> None:
+        """
+        Change la couleur de profil
+        """
+        member = MemberWrapper(ctx.author)
+        member.profile_color = color.upper().trim()
 
     @command(aliases=["server_profile"])
     @guild_only()
