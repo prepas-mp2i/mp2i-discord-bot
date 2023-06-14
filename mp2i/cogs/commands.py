@@ -96,14 +96,14 @@ class Commands(Cog):
         await ctx.send(embed=embed)
 
 
-    @command(name="profile_color")
+    @command(aliases=["profilecolor"])
     @guild_only()
     async def change_profile_color(self, ctx, color: str) -> None:
         """
         Change la couleur de profil
         """
         member = MemberWrapper(ctx.author)
-        member.profile_color = color.upper().strip()
+        member.profile_color = color.upper().strip("#")
         await ctx.send(f"Couleur de profil changée en #{member.profile_color}.")
 
     @command(aliases=["server_profile"])
