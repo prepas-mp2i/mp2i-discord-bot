@@ -112,7 +112,7 @@ class EventsCog(Cog):
         member = MemberWrapper(msg.author)
         embed = discord.Embed(
             title="Message supprimé",
-            colour=0xFF0000,
+            colour=0x6DD7FF,
             description=f"Message de {member.mention} supprimé dans {msg.channel.mention}",
             timestamp=datetime.now(),
         )

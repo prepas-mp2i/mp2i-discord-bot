@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, Self
+from typing import Optional
 
 import discord
 from discord.ext.commands import MemberConverter
@@ -17,6 +17,7 @@ class MemberWrapper:
     A class that wraps a Discord member and offers an interface
     for the database for attributes like XP, level, roles and blacklist date
     """
+    DEFAULT_PROFILE_COLOR = "0000FF"
 
     def __init__(self, member: discord.Member):
         """
@@ -93,7 +94,7 @@ class MemberWrapper:
 
     @property
     def profile_color(self) -> str:
-        return self.__model.profile_color
+        return self.__model.profile_color or self.DEFAULT_PROFILE_COLOR
 
     @profile_color.setter
     def profile_color(self, value: str):

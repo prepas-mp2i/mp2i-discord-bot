@@ -6,7 +6,7 @@ from datetime import datetime
 
 import discord
 from discord.ext import tasks
-from discord.ext.commands import Cog, command, guild_only, is_owner, has_role
+from discord.ext.commands import Cog, command, guild_only, is_owner, has_permissions
 
 from mp2i.wrappers.guild import GuildWrapper
 from mp2i.wrappers.member import MemberWrapper
@@ -21,28 +21,35 @@ class Commands(Cog):
         self.bot = bot
         self.status = cycle((discord.Game(name=f"{bot.command_prefix}help"),))
 
+    @command(name="reset_status")
+    @guild_only()
+    @is_owner()
+    async def reset_status(self, ctx) -> None:
+        """
+        Réinitialise le status du bot à =help
+        """
+        help_status = f"{self.bot.command_prefix}help"
+        await self.bot.change_presence(activity=discord.Game(help_status))
+            
+
     @command(name="status")
     @guild_only()
     @is_owner()
     async def change_status(self, ctx, *, query: str) -> None:
         """
-        Change le status du bot par des vidéos correspondantes à la recherche
+        Change le status du bot par n vidéos correspondantes à la recherche
         """
-        videos = []
-        for video in youtube.search(query, n=50):
-            videos.append(discord.Streaming(**video))
-
-        if len(videos) > 0:
-            self.status = cycle(videos)
-        else:
-            await ctx.send("Aucune vidéo n'a été trouvée")
-
-    @tasks.loop(seconds=30)
-    async def loop_status(self) -> None:
         try:
-            await self.bot.change_presence(activity=next(self.status))
+            video = next(youtube.search(query, n=1))
+            activity = discord.Streaming(**video)
+            await self.bot.change_presence(activity=activity)
+
+        except StopIteration:
+            await ctx.send("Changement de statut du bot impossible.")
+        
         except discord.errors.HTTPException:
             logger.error("Can't change bot presence")
+            
 
     @Cog.listener("on_ready")
     async def before_loop_status(self) -> None:
@@ -50,7 +57,7 @@ class Commands(Cog):
 
     @command()
     @guild_only()
-    @has_role("Administrateurs")
+    @has_permissions(manage_messages=True)
     async def clear(self, ctx, n: int = 1) -> None:
         """
         Supprime les n derniers messages du salon
@@ -66,14 +73,14 @@ class Commands(Cog):
         await ctx.send(message)
         await ctx.message.delete()
 
-    @command(aliases=["member_info"])
+    @command(name="profile", aliases=["member_info"])
     @guild_only()
     async def profile(self, ctx, member: Optional[discord.Member] = None) -> None:
         """
         Consulte les infos d'un membre
         """
         member = MemberWrapper(member or ctx.author)
-        embed = discord.Embed(title="Profil", colour=member.profile_color)
+        embed = discord.Embed(title="Profil", colour=int(member.profile_color, 16))
         embed.set_author(name=member.name)
         embed.set_thumbnail(url=member.avatar.url)
         embed.add_field(name="Pseudo", value=member.mention, inline=True)
@@ -88,6 +95,7 @@ class Commands(Cog):
         )
         await ctx.send(embed=embed)
 
+
     @command(name="profile_color")
     @guild_only()
     async def change_profile_color(self, ctx, color: str) -> None:
@@ -95,7 +103,8 @@ class Commands(Cog):
         Change la couleur de profil
         """
         member = MemberWrapper(ctx.author)
-        member.profile_color = color.upper().trim()
+        member.profile_color = color.upper().strip()
+        await ctx.send(f"Couleur de profil changée en #{member.profile_color}.")
 
     @command(aliases=["server_profile"])
     @guild_only()
@@ -127,6 +136,7 @@ class Commands(Cog):
                 if member.disciminator != 0:
                     content += f"#{member.discriminator}"
                 content += f"` - {member.status})\n"
+                
         embed = discord.Embed(
             title=f"Liste des étudiants référents du serveur {ctx.guild.name}",
             colour=0xFF66FF,
