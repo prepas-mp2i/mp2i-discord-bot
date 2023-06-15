@@ -1,5 +1,5 @@
 from functools import cache
-from typing import Optional
+from typing import Optional, Dict
 
 import discord
 import sqlalchemy.exc
@@ -51,19 +51,23 @@ class GuildWrapper:
         return discord.utils.get(self.members, name=member)
 
     @cache
-    def get_role_by_emoji_name(self, name: str) -> Optional[str]:
+    def get_role_by_emoji_name(self, name: str) -> Optional[Dict[str, str]]:
         return discord.utils.get(self.config.roles.values(), emoji=name)
 
     @cache
-    def get_emoji_by_name(self, name: str) -> Optional[discord.Emoji]:
-        return discord.utils.get(self.guild.emojis, name=name)
+    def get_role_by_name(self, name: str) -> Optional[Dict[str, str]]:
+        return discord.utils.get(self.config.roles.values(), emoji=name)
 
     def get_role_of_member(self, member: discord.Member) -> Optional[str]:
-        for role in member.roles:
-            if role.id in self.config.roles:
-                return role.name
+        for role_id, role in self.config.roles.items():
+            if role := member.get_role(role_id):
+                return role
         return None
-    
+
+    @cache
+    def get_emoji_by_name(self, name: str) -> Optional[discord.Emoji]:
+        return discord.utils.get(self.emojis, name=name)
+
     @cache
     def get_log_channel(self) -> Optional[discord.TextChannel]:
         return discord.utils.get(self.text_channels, id=self.config.channels.log)

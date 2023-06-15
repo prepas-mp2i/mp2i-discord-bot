@@ -20,7 +20,7 @@ class Roles(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @command(name="roles_selection", hidden=True)
+    @command(name="roleschoice", hidden=True)
     @is_owner()
     async def send_selection(self, ctx) -> None:
         """
@@ -45,7 +45,9 @@ class Roles(Cog):
             message = await ctx.send(embed=embed)
 
         for role in guild.config.roles.values():
-            if (emoji := guild.get_emoji_by_name(role.emoji)) and role.emoji != "Prof":
+            if not role.choice:
+                continue
+            if emoji := guild.get_emoji_by_name(role.emoji):
                 await message.add_reaction(emoji)
             else:
                 logger.error(f"{role.emoji} emoji not found")
@@ -70,21 +72,23 @@ class Roles(Cog):
             logger.warning(f"The user {member.name} was not a registered member")
             member.register(role=guild.get_role_of_member(member))
 
-        emoji_role = guild.get_role_by_emoji_name(payload.emoji.name)
-        if emoji_role is None:
+        role_cfg = guild.get_role_by_emoji_name(payload.emoji.name)
+        if role_cfg is None or not role_cfg.choice:
             await member.send("Cette réaction est invalide")
             return  # This emoji is not mapped to an authorized role
         try:
             channel = self.bot.get_channel(payload.channel_id)
             message = await channel.fetch_message(payload.message_id)
-            # Remove all other member's reaction from the message
+            # Remove all other member's reaction and roles from the message
             for role in guild.config.roles.values():
+                if not role.choice:
+                    continue
                 emoji = guild.get_emoji_by_name(role.emoji)
                 if emoji and emoji != payload.emoji:
                     await message.remove_reaction(emoji, member)
-            # Remove all member's config roles
+
             await member.remove_roles(*map(guild.get_role, guild.config.roles))
-            member.update(role=emoji_role.name)
+            member.update(role=role_cfg.name)
             await member.add_roles(member.role)  # Add the new role from the database
 
         except discord.errors.Forbidden as err:

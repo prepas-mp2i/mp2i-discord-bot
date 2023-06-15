@@ -9,21 +9,31 @@ guilds:
       872159565741969409:
         name: Lycéen
         emoji: berceau
+        choice: true
       872148548211318856:
         name: Prof
         emoji: livre
+        choice: true
       872150707250274355:
         name: Intégré
         emoji: ecrous
+        choice: true
       872139100805804082:
         name: Infiltré
         emoji: ninja
+        choice: true
       872139011106431016:
         name: MP2I
         emoji: MP2I
+        choice: true
       999760111838970007:
         name: MPI
         emoji: MPI
+        choice: true
+      983438199823142972:
+        name: Référent
+        emoji: MP2I
+        choice: false
     channels:
       suggestion: 940718694357676042
       log: 1117429400200298558
@@ -35,21 +45,27 @@ guilds:
       939262781629276201:
         name: Lycéen
         emoji: berceau
+        choice: true
       939262781629276206:
         name: Prof
         emoji: livre
+        choice: true
       939262781629276203:
         name: Intégré
         emoji: ecrous
+        choice: true
       939262781629276202:
         name: Infiltré
         emoji: ninja
+        choice: true
       939262781629276204:
         name: MP2I
         emoji: MP2I
+        choice: true
       999791743987884202:
         name: MPI
         emoji: MPI
+        choice: true
     channels:
       suggestion: 939262782073897053
       log: 1117429934336508005

@@ -17,6 +17,7 @@ class MemberWrapper:
     A class that wraps a Discord member and offers an interface
     for the database for attributes like XP, level, roles and blacklist date
     """
+
     DEFAULT_PROFILE_COLOR = "0000FF"
 
     def __init__(self, member: discord.Member):
@@ -63,7 +64,7 @@ class MemberWrapper:
         )
         self.__model = self._fetch()
 
-    def register(self, role=None) -> None:
+    def register(self, role: Optional[discord.Role] = None) -> None:
         """
         Insert the member in table, with optionals attributes
         """
@@ -72,7 +73,7 @@ class MemberWrapper:
                 id=self.member.id,
                 guild_id=self.guild.id,
                 name=self.member.name,
-                role=role,
+                role=role.name,
             )
         )
         self.__model = self._fetch()  # Update the model

@@ -33,7 +33,8 @@ class EventsCog(Cog):
         member = MemberWrapper(msg.author)
         if not member.exists():
             logger.warning(f"The user {member.name} was not a registered member")
-            member.register(GuildWrapper(msg.guild).get_role_of_member(member))
+            guild = GuildWrapper(msg.guild)
+            member.register(role=guild.get_role_of_member(member))
 
         MessageWrapper(msg).insert()
         member.messages_count += 1
@@ -98,7 +99,7 @@ class EventsCog(Cog):
 
         if not member.exists():
             logger.warning(f"The user {after.name} was not a registered member")
-            member.register(guild.get_role_of_member(after))
+            member.register(role=guild.get_role_of_member(member))
 
     @Cog.listener()
     async def on_message_delete(self, msg: discord) -> None:
@@ -108,12 +109,14 @@ class EventsCog(Cog):
         log_channel = GuildWrapper(msg.guild).get_log_channel()
         if not log_channel or msg.author.bot:
             return
-        
+
         member = MemberWrapper(msg.author)
         embed = discord.Embed(
             title="Message supprimé",
-            colour=0x6DD7FF,
-            description=f"Message de {member.mention} supprimé dans {msg.channel.mention}",
+            colour=0xED0010,
+            description=(
+                f"Message de {member.mention} supprimé " f"dans {msg.channel.mention}"
+            ),
             timestamp=datetime.now(),
         )
         embed.add_field(name="Message original", value=f">>> {msg.content}")
@@ -128,12 +131,14 @@ class EventsCog(Cog):
         log_channel = GuildWrapper(before.guild).get_log_channel()
         if not log_channel or before.author.bot:
             return
-        
+
         member = MemberWrapper(before.author)
         embed = discord.Embed(
             title="Message modifié",
-            colour=0xFF22FF,
-            description=f"Message de {member.mention} modifié dans {before.channel.mention}\n",
+            colour=0x6DD7FF,
+            description=(
+                f"Message de {member.mention} modifié dans {before.channel.mention}\n"
+            ),
             timestamp=datetime.now(),
         )
         embed.add_field(name="Lien du nouveau message", value=after.jump_url)
@@ -141,6 +146,6 @@ class EventsCog(Cog):
         embed.set_footer(text=self.bot.user.name)
         await log_channel.send(embed=embed)
 
-  
+
 async def setup(bot) -> None:
     await bot.add_cog(EventsCog(bot))

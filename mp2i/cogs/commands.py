@@ -1,11 +1,9 @@
 import re
 import logging
-from itertools import cycle
 from typing import Optional
 from datetime import datetime
 
 import discord
-from discord.ext import tasks
 from discord.ext.commands import Cog, command, guild_only, is_owner, has_permissions
 
 from mp2i.wrappers.guild import GuildWrapper
@@ -19,18 +17,23 @@ logger = logging.getLogger(__name__)
 class Commands(Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.status = cycle((discord.Game(name=f"{bot.command_prefix}help"),))
 
-    @command(name="reset_status")
-    @guild_only()
-    @is_owner()
-    async def reset_status(self, ctx) -> None:
+    @Cog.listener("on_ready")
+    async def set_default_status(self) -> None:
         """
-        Réinitialise le status du bot à =help
+        Initialise le status du bot à =help
         """
         help_status = f"{self.bot.command_prefix}help"
         await self.bot.change_presence(activity=discord.Game(help_status))
-            
+
+    @command(name="resetstatus")
+    @guild_only()
+    @is_owner()
+    async def reset_status(self, _) -> None:
+        """
+        Réinitialise le status du bot à =help
+        """
+        await self.set_default_status()
 
     @command(name="status")
     @guild_only()
@@ -46,16 +49,11 @@ class Commands(Cog):
 
         except StopIteration:
             await ctx.send("Changement de statut du bot impossible.")
-        
+
         except discord.errors.HTTPException:
             logger.error("Can't change bot presence")
-            
 
-    @Cog.listener("on_ready")
-    async def before_loop_status(self) -> None:
-        self.loop_status.start()
-
-    @command()
+    @command(name="clear")
     @guild_only()
     @has_permissions(manage_messages=True)
     async def clear(self, ctx, n: int = 1) -> None:
@@ -64,7 +62,7 @@ class Commands(Cog):
         """
         await ctx.channel.purge(limit=int(n) + 1)
 
-    @command()
+    @command(name="send")
     @guild_only()
     async def send(self, ctx, *, message: str) -> None:
         """
@@ -73,7 +71,7 @@ class Commands(Cog):
         await ctx.send(message)
         await ctx.message.delete()
 
-    @command(name="profile", aliases=["member_info"])
+    @command(name="profile")
     @guild_only()
     async def profile(self, ctx, member: Optional[discord.Member] = None) -> None:
         """
@@ -95,8 +93,7 @@ class Commands(Cog):
         )
         await ctx.send(embed=embed)
 
-
-    @command(aliases=["profilecolor"])
+    @command(name="profilecolor")
     @guild_only()
     async def change_profile_color(self, ctx, color: str) -> None:
         """
@@ -106,7 +103,7 @@ class Commands(Cog):
         member.profile_color = color.upper().strip("#")
         await ctx.send(f"Couleur de profil changée en #{member.profile_color}.")
 
-    @command(aliases=["server_profile"])
+    @command(name="serverinfo")
     @guild_only()
     async def server_info(self, ctx) -> None:
         """
@@ -123,27 +120,32 @@ class Commands(Cog):
             embed.add_field(name=f"{role['name']}", value=number, inline=True)
         await ctx.send(embed=embed)
 
-    @command()
+    @command(name="referents")
     @guild_only()
     async def referents(self, ctx) -> None:
         """
         Liste les étudiants référents du serveur
         """
+        guild = GuildWrapper(ctx.guild)
+        referent_role_cfg = guild.get_role_by_name("Référent")
+        if referent_role_cfg is None:
+            await logger.warning("No referent role in bot-config")
+
         content = ""
-        for member in ctx.guild.members:
-            if discord.utils.get(member.roles, name="Référent"):
+        for member in guild.members:
+            if member.get_role(referent_role_cfg.id):
                 content += f"- {member.nick} (`{member.name}"
                 if member.disciminator != 0:
                     content += f"#{member.discriminator}"
                 content += f"` - {member.status})\n"
-                
+
         embed = discord.Embed(
-            title=f"Liste des étudiants référents du serveur {ctx.guild.name}",
+            title=f"Liste des étudiants référents du serveur {guild.name}",
             colour=0xFF66FF,
             description=content,
             timestamp=datetime.now(),
         )
-        embed.set_thumbnail(url=ctx.guild.icon.url)
+        embed.set_thumbnail(url=guild.icon.url)
         embed.set_footer(text=self.bot.user.name)
         await ctx.send(embed=embed)
 

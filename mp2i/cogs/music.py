@@ -69,7 +69,7 @@ class Music(Cog):
     def play_song(self, voice_client, queue: list, video: Video) -> None:
         source = discord.PCMVolumeTransformer(
             discord.FFmpegPCMAudio(
-                video.stream_url,
+                source=video.stream_url,
                 before_options="-reconnect 1 -reconnect_streamed 1",
             )
         )
@@ -116,7 +116,7 @@ class Music(Cog):
         """
         Arrêter la musique et la queue
         """
-        await ctx.voice_client.disconnect()
+        await ctx.voice_client.disconnect(force=True)
         self.musics[ctx.guild] = []
 
 
