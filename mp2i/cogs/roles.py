@@ -30,9 +30,9 @@ class Roles(Cog):
 
         with open(STATIC_DIR / "text/roles.md", encoding="utf-8") as f:
             content = f.read()
-            for role in guild.config.roles.values():
-                if emoji := guild.get_emoji_by_name(role.emoji):
-                    content = content.replace(f"({role.name})", str(emoji))
+            for role_name, role_cfg in guild.config.roles.items():
+                if emoji := guild.get_emoji_by_name(role_cfg.emoji):
+                    content = content.replace(f"({role_name})", str(emoji))
 
             embed = discord.Embed(
                 title="Bienvenue sur le serveur des prépas MP2I/MPI !",
@@ -44,13 +44,13 @@ class Roles(Cog):
             embed.set_footer(text=self.bot.user.name)
             message = await ctx.send(embed=embed)
 
-        for role in guild.config.roles.values():
-            if not role.choice:
+        for role_cfg in guild.config.roles.values():
+            if not role_cfg.choice:
                 continue
-            if emoji := guild.get_emoji_by_name(role.emoji):
+            if emoji := guild.get_emoji_by_name(role_cfg.emoji):
                 await message.add_reaction(emoji)
             else:
-                logger.error(f"{role.emoji} emoji not found")
+                logger.error(f"{role_cfg.emoji} emoji not found")
 
         guild.roles_message_id = message.id
         await ctx.message.delete()
@@ -70,26 +70,24 @@ class Roles(Cog):
         member = MemberWrapper(payload.member)
         if not member.exists():
             logger.warning(f"The user {member.name} was not a registered member")
-            member.register(role=guild.get_role_of_member(member))
+            member.register()
 
-        role_cfg = guild.get_role_by_emoji_name(payload.emoji.name)
-        if role_cfg is None or not role_cfg.choice:
-            await member.send("Cette réaction est invalide")
-            return  # This emoji is not mapped to an authorized role
         try:
             channel = self.bot.get_channel(payload.channel_id)
             message = await channel.fetch_message(payload.message_id)
             # Remove all other member's reaction and roles from the message
-            for role in guild.config.roles.values():
-                if not role.choice:
+            for role_cfg in guild.config.roles.values():
+                if not role_cfg.choice:
                     continue
-                emoji = guild.get_emoji_by_name(role.emoji)
+                role = guild.get_role(role_cfg.id)
+                if role_cfg.emoji == payload.emoji.name:
+                    member.update(role=role.name)
+                    await member.add_roles(role)
+
+                emoji = guild.get_emoji_by_name(role_cfg.emoji)
                 if emoji and emoji != payload.emoji:
                     await message.remove_reaction(emoji, member)
-
-            await member.remove_roles(*map(guild.get_role, guild.config.roles))
-            member.update(role=role_cfg.name)
-            await member.add_roles(member.role)  # Add the new role from the database
+                    await member.remove_roles(role)
 
         except discord.errors.Forbidden as err:
             logger.error(err)

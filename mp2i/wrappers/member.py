@@ -8,6 +8,7 @@ from sqlalchemy import insert, select, update
 
 from mp2i.models import MemberModel
 from mp2i.utils import database
+from mp2i.wrappers.guild import GuildWrapper
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +74,7 @@ class MemberWrapper:
                 id=self.member.id,
                 guild_id=self.guild.id,
                 name=self.member.name,
-                role=role.name,
+                role=role.name if role else None,
             )
         )
         self.__model = self._fetch()  # Update the model
@@ -83,7 +84,8 @@ class MemberWrapper:
 
     @property
     def role(self) -> Optional[discord.Role]:
-        return discord.utils.get(self.guild.roles, name=self.__model.role)
+        guild = GuildWrapper(self.guild)
+        return guild.get_role_by_qualifier(self.__model.role)
 
     @property
     def messages_count(self) -> int:

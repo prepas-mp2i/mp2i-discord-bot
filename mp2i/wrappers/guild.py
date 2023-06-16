@@ -1,5 +1,5 @@
 from functools import cache
-from typing import Optional, Dict
+from typing import Optional
 
 import discord
 import sqlalchemy.exc
@@ -50,27 +50,14 @@ class GuildWrapper:
     def get_member_by_name(self, member: str) -> Optional[discord.Member]:
         return discord.utils.get(self.members, name=member)
 
-    @cache
-    def get_role_by_emoji_name(self, name: str) -> Optional[Dict[str, str]]:
-        return discord.utils.get(self.config.roles.values(), emoji=name)
+    def get_role_by_qualifier(self, qualifier: str) -> Optional[discord.Role]:
+        return self.guild.get_role(self.config.roles[qualifier].id)
 
-    @cache
-    def get_role_by_name(self, name: str) -> Optional[Dict[str, str]]:
-        return discord.utils.get(self.config.roles.values(), emoji=name)
-
-    def get_role_of_member(self, member: discord.Member) -> Optional[str]:
-        for role_id, role in self.config.roles.items():
-            if role := member.get_role(role_id):
-                return role
-        return None
-
-    @cache
     def get_emoji_by_name(self, name: str) -> Optional[discord.Emoji]:
-        return discord.utils.get(self.emojis, name=name)
+        return discord.utils.get(self.guild.emojis, name=name)
 
-    @cache
     def get_log_channel(self) -> Optional[discord.TextChannel]:
-        return discord.utils.get(self.text_channels, id=self.config.channels.log)
+        return discord.utils.get(self.guild.text_channels, id=self.config.channels.log)
 
     @property
     def roles_message_id(self) -> Optional[int]:

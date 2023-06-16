@@ -33,8 +33,7 @@ class EventsCog(Cog):
         member = MemberWrapper(msg.author)
         if not member.exists():
             logger.warning(f"The user {member.name} was not a registered member")
-            guild = GuildWrapper(msg.guild)
-            member.register(role=guild.get_role_of_member(member))
+            member.register()
 
         MessageWrapper(msg).insert()
         member.messages_count += 1
@@ -48,7 +47,7 @@ class EventsCog(Cog):
         guild.register()
 
         for member in map(MemberWrapper, guild.members):
-            member.register(role=guild.get_role_of_member(member))
+            member.register(role=member.top_role)
 
     @Cog.listener()
     async def on_guild_remove(self, guild) -> None:
@@ -65,11 +64,6 @@ class EventsCog(Cog):
         member = MemberWrapper(member)
         if not member.exists():
             member.register()
-        elif member.role:
-            await member.add_roles(
-                member.role,
-                reason="The user was already register, re-assign its role",
-            )
 
         text = f"{member.mention} a rejoint le serveur {member.guild.name}!"
         embed = discord.Embed(
@@ -95,11 +89,10 @@ class EventsCog(Cog):
         if before.roles == after.roles:
             return
         member = MemberWrapper(after)
-        guild = GuildWrapper(after.guild)
 
         if not member.exists():
             logger.warning(f"The user {after.name} was not a registered member")
-            member.register(role=guild.get_role_of_member(member))
+            member.register()
 
     @Cog.listener()
     async def on_message_delete(self, msg: discord) -> None:

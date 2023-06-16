@@ -115,9 +115,10 @@ class Commands(Cog):
         embed.set_thumbnail(url=guild.icon.url)
         embed.add_field(name="Membres", value=len(guild.members), inline=True)
 
-        for role_id, role in guild.config.roles.items():
-            number = len(guild.get_role(role_id).members)
-            embed.add_field(name=f"{role['name']}", value=number, inline=True)
+        for role_name, role_cfg in guild.config.roles.items():
+            if role_cfg.choice:
+                number = len(guild.get_role(role_cfg.id).members)
+                embed.add_field(name=role_name, value=number, inline=True)
         await ctx.send(embed=embed)
 
     @command(name="referents")
@@ -126,28 +127,28 @@ class Commands(Cog):
         """
         Liste les étudiants référents du serveur
         """
-        guild = GuildWrapper(ctx.guild)
-        referent_role_cfg = guild.get_role_by_name("Référent")
-        if referent_role_cfg is None:
-            await logger.warning("No referent role in bot-config")
+        try:
+            guild = GuildWrapper(ctx.guild)
+            referent_role = guild.get_role_by_qualifier("Référent")
+            if referent_role is None:
+                await logger.warning("No referent role in bot-config")
 
-        content = ""
-        for member in guild.members:
-            if member.get_role(referent_role_cfg.id):
-                content += f"- {member.nick} (`{member.name}"
-                if member.disciminator != 0:
-                    content += f"#{member.discriminator}"
-                content += f"` - {member.status})\n"
+            content = ""
+            for member in guild.members:
+                if member.get_role(referent_role.id):
+                    content += f"- {member.nick} (`{str(member)}` - {member.status})\n"
 
-        embed = discord.Embed(
-            title=f"Liste des étudiants référents du serveur {guild.name}",
-            colour=0xFF66FF,
-            description=content,
-            timestamp=datetime.now(),
-        )
-        embed.set_thumbnail(url=guild.icon.url)
-        embed.set_footer(text=self.bot.user.name)
-        await ctx.send(embed=embed)
+            embed = discord.Embed(
+                title=f"Liste des étudiants référents du serveur {guild.name}",
+                colour=0xFF66FF,
+                description=content,
+                timestamp=datetime.now(),
+            )
+            embed.set_thumbnail(url=guild.icon.url)
+            embed.set_footer(text=self.bot.user.name)
+            await ctx.send(embed=embed)
+        except Exception as e:
+            print(e)
 
     @Cog.listener("on_message")
     async def unbinarize(self, msg: discord.Message):

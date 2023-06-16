@@ -6,32 +6,32 @@ guilds:
     name: Prépas MP2I
     link: https://discord.gg/w4ugrWy84W
     roles:
-      872159565741969409:
-        name: Lycéen
+      "Lycéen":
+        id: 872159565741969409
         emoji: berceau
         choice: true
-      872148548211318856:
-        name: Prof
+      "Prof":
+        id: 872148548211318856
         emoji: livre
         choice: true
-      872150707250274355:
-        name: Intégré
+      "Intégré":
+        id: 872150707250274355
         emoji: ecrous
         choice: true
-      872139100805804082:
-        name: Infiltré
+      "Infiltré":
+        id: 872139100805804082
         emoji: ninja
         choice: true
-      872139011106431016:
-        name: MP2I
+      "MP2I":
+        id: 872139011106431016
         emoji: MP2I
         choice: true
-      999760111838970007:
-        name: MPI
+      "MPI":
+        id: 999760111838970007
         emoji: MPI
         choice: true
-      983438199823142972:
-        name: Référent
+      "Référent":
+        id: 983438199823142972
         emoji: MP2I
         choice: false
     channels:
@@ -42,30 +42,34 @@ guilds:
     name: Prépas MP2I [Test]
     link: https://discord.gg/AGtsn9cQ8Z
     roles:
-      939262781629276201:
-        name: Lycéen
+      "Lycéen":
+        id: 939262781629276201
         emoji: berceau
         choice: true
-      939262781629276206:
-        name: Prof
+      "Prof":
+        id: 939262781629276206
         emoji: livre
         choice: true
-      939262781629276203:
-        name: Intégré
+      "Intégré":
+        id: 939262781629276203
         emoji: ecrous
         choice: true
-      939262781629276202:
-        name: Infiltré
+      "Infiltré":
+        id: 939262781629276202
         emoji: ninja
         choice: true
-      939262781629276204:
-        name: MP2I
+      "MP2I":
+        id: 939262781629276204
         emoji: MP2I
         choice: true
-      999791743987884202:
-        name: MPI
+      "MPI":
+        id: 999791743987884202
         emoji: MPI
         choice: true
+      "Référent":
+        id: 1119189219215155253
+        emoji: contact
+        choice: false
     channels:
       suggestion: 939262782073897053
       log: 1117429934336508005
