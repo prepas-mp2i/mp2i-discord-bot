@@ -104,12 +104,16 @@ class Commands(Cog):
         Parameters
         ----------
         color : str
-            :Couleur en hexadécimal.
+            : Couleur en hexadécimal.
 
         """
         member = MemberWrapper(ctx.author)
-        member.profile_color = color.upper().strip("#")
-        await ctx.send(f"Couleur de profil changée en #{member.profile_color}.")
+        hexa_color = color.upper().strip("#")
+        if re.match(r"^[0-9A-F]{6}$", hexa_color):
+            member.profile_color = color.upper().strip("#")
+            await ctx.send(f"Couleur de profil changée en #{hexa_color}.")
+        else:
+            await ctx.send("Format de couleur invalide.")
 
     @command(name="serverinfo")
     @guild_only()

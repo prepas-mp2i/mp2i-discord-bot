@@ -107,11 +107,10 @@ class EventsCog(Cog):
         embed = discord.Embed(
             title="Message supprimé",
             colour=0xED0010,
-            description=(
-                f"Message de {member.mention} supprimé " f"dans {msg.channel.mention}"
-            ),
             timestamp=datetime.now(),
         )
+        embed.add_field(name="Auteur", value=member.mention)
+        embed.add_field(name="Salon", value=msg.channel.mention)
         embed.add_field(name="Message original", value=f">>> {msg.content}")
         embed.set_footer(text=self.bot.user.name)
         await log_channel.send(embed=embed)
@@ -129,11 +128,9 @@ class EventsCog(Cog):
         embed = discord.Embed(
             title="Message modifié",
             colour=0x6DD7FF,
-            description=(
-                f"Message de {member.mention} modifié dans {before.channel.mention}\n"
-            ),
             timestamp=datetime.now(),
         )
+        embed.add_field(name="Auteur", value=member.mention)
         embed.add_field(name="Lien du nouveau message", value=after.jump_url)
         embed.add_field(name="Message original", value=f">>> {before.content}")
         embed.set_footer(text=self.bot.user.name)
