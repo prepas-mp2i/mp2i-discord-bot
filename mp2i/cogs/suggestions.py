@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import discord
-from discord.ext.commands import Cog, command, is_owner
+from discord.ext.commands import Cog, command, is_owner, guild_only
 from sqlalchemy import insert
 
 from mp2i import STATIC_DIR
@@ -14,6 +14,8 @@ class Suggestion(Cog):
     """
     Offers commands to allow members to propose suggestions and interact with them
     """
+
+    MINIMUM_PINS = 5
 
     def __init__(self, bot):
         self.bot = bot
@@ -28,7 +30,7 @@ class Suggestion(Cog):
     @is_owner()
     async def send_suggestions_rules(self, ctx) -> None:
         """
-        Send the rules for suggestion channel
+        Send the rules to suggestion channel.
         """
         if not self.is_suggestion_channel(ctx.channel):
             return
@@ -62,7 +64,7 @@ class Suggestion(Cog):
     @Cog.listener("on_raw_reaction_add")
     async def close_suggestion(self, payload) -> None:
         """
-        Send result to all users when an admin add a reaction
+        Send result to all users when an admin add a reaction.
         """
         if str(payload.emoji) not in ("✅", "❌"):
             return
@@ -104,6 +106,39 @@ class Suggestion(Cog):
 
         await channel.send(file=file, embed=embed)
         await suggestion.delete()
+
+    @Cog.listener("on_raw_reaction_add")
+    @guild_only()
+    async def add_pin(self, payload) -> None:
+        """
+        Add a pin to a message and send it to website channel when
+        it reach the required number of pins reactions.
+        """
+        print(str(payload.emoji))
+        if str(payload.emoji) != "📌":
+            return
+
+        channel = self.bot.get_channel(payload.channel_id)
+        message = await channel.fetch_message(payload.message_id)
+        pins = discord.utils.get(message.reactions, emoji="📌")
+        if pins.count < self.MINIMUM_PINS:
+            return
+
+        author = message.author
+        embed = discord.Embed(
+            colour=0x00FF00,
+            title="Message épinglé",
+            description="Un message a été retenu par la communauté, vous pouvez "
+            "probablement l'ajouter dans la [FAQ](https://prepas-mp2i.fr/faq/).",
+            timestamp=datetime.now(),
+        )
+        embed.add_field(name="Lien du message", value=message.jump_url)
+        embed.set_author(name=author.name, icon_url=author.avatar.url)
+        embed.set_footer(text=self.bot.user.name)
+        website_chan = self.bot.get_channel(
+            GuildWrapper(channel.guild).config.channels.website
+        )
+        await website_chan.send(embed=embed)
 
 
 async def setup(bot) -> None:

@@ -73,7 +73,7 @@ class EventsCog(Cog):
             timestamp=datetime.now(),
         )
         embed.set_thumbnail(url=member.avatar.url)
-        embed.set_author(name=member.name, url=member.avatar.url)
+        embed.set_author(name=member.mention)
         embed.set_footer(text=f"{self.bot.user.name}")
 
         if member.guild.system_channel:
@@ -109,9 +109,11 @@ class EventsCog(Cog):
             colour=0xED0010,
             timestamp=datetime.now(),
         )
-        embed.add_field(name="Auteur", value=member.mention)
+        embed.set_author(name=member.mention)
         embed.add_field(name="Salon", value=msg.channel.mention)
-        embed.add_field(name="Message original", value=f">>> {msg.content}")
+        embed.add_field(
+            name="Message original", value=f">>> {msg.content}", inline=False
+        )
         embed.set_footer(text=self.bot.user.name)
         await log_channel.send(embed=embed)
 
@@ -130,9 +132,11 @@ class EventsCog(Cog):
             colour=0x6DD7FF,
             timestamp=datetime.now(),
         )
-        embed.add_field(name="Auteur", value=member.mention)
+        embed.set_author(name=member.mention)
         embed.add_field(name="Lien du nouveau message", value=after.jump_url)
-        embed.add_field(name="Message original", value=f">>> {before.content}")
+        embed.add_field(
+            name="Message original", value=f">>> {before.content}", inline=False
+        )
         embed.set_footer(text=self.bot.user.name)
         await log_channel.send(embed=embed)
 
