@@ -96,8 +96,16 @@ class Commands(Cog):
     @command(name="profilecolor")
     @guild_only()
     async def change_profile_color(self, ctx, color: str) -> None:
-        """
-        Change la couleur de profil
+        """Change la couleur de profil.
+
+        Change la couleur de bordure de l'embed généré par la commande
+        =profile.
+
+        Parameters
+        ----------
+        color : str
+            :Couleur en hexadécimal.
+
         """
         member = MemberWrapper(ctx.author)
         member.profile_color = color.upper().strip("#")
