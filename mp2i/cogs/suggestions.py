@@ -96,7 +96,7 @@ class Suggestion(Cog):
                          " avant qu'elle soit effective")  # fmt: skip
 
         embed = discord.Embed(
-            colour=0xFF22BB,
+            colour=0x00FF00 if accepted else 0xFF0000,
             title=f"Suggestion {'acceptée' if accepted else 'refusée'}",
             description=f"> {citation}",
         )
@@ -121,7 +121,7 @@ class Suggestion(Cog):
         channel = self.bot.get_channel(payload.channel_id)
         message = await channel.fetch_message(payload.message_id)
         pins = discord.utils.get(message.reactions, emoji="📌")
-        if pins.count < self.MINIMUM_PINS:
+        if pins.count != self.MINIMUM_PINS:
             return
 
         author = message.author
