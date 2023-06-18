@@ -1,19 +1,23 @@
-Ici, vous pouvez **finaliser votre inscription pour avoir accès aux salons appropriés**
+Cliquez sur la réaction adaptée.
+:rond: __**Cette action constitue une acceptation du règlement du serveur.**__
+Il vous est très fortement recommandé de suivre le modèle pseudo associé.
 
-**Il vous suffit de répondre en cliquant sur la réaction correspondante :**
-__Attention__ : Cette action est irréversible !
+(Lycéen) Je suis au **lycée**
+➥ `[Nom/Pseudo] | [2nd/1ère/Tle] [Lycée] ([Spécialités])`
 
-(Lycéen) Je suis un **lycéen**
+(MP2I) Je suis en **MP2I**
+➥ `[Nom/Pseudo] | [Lycée]`
+
+(MPI) Je suis en **MPI**
+➥ `[Nom/Pseudo] | [Lycée]`
 
 (Intégré) J'ai **intégré** une école d'ingénieur, une université, une ENS
+➥ `[Nom/Pseudo] | [École]`
 
-(Infiltré) Je suis un étudiant venant d'une **autre filière** que la MP2I
+(Infiltré) J'étudie dans une **autre filière** que la MP2I/MPI
+➥ `[Nom/Pseudo] | [Filière] [Lycée]`
 
-(MP2I) Je suis un **étudiant** en **MP2I**
+(Prof) Je suis un.e **professeur.e**  (une vérification sera à effectuer)
+➥ `[Nom/Pseudo] | [Lycée/École]`
 
-(MPI) Je suis un **étudiant** en **MPI**
-
-Si vous êtes un **professeur** (de prépa, d'école, d'université...),
-merci de contacter les admins pour vous faire attribuer le rôle.
-
-Si vous rencontrez un quelconque problème, veuillez contacter un admin.
+Si vous rencontrez un quelconque problème, veuillez contacter un membre de l'équipe d'administration.

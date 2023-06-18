@@ -47,7 +47,7 @@ class EventsCog(Cog):
         guild.register()
 
         for member in map(MemberWrapper, guild.members):
-            member.register(role=member.top_role)
+            member.register()
 
     @Cog.listener()
     async def on_guild_remove(self, guild) -> None:
@@ -103,13 +103,12 @@ class EventsCog(Cog):
         if not log_channel or msg.author.bot:
             return
 
-        member = MemberWrapper(msg.author)
         embed = discord.Embed(
             title="Message supprimé",
             colour=0xED0010,
             timestamp=datetime.now(),
         )
-        embed.set_author(name=member.mention)
+        embed.add_field(name="Auteur", value=msg.author.mention)
         embed.add_field(name="Salon", value=msg.channel.mention)
         embed.add_field(
             name="Message original", value=f">>> {msg.content}", inline=False
@@ -126,13 +125,12 @@ class EventsCog(Cog):
         if not log_channel or before.author.bot:
             return
 
-        member = MemberWrapper(before.author)
         embed = discord.Embed(
             title="Message modifié",
             colour=0x6DD7FF,
             timestamp=datetime.now(),
         )
-        embed.set_author(name=member.mention)
+        embed.add_field(name="Auteur", value=before.author.mention)
         embed.add_field(name="Lien du nouveau message", value=after.jump_url)
         embed.add_field(
             name="Message original", value=f">>> {before.content}", inline=False

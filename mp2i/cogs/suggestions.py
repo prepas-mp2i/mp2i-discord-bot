@@ -114,7 +114,6 @@ class Suggestion(Cog):
         Add a pin to a message and send it to website channel when
         it reach the required number of pins reactions.
         """
-        print(str(payload.emoji))
         if str(payload.emoji) != "📌":
             return
 

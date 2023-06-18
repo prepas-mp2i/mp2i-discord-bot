@@ -65,7 +65,7 @@ class MemberWrapper:
         )
         self.__model = self._fetch()
 
-    def register(self, role: Optional[discord.Role] = None) -> None:
+    def register(self, qualifier: Optional[str] = None) -> None:
         """
         Insert the member in table, with optionals attributes
         """
@@ -74,7 +74,7 @@ class MemberWrapper:
                 id=self.member.id,
                 guild_id=self.guild.id,
                 name=self.member.name,
-                role=role.name if role else None,
+                role=qualifier,
             )
         )
         self.__model = self._fetch()  # Update the model

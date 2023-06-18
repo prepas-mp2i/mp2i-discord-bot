@@ -139,28 +139,25 @@ class Commands(Cog):
         """
         Liste les étudiants référents du serveur
         """
-        try:
-            guild = GuildWrapper(ctx.guild)
-            referent_role = guild.get_role_by_qualifier("Référent")
-            if referent_role is None:
-                await logger.warning("No referent role in bot-config")
+        guild = GuildWrapper(ctx.guild)
+        referent_role = guild.get_role_by_qualifier("Référent")
+        if referent_role is None:
+            await logger.warning("No referent role in bot-config")
 
-            content = ""
-            for member in guild.members:
-                if member.get_role(referent_role.id):
-                    content += f"- {member.nick} (`{str(member)}` - {member.status})\n"
+        content = ""
+        for member in guild.members:
+            if member.get_role(referent_role.id):
+                content += f"- {member.nick} (`{str(member)}` - {member.status})\n"
 
-            embed = discord.Embed(
-                title=f"Liste des étudiants référents du serveur {guild.name}",
-                colour=0xFF66FF,
-                description=content,
-                timestamp=datetime.now(),
-            )
-            embed.set_thumbnail(url=guild.icon.url)
-            embed.set_footer(text=self.bot.user.name)
-            await ctx.send(embed=embed)
-        except Exception as e:
-            print(e)
+        embed = discord.Embed(
+            title=f"Liste des étudiants référents du serveur {guild.name}",
+            colour=0xFF66FF,
+            description=content,
+            timestamp=datetime.now(),
+        )
+        embed.set_thumbnail(url=guild.icon.url)
+        embed.set_footer(text=self.bot.user.name)
+        await ctx.send(embed=embed)
 
     @Cog.listener("on_message")
     async def unbinarize(self, msg: discord.Message):

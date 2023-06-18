@@ -10,9 +10,13 @@ guilds:
         id: 872159565741969409
         emoji: berceau
         choice: true
-      "Prof":
-        id: 872148548211318856
-        emoji: livre
+      "MP2I":
+        id: 872139011106431016
+        emoji: MP2I
+        choice: true
+      "MPI":
+        id: 999760111838970007
+        emoji: MPI
         choice: true
       "Intégré":
         id: 872150707250274355
@@ -22,13 +26,9 @@ guilds:
         id: 872139100805804082
         emoji: ninja
         choice: true
-      "MP2I":
-        id: 872139011106431016
-        emoji: MP2I
-        choice: true
-      "MPI":
-        id: 999760111838970007
-        emoji: MPI
+      "Prof":
+        id: 872148548211318856
+        emoji: livre
         choice: true
       "Référent":
         id: 983438199823142972
@@ -47,9 +47,13 @@ guilds:
         id: 939262781629276201
         emoji: berceau
         choice: true
-      "Prof":
-        id: 939262781629276206
-        emoji: livre
+      "MP2I":
+        id: 939262781629276204
+        emoji: MP2I
+        choice: true
+      "MPI":
+        id: 999791743987884202
+        emoji: MPI
         choice: true
       "Intégré":
         id: 939262781629276203
@@ -59,13 +63,9 @@ guilds:
         id: 939262781629276202
         emoji: ninja
         choice: true
-      "MP2I":
-        id: 939262781629276204
-        emoji: MP2I
-        choice: true
-      "MPI":
-        id: 999791743987884202
-        emoji: MPI
+      "Prof":
+        id: 939262781629276206
+        emoji: livre
         choice: true
       "Référent":
         id: 1119189219215155253
