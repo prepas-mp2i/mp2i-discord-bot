@@ -92,11 +92,11 @@ class Suggestion(Cog):
                     description=suggestion.content,
                 )
             )
-            citation += ("\n__Note__: Il faut parfois attendre plusieurs jours"
-                         " avant qu'elle soit effective")  # fmt: skip
+            citation += ("\n_**Note**: Il faut parfois attendre plusieurs jours"
+                         " avant qu'elle soit effective_")  # fmt: skip
 
         embed = discord.Embed(
-            colour=0x00FF00 if accepted else 0xFF0000,
+            colour=0x77B255 if accepted else 0xDD2E44,
             title=f"Suggestion {'acceptée' if accepted else 'refusée'}",
             description=f"> {citation}",
         )

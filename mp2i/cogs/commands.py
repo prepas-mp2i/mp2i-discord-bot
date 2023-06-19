@@ -98,14 +98,10 @@ class Commands(Cog):
     async def change_profile_color(self, ctx, color: str) -> None:
         """Change la couleur de profil.
 
-        Change la couleur de bordure de l'embed généré par la commande
-        =profile.
-
         Parameters
         ----------
         color : str
             : Couleur en hexadécimal.
-
         """
         member = MemberWrapper(ctx.author)
         hexa_color = color.upper().strip("#")
@@ -115,11 +111,11 @@ class Commands(Cog):
         else:
             await ctx.send("Format de couleur invalide.")
 
-    @command(name="serverinfo")
+    @command(name="servinfos")
     @guild_only()
     async def server_info(self, ctx) -> None:
         """
-        Consulte les infos du serveur
+        Affiche des informations sur les roles du serveur.
         """
         guild = GuildWrapper(ctx.guild)
         embed = discord.Embed(title="Infos du serveur", colour=0xFFA325)
@@ -130,7 +126,8 @@ class Commands(Cog):
         for role_name, role_cfg in guild.config.roles.items():
             if role_cfg.choice:
                 number = len(guild.get_role(role_cfg.id).members)
-                embed.add_field(name=role_name, value=number, inline=True)
+                emoji = guild.get_emoji_by_name(role_cfg.emoji)
+                embed.add_field(name=f"{emoji} {role_name}", value=number, inline=True)
         await ctx.send(embed=embed)
 
     @command(name="referents")
