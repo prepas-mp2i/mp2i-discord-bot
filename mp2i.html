@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="fr" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mp2i package &mdash; Documentation MP2I/MPI Discord Bot </title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/translations.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Recherche" href="search.html" />
+    <link rel="next" title="mp2i.cogs package" href="mp2i.cogs.html" />
+    <link rel="prev" title="mp2i" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            MP2I/MPI Discord Bot
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Rechercher docs" aria-label="Rechercher docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">mp2i</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">mp2i package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mp2i.cogs.html">mp2i.cogs package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mp2i.utils.html">mp2i.utils package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mp2i.wrappers.html">mp2i.wrappers package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mp2i-main-module">mp2i.__main__ module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mp2i-bot-module">mp2i.bot module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-mp2i.models">mp2i.models module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#mp2i.models.GuildModel"><code class="docutils literal notranslate"><span class="pre">GuildModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mp2i.models.MemberModel"><code class="docutils literal notranslate"><span class="pre">MemberModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mp2i.models.MessageModel"><code class="docutils literal notranslate"><span class="pre">MessageModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mp2i.models.SanctionModel"><code class="docutils literal notranslate"><span class="pre">SanctionModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mp2i.models.SuggestionModel"><code class="docutils literal notranslate"><span class="pre">SuggestionModel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-mp2i">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html#mozilla-public-license-version-2-0">Mozilla Public License Version 2.0</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">MP2I/MPI Discord Bot</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">mp2i</a></li>
+      <li class="breadcrumb-item active">mp2i package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/mp2i.rst.txt" rel="nofollow"> Afficher la source de la page</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mp2i-package">
+<h1>mp2i package<a class="headerlink" href="#mp2i-package" title="Lien permanent vers cette rubrique"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Lien permanent vers cette rubrique"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="mp2i.cogs.html">mp2i.cogs package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mp2i.cogs.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mp2i.cogs.utils.html">mp2i.cogs.utils package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mp2i.cogs.utils.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mp2i.cogs.utils.html#module-mp2i.cogs.utils.email">mp2i.cogs.utils.email module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mp2i.cogs.utils.html#module-mp2i.cogs.utils.youtube">mp2i.cogs.utils.youtube module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mp2i.cogs.utils.html#module-mp2i.cogs.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mp2i.cogs.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mp2i.cogs.html#mp2i-cogs-commands-module">mp2i.cogs.commands module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mp2i.cogs.html#module-mp2i.cogs.errors">mp2i.cogs.errors module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mp2i.cogs.html#mp2i.cogs.errors.ErrorHandler"><code class="docutils literal notranslate"><span class="pre">ErrorHandler</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mp2i.cogs.html#mp2i.cogs.errors.ErrorHandler.on_command_error"><code class="docutils literal notranslate"><span class="pre">ErrorHandler.on_command_error()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mp2i.cogs.html#mp2i.cogs.errors.setup"><code class="docutils literal notranslate"><span class="pre">setup()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mp2i.cogs.html#mp2i-cogs-events-module">mp2i.cogs.events module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mp2i.cogs.html#module-mp2i.cogs.music">mp2i.cogs.music module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mp2i.cogs.html#mp2i.cogs.music.Music"><code class="docutils literal notranslate"><span class="pre">Music</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mp2i.cogs.html#mp2i.cogs.music.Music.leave"><code class="docutils literal notranslate"><span class="pre">Music.leave</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mp2i.cogs.html#mp2i.cogs.music.Music.pause"><code class="docutils literal notranslate"><span class="pre">Music.pause</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mp2i.cogs.html#mp2i.cogs.music.Music.play"><code class="docutils literal notranslate"><span class="pre">Music.play</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mp2i.cogs.html#mp2i.cogs.music.Music.play_song"><code class="docutils literal notranslate"><span class="pre">Music.play_song()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mp2i.cogs.html#mp2i.cogs.music.Music.resume"><code class="docutils literal notranslate"><span class="pre">Music.resume</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mp2i.cogs.html#mp2i.cogs.music.Music.skip"><code class="docutils literal notranslate"><span class="pre">Music.skip</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mp2i.cogs.html#mp2i.cogs.music.Video"><code class="docutils literal notranslate"><span class="pre">Video</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mp2i.cogs.html#mp2i.cogs.music.is_in_voice_channel"><code class="docutils literal notranslate"><span class="pre">is_in_voice_channel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mp2i.cogs.html#mp2i.cogs.music.setup"><code class="docutils literal notranslate"><span class="pre">setup()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mp2i.cogs.html#mp2i-cogs-roles-module">mp2i.cogs.roles module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mp2i.cogs.html#mp2i-cogs-sanctions-module">mp2i.cogs.sanctions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mp2i.cogs.html#mp2i-cogs-suggestions-module">mp2i.cogs.suggestions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mp2i.cogs.html#module-mp2i.cogs">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mp2i.utils.html">mp2i.utils package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mp2i.utils.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mp2i.utils.html#mp2i-utils-database-module">mp2i.utils.database module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mp2i.utils.html#module-mp2i.utils.dotdict">mp2i.utils.dotdict module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mp2i.utils.html#mp2i.utils.dotdict.DefaultDotDict"><code class="docutils literal notranslate"><span class="pre">DefaultDotDict</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mp2i.utils.html#mp2i.utils.dotdict.DotDict"><code class="docutils literal notranslate"><span class="pre">DotDict</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mp2i.utils.html#module-mp2i.utils.help">mp2i.utils.help module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mp2i.utils.html#mp2i.utils.help.CustomHelpCommand"><code class="docutils literal notranslate"><span class="pre">CustomHelpCommand</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mp2i.utils.html#mp2i.utils.help.CustomHelpCommand.add_indented_commands"><code class="docutils literal notranslate"><span class="pre">CustomHelpCommand.add_indented_commands()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mp2i.utils.html#mp2i.utils.help.CustomHelpCommand.send_bot_help"><code class="docutils literal notranslate"><span class="pre">CustomHelpCommand.send_bot_help()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mp2i.utils.html#mp2i.utils.help.CustomHelpCommand.send_pages"><code class="docutils literal notranslate"><span class="pre">CustomHelpCommand.send_pages()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mp2i.utils.html#module-mp2i.utils.resolver">mp2i.utils.resolver module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mp2i.utils.html#mp2i.utils.resolver.find_available_cogs"><code class="docutils literal notranslate"><span class="pre">find_available_cogs()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mp2i.utils.html#module-mp2i.utils">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mp2i.wrappers.html">mp2i.wrappers package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mp2i.wrappers.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mp2i.wrappers.html#mp2i-wrappers-guild-module">mp2i.wrappers.guild module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mp2i.wrappers.html#mp2i-wrappers-member-module">mp2i.wrappers.member module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mp2i.wrappers.html#mp2i-wrappers-message-module">mp2i.wrappers.message module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mp2i.wrappers.html#module-mp2i.wrappers">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Lien permanent vers cette rubrique"></a></h2>
+</section>
+<section id="mp2i-main-module">
+<h2>mp2i.__main__ module<a class="headerlink" href="#mp2i-main-module" title="Lien permanent vers cette rubrique"></a></h2>
+</section>
+<section id="mp2i-bot-module">
+<h2>mp2i.bot module<a class="headerlink" href="#mp2i-bot-module" title="Lien permanent vers cette rubrique"></a></h2>
+</section>
+<section id="module-mp2i.models">
+<span id="mp2i-models-module"></span><h2>mp2i.models module<a class="headerlink" href="#module-mp2i.models" title="Lien permanent vers cette rubrique"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="mp2i.models.GuildModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mp2i.models.</span></span><span class="sig-name descname"><span class="pre">GuildModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mp2i/models.html#GuildModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mp2i.models.GuildModel" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Bases : <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.GuildModel._sa_class_manager">
+<span class="sig-name descname"><span class="pre">_sa_class_manager</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'id':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;,</span> <span class="pre">'members':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;,</span> <span class="pre">'name':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;,</span> <span class="pre">'roles_message_id':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;}</span></em><a class="headerlink" href="#mp2i.models.GuildModel._sa_class_manager" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.GuildModel.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#mp2i.models.GuildModel.id" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.GuildModel.members">
+<span class="sig-name descname"><span class="pre">members</span></span><a class="headerlink" href="#mp2i.models.GuildModel.members" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.GuildModel.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#mp2i.models.GuildModel.name" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.GuildModel.roles_message_id">
+<span class="sig-name descname"><span class="pre">roles_message_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#mp2i.models.GuildModel.roles_message_id" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mp2i.models.MemberModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mp2i.models.</span></span><span class="sig-name descname"><span class="pre">MemberModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mp2i/models.html#MemberModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mp2i.models.MemberModel" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Bases : <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.MemberModel._sa_class_manager">
+<span class="sig-name descname"><span class="pre">_sa_class_manager</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'guild_id':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;,</span> <span class="pre">'id':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;,</span> <span class="pre">'messages_count':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;,</span> <span class="pre">'name':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;,</span> <span class="pre">'profile_color':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;,</span> <span class="pre">'role':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;}</span></em><a class="headerlink" href="#mp2i.models.MemberModel._sa_class_manager" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.MemberModel.guild_id">
+<span class="sig-name descname"><span class="pre">guild_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#mp2i.models.MemberModel.guild_id" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.MemberModel.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#mp2i.models.MemberModel.id" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.MemberModel.messages_count">
+<span class="sig-name descname"><span class="pre">messages_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#mp2i.models.MemberModel.messages_count" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.MemberModel.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#mp2i.models.MemberModel.name" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.MemberModel.profile_color">
+<span class="sig-name descname"><span class="pre">profile_color</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#mp2i.models.MemberModel.profile_color" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.MemberModel.role">
+<span class="sig-name descname"><span class="pre">role</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#mp2i.models.MemberModel.role" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mp2i.models.MessageModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mp2i.models.</span></span><span class="sig-name descname"><span class="pre">MessageModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mp2i/models.html#MessageModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mp2i.models.MessageModel" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Bases : <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.MessageModel._sa_class_manager">
+<span class="sig-name descname"><span class="pre">_sa_class_manager</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'author_id':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;,</span> <span class="pre">'channel':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;,</span> <span class="pre">'content':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;,</span> <span class="pre">'date':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;,</span> <span class="pre">'guild_id':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;,</span> <span class="pre">'id':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;}</span></em><a class="headerlink" href="#mp2i.models.MessageModel._sa_class_manager" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.MessageModel.author_id">
+<span class="sig-name descname"><span class="pre">author_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#mp2i.models.MessageModel.author_id" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.MessageModel.channel">
+<span class="sig-name descname"><span class="pre">channel</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#mp2i.models.MessageModel.channel" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.MessageModel.content">
+<span class="sig-name descname"><span class="pre">content</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#mp2i.models.MessageModel.content" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.MessageModel.date">
+<span class="sig-name descname"><span class="pre">date</span></span><a class="headerlink" href="#mp2i.models.MessageModel.date" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.MessageModel.guild_id">
+<span class="sig-name descname"><span class="pre">guild_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#mp2i.models.MessageModel.guild_id" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.MessageModel.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#mp2i.models.MessageModel.id" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mp2i.models.SanctionModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mp2i.models.</span></span><span class="sig-name descname"><span class="pre">SanctionModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mp2i/models.html#SanctionModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mp2i.models.SanctionModel" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Bases : <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.SanctionModel._sa_class_manager">
+<span class="sig-name descname"><span class="pre">_sa_class_manager</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'by_id':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;,</span> <span class="pre">'date':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;,</span> <span class="pre">'guild_id':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;,</span> <span class="pre">'id':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;,</span> <span class="pre">'reason':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;,</span> <span class="pre">'to_id':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;,</span> <span class="pre">'type':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;}</span></em><a class="headerlink" href="#mp2i.models.SanctionModel._sa_class_manager" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.SanctionModel.by_id">
+<span class="sig-name descname"><span class="pre">by_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#mp2i.models.SanctionModel.by_id" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.SanctionModel.date">
+<span class="sig-name descname"><span class="pre">date</span></span><a class="headerlink" href="#mp2i.models.SanctionModel.date" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.SanctionModel.guild_id">
+<span class="sig-name descname"><span class="pre">guild_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#mp2i.models.SanctionModel.guild_id" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.SanctionModel.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#mp2i.models.SanctionModel.id" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.SanctionModel.reason">
+<span class="sig-name descname"><span class="pre">reason</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#mp2i.models.SanctionModel.reason" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.SanctionModel.to_id">
+<span class="sig-name descname"><span class="pre">to_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#mp2i.models.SanctionModel.to_id" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.SanctionModel.type">
+<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#mp2i.models.SanctionModel.type" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mp2i.models.SuggestionModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mp2i.models.</span></span><span class="sig-name descname"><span class="pre">SuggestionModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mp2i/models.html#SuggestionModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mp2i.models.SuggestionModel" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Bases : <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.SuggestionModel._sa_class_manager">
+<span class="sig-name descname"><span class="pre">_sa_class_manager</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'author_id':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;,</span> <span class="pre">'date':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;,</span> <span class="pre">'description':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;,</span> <span class="pre">'guild_id':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;,</span> <span class="pre">'id':</span> <span class="pre">&lt;sqlalchemy.orm.attributes.InstrumentedAttribute</span> <span class="pre">object&gt;}</span></em><a class="headerlink" href="#mp2i.models.SuggestionModel._sa_class_manager" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.SuggestionModel.author_id">
+<span class="sig-name descname"><span class="pre">author_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#mp2i.models.SuggestionModel.author_id" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.SuggestionModel.date">
+<span class="sig-name descname"><span class="pre">date</span></span><a class="headerlink" href="#mp2i.models.SuggestionModel.date" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.SuggestionModel.description">
+<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#mp2i.models.SuggestionModel.description" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.SuggestionModel.guild_id">
+<span class="sig-name descname"><span class="pre">guild_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#mp2i.models.SuggestionModel.guild_id" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mp2i.models.SuggestionModel.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#mp2i.models.SuggestionModel.id" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-mp2i">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mp2i" title="Lien permanent vers cette rubrique"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pied de page">
+        <a href="modules.html" class="btn btn-neutral float-left" title="mp2i" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Précédent</a>
+        <a href="mp2i.cogs.html" class="btn btn-neutral float-right" title="mp2i.cogs package" accesskey="n" rel="next">Suivant <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Adrien Jayat.</p>
+  </div>
+
+  Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">thème</a>
+    fourni par <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
