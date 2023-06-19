@@ -92,7 +92,7 @@ class Suggestion(Cog):
                     description=suggestion.content,
                 )
             )
-            citation += ("\n_**Note**: Il faut parfois attendre plusieurs jours"
+            citation += ("\n_**Note** : Il faut parfois attendre plusieurs jours"
                          " avant qu'elle soit effective_")  # fmt: skip
 
         embed = discord.Embed(
