@@ -73,6 +73,7 @@ class EventsCog(Cog):
             timestamp=datetime.now(),
         )
         embed.set_thumbnail(url=member.avatar.url)
+        embed.set_author(name=member.mention)
         embed.set_footer(text=f"{self.bot.user.name}")
 
         if member.guild.system_channel:

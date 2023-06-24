@@ -52,7 +52,7 @@ API_DEVELOPER_KEY = <youtube_api_developer_key>
 TZ = Europe/Paris
 ```
 
-### Using Pipenv
+- ### Using Pipenv
 
 Install `pipenv` dependencies:
 
@@ -69,7 +69,7 @@ pipenv install
 
 Run the command `python3 -m mp2i` on Linux or `py -m mp2i` on Windows.
 
-### Using Docker
+- ### Using Docker
 
 ```sh
 docker-compose up --build
