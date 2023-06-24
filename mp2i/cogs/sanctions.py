@@ -3,8 +3,8 @@ from datetime import datetime
 from typing import Optional
 
 import discord
-from discord.ext.commands import Cog, command, guild_only, has_permissions
-from sqlalchemy import insert, select
+from discord.ext.commands import Cog, hybrid_command, guild_only, has_permissions
+from sqlalchemy import insert, select, delete
 
 from mp2i.utils import database
 from mp2i.models import SanctionModel
@@ -20,15 +20,25 @@ class Sanction(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @command(name="warn")
+    @hybrid_command(name="warn")
     @guild_only()
     @has_permissions(manage_messages=True)
     async def warn(self, ctx, member: discord.Member, dm: str, visible: str, *,
                    reason: Optional[str]) -> None:  # fmt: skip
         """
         Avertit un utilisateur pour une raison donnée.
+
+        Parameters
+        ----------
+        member : discord.Member
+            L'utilisateur à avertir.
+        dm : str
+            Si oui, l'utilisateur sera averti par message privé.
+        visible : str
+            Si oui, l'avertissement sera visible dans le salon des sanctions.
+        reason : Optional[str]
+            La raison de l'avertissement.
         """
-        await ctx.message.delete()  # C'est la marmelade de ma grand mère (by Camille)
         database.execute(
             insert(SanctionModel).values(
                 by_id=ctx.author.id,
@@ -39,15 +49,6 @@ class Sanction(Cog):
                 reason=reason,
             )
         )
-        if visible == "oui":
-            embed = discord.Embed(
-                title=f"{member.mention} a reçu un avertissement",
-                colour=0xFF00FF,
-                timestamp=datetime.now(),
-            )
-            if reason:
-                embed.add_field(name="Raison", value=reason)
-            await ctx.send(embed=embed)
         if dm == "oui":
             if reason:
                 await member.send(
@@ -57,34 +58,75 @@ class Sanction(Cog):
             else:
                 await member.send("Vous avez reçu un avertissement.")
 
-    @command(name="sanctions")
+        embed = discord.Embed(
+            title=f"{member.mention} a reçu un avertissement",
+            colour=0xFF00FF,
+            timestamp=datetime.now(),
+        )
+        if reason:
+            embed.add_field(name="Raison", value=reason)
+        # If ephemeral is True, the message will only be visible to the author
+        await ctx.send(embed=embed, ephemeral=visible != "oui")
+
+    @hybrid_command(name="warnlist")
     @guild_only()
     @has_permissions(manage_messages=True)
-    async def sanctions_list(self, ctx, member: Optional[discord.Member]) -> None:
+    async def warnlist(self, ctx, member: Optional[discord.Member]) -> None:
         """
         Liste les sanctions reçues par un membre.
+
+        Parameters
+        ----------
+        member : Optional[discord.Member]
+            Le membre dont on veut lister les sanctions.
         """
         if member:
             request = select(SanctionModel).where(
-                SanctionModel.to_id == member.id, SanctionModel.guild_id == ctx.guild.id
+                SanctionModel.to_id == member.id,
+                SanctionModel.guild_id == ctx.guild.id,
+                SanctionModel.type == "warn",
             )
+            title = f"Liste des avertissements de {member.name}"
         else:
             request = select(SanctionModel).where(
-                SanctionModel.guild_id == ctx.guild.id
+                SanctionModel.guild_id == ctx.guild.id, SanctionModel.type == "warn"
             )
+            title = "Liste des avertissements du serveur"
+
         sanctions = database.execute(request).scalars().all()
+        content = f"**Nombre d'avertissements :** {len(sanctions)}\n\n"
 
         for sanction in sanctions:
+            content += f"**{sanction.id}** ━ Le {sanction.date:%d/%m/%Y à %H:%M}\n"
+            if not member:
+                to = ctx.guild.get_member(sanction.to_id)
+                content += f"> **Membre :** {to.mention}\n"
+
             by = ctx.guild.get_member(sanction.by_id)
-            to = ctx.guild.get_member(sanction.to_id)
-            embed = discord.Embed(
-                title=f"{to.mention} a reçu un {sanction.type} par {by.name}",
-                colour=0xFF00FF,
-                timestamp=sanction.date,
-            )
+            content += f"> **Modérateur :** {by.mention}\n"
             if sanction.reason:
-                embed.add_field(name="Raison", value=sanction.reason)
-            await ctx.send(embed=embed)
+                content += f"> **Raison :** {sanction.reason}\n"
+            content += "\n"
+
+        embed = discord.Embed(
+            title=title, description=content, colour=0xFF00FF, timestamp=datetime.now()
+        )
+        await ctx.send(embed=embed)
+
+    @hybrid_command(name="unwarn")
+    @guild_only()
+    @has_permissions(manage_messages=True)
+    async def unwarn(self, ctx, id: int) -> None:
+        """
+        Supprime un avertissement.
+
+        Parameters
+        ----------
+        id : int
+            L'identifiant de l'avertissement à supprimer.
+        """
+        database.execute(delete(SanctionModel).where(SanctionModel.id == id))
+        await ctx.send(f"L'avertissement {id} a été supprimé.")
 
 
 async def setup(bot) -> None:

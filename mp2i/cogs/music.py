@@ -2,7 +2,7 @@ from collections import defaultdict
 
 import discord
 import youtube_dl
-from discord.ext.commands import Cog, command, guild_only, check
+from discord.ext.commands import Cog, hybrid_command, guild_only, check
 
 from .utils import youtube
 
@@ -37,11 +37,16 @@ class Music(Cog):
         self.bot = bot
         self.musics = defaultdict(list)
 
-    @command(name="play", aliases=["p"])
+    @hybrid_command(name="play", aliases=["p"])
     @guild_only()
     async def play(self, ctx, *, query: str) -> None:
         """
-        Joue la musique correspondante à la recherche
+        Joue la musique correspondante à la recherche.
+
+        Parameters
+        ----------
+        query : str
+            Mots clés de la musique.
         """
         voice_client = ctx.voice_client
         try:
@@ -81,12 +86,12 @@ class Music(Cog):
 
         voice_client.play(source, after=next_song)
 
-    @command()
+    @hybrid_command()
     @guild_only()
     @check(is_in_voice_channel)
     async def skip(self, ctx) -> None:
         """
-        Passer à la musique suivante, si disponible
+        Passer à la musique suivante, si disponible.
         """
         ctx.voice_client.stop()
         if len(self.musics[ctx.guild]) > 0:
@@ -95,26 +100,32 @@ class Music(Cog):
         else:
             await ctx.send("Aucune musique en cours")
 
-    @command()
+    @hybrid_command()
     @guild_only()
     @check(is_in_voice_channel)
     async def pause(self, ctx) -> None:
+        """
+        Mettre en pause la musique en cours.
+        """
         if not ctx.voice_client.is_paused():
             ctx.voice_client.pause()
 
-    @command()
+    @hybrid_command()
     @guild_only()
     @check(is_in_voice_channel)
     async def resume(self, ctx) -> None:
+        """
+        Reprendre la musique en cours.
+        """
         if ctx.voice_client.is_paused():
             ctx.voice_client.resume()
 
-    @command(aliases=["quit"])
+    @hybrid_command(aliases=["quit"])
     @guild_only()
     @check(is_in_voice_channel)
     async def leave(self, ctx) -> None:
         """
-        Arrêter la musique et la queue
+        Arrêter la musique et la file d'attente.
         """
         await ctx.voice_client.disconnect(force=True)
         self.musics[ctx.guild] = []

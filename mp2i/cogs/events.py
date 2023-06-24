@@ -21,8 +21,9 @@ class EventsCog(Cog):
     @Cog.listener()
     async def on_ready(self) -> None:
         """
-        When client is connected
+        When client is connected, sync the command tree.
         """
+        await self.bot.tree.sync()
         print(f"\n{' READY ':>^80}\n")
 
     @Cog.listener()

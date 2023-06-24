@@ -3,7 +3,7 @@ import logging
 from datetime import datetime
 
 import discord
-from discord.ext.commands import Cog, command, is_owner
+from discord.ext.commands import Cog, hybrid_command, is_owner
 
 from mp2i import STATIC_DIR
 from mp2i.wrappers.member import MemberWrapper
@@ -23,11 +23,11 @@ class Roles(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @command(name="roleschoice", hidden=True)
+    @hybrid_command(name="roleschoice", hidden=True)
     @is_owner()
     async def send_selection(self, ctx) -> None:
         """
-        Generate a message to select a role in order to manage permissions.
+        Génère un message pour choisir ses rôles.
         """
         guild = GuildWrapper(ctx.guild)
 

@@ -4,7 +4,14 @@ from typing import Optional
 from datetime import datetime
 
 import discord
-from discord.ext.commands import Cog, command, guild_only, is_owner, has_permissions
+from discord.ext.commands import (
+    Cog,
+    command,
+    hybrid_command,
+    guild_only,
+    is_owner,
+    has_permissions,
+)
 
 from mp2i.wrappers.guild import GuildWrapper
 from mp2i.wrappers.member import MemberWrapper
@@ -40,7 +47,12 @@ class Commands(Cog):
     @is_owner()
     async def change_status(self, ctx, *, query: str) -> None:
         """
-        Change le status du bot par n vidéos correspondantes à la recherche
+        Change le status du bot par n vidéos correspondantes à la recherche.
+
+        Parameters
+        ----------
+        query : str
+            Mots clés de la vidéo.
         """
         try:
             video = next(youtube.search(query, n=1))
@@ -53,29 +65,31 @@ class Commands(Cog):
         except discord.errors.HTTPException:
             logger.error("Can't change bot presence")
 
-    @command(name="clear")
+    @hybrid_command(name="clear")
     @guild_only()
     @has_permissions(manage_messages=True)
-    async def clear(self, ctx, n: int = 1) -> None:
+    async def clear(self, ctx, number: int = 1) -> None:
         """
         Supprime les n derniers messages du salon
-        """
-        await ctx.channel.purge(limit=int(n) + 1)
 
-    @command(name="send")
-    @guild_only()
-    async def send(self, ctx, *, message: str) -> None:
+        Parameters
+        ----------
+        number : int
+            Nombre de messages à supprimer.
         """
-        Envoie un message dans le salon actuel
-        """
-        await ctx.send(message)
-        await ctx.message.delete()
+        await ctx.channel.purge(limit=int(number))
+        await ctx.send(f"{number} messages ont bien été supprimés.", ephemeral=True)
 
-    @command(name="profile")
+    @hybrid_command(name="profile")
     @guild_only()
     async def profile(self, ctx, member: Optional[discord.Member] = None) -> None:
         """
-        Consulte les infos d'un membre
+        Consulte les infos d'un membre.
+
+        Parameters
+        ----------
+        member : discord.Member
+            Membre à consulter.
         """
         member = MemberWrapper(member or ctx.author)
         embed = discord.Embed(title="Profil", colour=int(member.profile_color, 16))
@@ -93,7 +107,7 @@ class Commands(Cog):
         )
         await ctx.send(embed=embed)
 
-    @command(name="profilecolor")
+    @hybrid_command(name="profilecolor")
     @guild_only()
     async def change_profile_color(self, ctx, color: str) -> None:
         """Change la couleur de profil.
@@ -101,7 +115,7 @@ class Commands(Cog):
         Parameters
         ----------
         color : str
-            : Couleur en hexadécimal.
+            Couleur en hexadécimal.
         """
         member = MemberWrapper(ctx.author)
         hexa_color = color.upper().strip("#")
@@ -111,7 +125,7 @@ class Commands(Cog):
         else:
             await ctx.send("Format de couleur invalide.")
 
-    @command(name="servinfos")
+    @hybrid_command(name="servinfos")
     @guild_only()
     async def server_info(self, ctx) -> None:
         """
@@ -130,11 +144,11 @@ class Commands(Cog):
                 embed.add_field(name=f"{emoji} {role_name}", value=number, inline=True)
         await ctx.send(embed=embed)
 
-    @command(name="referents")
+    @hybrid_command(name="referents")
     @guild_only()
     async def referents(self, ctx) -> None:
         """
-        Liste les étudiants référents du serveur
+        Liste les étudiants référents du serveur.
         """
         guild = GuildWrapper(ctx.guild)
         referent_role = guild.get_role_by_qualifier("Référent")
@@ -159,7 +173,7 @@ class Commands(Cog):
     @Cog.listener("on_message")
     async def unbinarize(self, msg: discord.Message):
         """
-        Vérifie si le message est un texte binaire et le convertit en ASCII
+        Vérifie si le message est un texte binaire et le convertit en ASCII.
         """
         if not re.fullmatch(r"([01]{8}\s?)+", msg.content):
             return

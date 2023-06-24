@@ -30,7 +30,7 @@ class Suggestion(Cog):
     @is_owner()
     async def send_suggestions_rules(self, ctx) -> None:
         """
-        Send the rules to suggestion channel.
+        Affiche un message expliquant le fonctionnement des suggestions.
         """
         if not self.is_suggestion_channel(ctx.channel):
             return
