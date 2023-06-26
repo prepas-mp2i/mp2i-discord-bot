@@ -28,7 +28,6 @@ async def run(token=None) -> None:
         self_bot=False,
         help_command=CustomHelpCommand(),
     )
-
     # loads all available cogs
     for cog in resolver.find_available_cogs():
         await bot.load_extension(cog.__name__)

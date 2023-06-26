@@ -6,7 +6,6 @@ from datetime import datetime
 import discord
 from discord.ext.commands import (
     Cog,
-    command,
     hybrid_command,
     guild_only,
     is_owner,
@@ -28,21 +27,22 @@ class Commands(Cog):
     @Cog.listener("on_ready")
     async def set_default_status(self) -> None:
         """
-        Initialise le status du bot à =help
+        Initialise le status du bot à =help.
         """
         help_status = f"{self.bot.command_prefix}help"
         await self.bot.change_presence(activity=discord.Game(help_status))
 
-    @command(name="resetstatus")
+    @hybrid_command(name="resetstatus")
     @guild_only()
     @is_owner()
-    async def reset_status(self, _) -> None:
+    async def reset_status(self, ctx) -> None:
         """
-        Réinitialise le status du bot à =help
+        Réinitialise le status du bot à =help.
         """
         await self.set_default_status()
+        await ctx.reply("Status réinitialisé à `=help`.", ephemeral=True)
 
-    @command(name="status")
+    @hybrid_command(name="status")
     @guild_only()
     @is_owner()
     async def change_status(self, ctx, *, query: str) -> None:
@@ -58,9 +58,10 @@ class Commands(Cog):
             video = next(youtube.search(query, n=1))
             activity = discord.Streaming(**video)
             await self.bot.change_presence(activity=activity)
+            await ctx.reply("Status changé.", ephemeral=True)
 
         except StopIteration:
-            await ctx.send("Changement de statut du bot impossible.")
+            await ctx.reply("Changement de statut du bot impossible.", ephemeral=True)
 
         except discord.errors.HTTPException:
             logger.error("Can't change bot presence")
@@ -78,7 +79,7 @@ class Commands(Cog):
             Nombre de messages à supprimer.
         """
         await ctx.channel.purge(limit=int(number))
-        await ctx.send(f"{number} messages ont bien été supprimés.", ephemeral=True)
+        await ctx.reply(f"{number} messages ont bien été supprimés.", ephemeral=True)
 
     @hybrid_command(name="profile")
     @guild_only()
@@ -121,9 +122,11 @@ class Commands(Cog):
         hexa_color = color.upper().strip("#")
         if re.match(r"^[0-9A-F]{6}$", hexa_color):
             member.profile_color = color.upper().strip("#")
-            await ctx.send(f"Couleur de profil changée en #{hexa_color}.")
+            await ctx.reply(
+                f"Couleur de profil changée en #{hexa_color}.", ephemeral=True
+            )
         else:
-            await ctx.send("Format de couleur invalide.")
+            await ctx.reply("Format de couleur invalide.", ephemeral=True)
 
     @hybrid_command(name="servinfos")
     @guild_only()
@@ -150,15 +153,19 @@ class Commands(Cog):
         """
         Liste les étudiants référents du serveur.
         """
+
+        def describe(status: discord.Status) -> str:
+            return "(Connecté)" if status == discord.Status.online else ""
+
         guild = GuildWrapper(ctx.guild)
         referent_role = guild.get_role_by_qualifier("Référent")
         if referent_role is None:
-            await logger.warning("No referent role in bot-config")
+            await logger.warning("No referent role in bot config file.")
 
         content = ""
         for member in guild.members:
             if member.get_role(referent_role.id):
-                content += f"- {member.nick} (`{str(member)}` - {member.status})\n"
+                content += f"- {member.mention} {describe(member.status)}\n"
 
         embed = discord.Embed(
             title=f"Liste des étudiants référents du serveur {guild.name}",
@@ -166,7 +173,6 @@ class Commands(Cog):
             description=content,
             timestamp=datetime.now(),
         )
-        embed.set_thumbnail(url=guild.icon.url)
         embed.set_footer(text=self.bot.user.name)
         await ctx.send(embed=embed)
 

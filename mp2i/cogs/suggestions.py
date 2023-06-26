@@ -1,13 +1,23 @@
 from datetime import datetime
 
 import discord
-from discord.ext.commands import Cog, command, is_owner, guild_only
+from discord.ext.commands import Cog, hybrid_command, is_owner, guild_only
 from sqlalchemy import insert
 
 from mp2i import STATIC_DIR
 from mp2i.models import SuggestionModel
 from mp2i.utils import database
 from mp2i.wrappers.guild import GuildWrapper
+
+
+def is_suggestion_channel(channel: discord.TextChannel) -> bool:
+    """
+    Check if the channel is the suggestion channel of the guild.
+    """
+    if isinstance(channel, discord.DMChannel):
+        return False
+    guild = GuildWrapper(channel.guild)
+    return guild.config.channels.suggestion == channel.id
 
 
 class Suggestion(Cog):
@@ -20,22 +30,15 @@ class Suggestion(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @staticmethod
-    def is_suggestion_channel(chan: discord.TextChannel) -> bool:
-        if isinstance(chan, discord.DMChannel):
-            return False
-        return GuildWrapper(chan.guild).config.channels.suggestion == chan.id
-
-    @command(name="suggestions_rules", hidden=True)
+    @hybrid_command(name="suggestionsrules")
     @is_owner()
     async def send_suggestions_rules(self, ctx) -> None:
         """
-        Affiche un message expliquant le fonctionnement des suggestions.
+        Affiche le fonctionnement des suggestions.
         """
         if not self.is_suggestion_channel(ctx.channel):
             return
 
-        await ctx.message.delete()
         with open(STATIC_DIR / "text/suggestions.md", encoding="utf-8") as f:
             content = f.read()
         embed = discord.Embed(
@@ -75,8 +78,8 @@ class Suggestion(Cog):
             return
         if not self.is_suggestion_channel(channel):
             return
-        if not await self.bot.is_owner(payload.member):
-            return  # only owner can close a suggestion
+        if not payload.member.guild_permissions.administrator:
+            return  # only administrator can close a suggestion
 
         accept = discord.utils.get(suggestion.reactions, emoji="✅")
         decline = discord.utils.get(suggestion.reactions, emoji="❌")
