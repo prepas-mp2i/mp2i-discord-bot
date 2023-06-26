@@ -36,7 +36,7 @@ class Suggestion(Cog):
         """
         Affiche le fonctionnement des suggestions.
         """
-        if not self.is_suggestion_channel(ctx.channel):
+        if not is_suggestion_channel(ctx.channel):
             return
 
         with open(STATIC_DIR / "text/suggestions.md", encoding="utf-8") as f:
@@ -53,7 +53,7 @@ class Suggestion(Cog):
 
     @Cog.listener("on_message")
     async def make_suggestion(self, msg) -> None:
-        if msg.author.bot or not self.is_suggestion_channel(msg.channel):
+        if msg.author.bot or not is_suggestion_channel(msg.channel):
             return
         try:
             await msg.add_reaction("✅")
@@ -76,7 +76,7 @@ class Suggestion(Cog):
             suggestion = await channel.fetch_message(payload.message_id)
         except discord.errors.NotFound:
             return
-        if not self.is_suggestion_channel(channel):
+        if not is_suggestion_channel(channel):
             return
         if not payload.member.guild_permissions.administrator:
             return  # only administrator can close a suggestion
