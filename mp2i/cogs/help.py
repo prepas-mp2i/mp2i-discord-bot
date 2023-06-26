@@ -1,7 +1,8 @@
+from operator import attrgetter
 from typing import Optional
 
 import discord
-from discord.ext.commands import Cog, hybrid_command, guild_only
+from discord.ext.commands import Cog, CommandError, hybrid_command, guild_only
 
 
 class Help(Cog):
@@ -24,26 +25,31 @@ class Help(Cog):
         command : str, optional
             Nom de la commande dont on veut afficher l'aide.
         """
-        if command is not None:
-            await self.help_command(ctx, command)
-            return
+        try:
+            if command is not None:
+                await self.help_command(ctx, command)
+                return
 
-        filtered_commands = await self._filtered_commands(ctx)
-        max_size = max(len(command.name) for command in filtered_commands)
-
-        content = ""
-        for command in filtered_commands:
-            content += (
-                f"`{self.prefix}{command.name:<{max_size+1}}` {command.short_doc}\n"
+            sorted_commands = sorted(
+                await self._filtered_commands(ctx), key=attrgetter("name")
             )
+            max_size = max(len(command.name) for command in sorted_commands)
 
-        content += "\nPour l'aide sur une commande, tapez `=help <commande>`."
-        embed = discord.Embed(
-            title=f"Liste des commandes du serveur {ctx.guild.name}",
-            description=content,
-            color=0xEE22EE,
-        )
-        await ctx.reply(embed=embed, ephemeral=True)
+            content = ""
+            for command in sorted_commands:
+                content += (
+                    f"`{self.prefix}{command.name:<{max_size+1}}` {command.short_doc}\n"
+                )
+
+            content += "\nPour l'aide sur une commande, tapez `=help <commande>`."
+            embed = discord.Embed(
+                title=f"Liste des commandes du serveur {ctx.guild.name}",
+                description=content,
+                color=0xEE22EE,
+            )
+            await ctx.reply(embed=embed, ephemeral=True)
+        except Exception as e:
+            print(e)
 
     async def help_command(self, ctx, command_name: str) -> None:
         """
@@ -61,7 +67,14 @@ class Help(Cog):
         """
         Filters commands that the user can use.
         """
-        return [c for c in self.bot.commands if await c.can_run(ctx)]
+
+        async def can_run(command) -> bool:
+            try:
+                return await command.can_run(ctx)
+            except CommandError:
+                return False
+
+        return [c for c in self.bot.commands if await can_run(c)]
 
 
 async def setup(bot):
