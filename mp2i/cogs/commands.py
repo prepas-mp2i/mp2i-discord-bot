@@ -2,6 +2,7 @@ import re
 import logging
 from typing import Optional
 from datetime import datetime
+from operator import itemgetter
 
 import discord
 from discord.ext.commands import Cog, hybrid_command, guild_only, has_permissions
@@ -12,6 +13,8 @@ from mp2i.wrappers.member import MemberWrapper
 from mp2i.utils import youtube
 
 logger = logging.getLogger(__name__)
+
+PREPA_REGEX = re.compile(r"^.+[|@] *(?P<prepa>.*)$")
 
 
 class Commands(Cog):
@@ -41,7 +44,7 @@ class Commands(Cog):
     @has_permissions(administrator=True)
     async def change_status(self, ctx, *, query: str) -> None:
         """
-        Change le status du bot par n vidéos correspondantes à la recherche.
+        Change le status du bot par une vidéo correspondante à la recherche.
 
         Parameters
         ----------
@@ -147,19 +150,22 @@ class Commands(Cog):
         """
         Liste les étudiants référents du serveur.
         """
-
-        def describe(status: discord.Status) -> str:
-            return "(Connecté)" if status == discord.Status.online else ""
-
         guild = GuildWrapper(ctx.guild)
         referent_role = guild.get_role_by_qualifier("Référent")
         if referent_role is None:
             await logger.warning("No referent role in bot config file.")
 
-        content = ""
+        referents = []
         for member in guild.members:
-            if member.get_role(referent_role.id):
-                content += f"- {member.mention} {describe(member.status)}\n"
+            if not member.get_role(referent_role.id):
+                continue
+            if match := PREPA_REGEX.match(member.nick):
+                referents.append((member, match.group(1)))
+
+        content = ""
+        for member, prepa in sorted(referents, key=itemgetter(1)):
+            status = guild.get_emoji_by_name(f"{member.status}")
+            content += f"- **{prepa}** : `{str(member)}`・{member.mention} {status}\n"
 
         embed = discord.Embed(
             title=f"Liste des étudiants référents du serveur {guild.name}",
