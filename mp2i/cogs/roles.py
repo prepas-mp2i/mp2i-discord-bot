@@ -9,7 +9,7 @@ from mp2i import STATIC_DIR
 from mp2i.wrappers.member import MemberWrapper
 from mp2i.wrappers.guild import GuildWrapper
 
-from .utils import email
+from mp2i.utils import email
 
 logger = logging.getLogger(__name__)
 

@@ -5,7 +5,6 @@ import discord
 from discord.ext import commands
 
 from mp2i.utils import database, resolver
-from mp2i.utils.help import CustomHelpCommand
 
 # Create a logger for this file, __name__ will take the package name if this file
 # will do not run as a script
@@ -26,7 +25,7 @@ async def run(token=None) -> None:
         command_prefix="=",
         intents=discord.Intents.all(),
         self_bot=False,
-        help_command=CustomHelpCommand(),
+        help_command=None,
     )
     # loads all available cogs
     for cog in resolver.find_available_cogs():

@@ -4,18 +4,12 @@ from typing import Optional
 from datetime import datetime
 
 import discord
-from discord.ext.commands import (
-    Cog,
-    hybrid_command,
-    guild_only,
-    is_owner,
-    has_permissions,
-)
+from discord.ext.commands import Cog, hybrid_command, guild_only, has_permissions
 
 from mp2i.wrappers.guild import GuildWrapper
 from mp2i.wrappers.member import MemberWrapper
 
-from .utils import youtube
+from mp2i.utils import youtube
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +28,7 @@ class Commands(Cog):
 
     @hybrid_command(name="resetstatus")
     @guild_only()
-    @is_owner()
+    @has_permissions(administrator=True)
     async def reset_status(self, ctx) -> None:
         """
         Réinitialise le status du bot à =help.
@@ -44,7 +38,7 @@ class Commands(Cog):
 
     @hybrid_command(name="status")
     @guild_only()
-    @is_owner()
+    @has_permissions(administrator=True)
     async def change_status(self, ctx, *, query: str) -> None:
         """
         Change le status du bot par n vidéos correspondantes à la recherche.

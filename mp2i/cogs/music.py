@@ -4,7 +4,7 @@ import discord
 import youtube_dl
 from discord.ext.commands import Cog, hybrid_command, guild_only, check
 
-from .utils import youtube
+from mp2i.utils import youtube
 
 ytdl = youtube_dl.YoutubeDL()
 
