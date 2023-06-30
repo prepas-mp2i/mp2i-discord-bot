@@ -12,7 +12,6 @@ class Help(Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.prefix = bot.command_prefix
 
     @hybrid_command(name="help")
     @guild_only()
@@ -25,31 +24,26 @@ class Help(Cog):
         command : str, optional
             Nom de la commande dont on veut afficher l'aide.
         """
-        try:
-            if command is not None:
-                await self.help_command(ctx, command)
-                return
+        if command is not None:
+            await self.help_command(ctx, command)
+            return
 
-            sorted_commands = sorted(
-                await self._filtered_commands(ctx), key=attrgetter("name")
-            )
-            max_size = max(len(command.name) for command in sorted_commands)
+        sorted_commands = sorted(
+            await self._filtered_commands(ctx), key=attrgetter("name")
+        )
+        max_size = max(len(command.name) for command in sorted_commands)
 
-            content = ""
-            for command in sorted_commands:
-                content += (
-                    f"`/{command.name:<{max_size+1}}` {command.short_doc}\n"
-                )
+        content = ""
+        for command in sorted_commands:
+            content += f"`/{command.name:<{max_size+1}}` {command.short_doc}\n"
 
-            content += "\nPour l'aide sur une commande, tapez `/help <commande>`."
-            embed = discord.Embed(
-                title=f"Liste des commandes du serveur {ctx.guild.name}",
-                description=content,
-                color=0xEE22EE,
-            )
-            await ctx.reply(embed=embed, ephemeral=True)
-        except Exception as e:
-            print(e)
+        content += "\nPour l'aide sur une commande, tapez `/help <commande>`."
+        embed = discord.Embed(
+            title=f"Liste des commandes du serveur {ctx.guild.name}",
+            description=content,
+            color=0xEE22EE,
+        )
+        await ctx.reply(embed=embed, ephemeral=True)
 
     async def help_command(self, ctx, command_name: str) -> None:
         """

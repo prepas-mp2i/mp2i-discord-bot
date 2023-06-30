@@ -93,14 +93,11 @@ class Commands(Cog):
         embed = discord.Embed(title="Profil", colour=int(member.profile_color, 16))
         embed.set_author(name=member.name)
         embed.set_thumbnail(url=member.avatar.url)
-        embed.add_field(name="Pseudo", value=member.mention, inline=True)
-        embed.add_field(
-            name="Membre depuis", value=f"{member.joined_at:%d/%m/%Y}", inline=True
-        )
-        embed.add_field(name="Messages", value=member.messages_count, inline=True)
+        embed.add_field(name="Pseudo", value=member.mention)
+        embed.add_field(name="Membre depuis", value=f"{member.joined_at:%d/%m/%Y}")
+        embed.add_field(name="Messages", value=member.messages_count)
         embed.add_field(
             name="Rôles",
-            inline=True,
             value=" ".join(r.mention for r in member.roles if r.name != "@everyone"),
         )
         await ctx.send(embed=embed)
@@ -135,13 +132,14 @@ class Commands(Cog):
         embed = discord.Embed(title="Infos du serveur", colour=0xFFA325)
         embed.set_author(name=guild.name)
         embed.set_thumbnail(url=guild.icon.url)
-        embed.add_field(name="Membres", value=len(guild.members), inline=True)
+        emoji_people = guild.get_emoji_by_name("people")
+        embed.add_field(name=f"{emoji_people} Membres", value=len(guild.members))
 
         for role_name, role_cfg in guild.config.roles.items():
             if role_cfg.choice:
                 number = len(guild.get_role(role_cfg.id).members)
                 emoji = guild.get_emoji_by_name(role_cfg.emoji)
-                embed.add_field(name=f"{emoji} {role_name}", value=number, inline=True)
+                embed.add_field(name=f"{emoji} {role_name}", value=number)
         await ctx.send(embed=embed)
 
     @hybrid_command(name="referents")
