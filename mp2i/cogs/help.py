@@ -38,10 +38,10 @@ class Help(Cog):
             content = ""
             for command in sorted_commands:
                 content += (
-                    f"`{self.prefix}{command.name:<{max_size+1}}` {command.short_doc}\n"
+                    f"`/{command.name:<{max_size+1}}` {command.short_doc}\n"
                 )
 
-            content += "\nPour l'aide sur une commande, tapez `=help <commande>`."
+            content += "\nPour l'aide sur une commande, tapez `/help <commande>`."
             embed = discord.Embed(
                 title=f"Liste des commandes du serveur {ctx.guild.name}",
                 description=content,
