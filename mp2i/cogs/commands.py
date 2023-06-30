@@ -24,9 +24,9 @@ class Commands(Cog):
     @Cog.listener("on_ready")
     async def set_default_status(self) -> None:
         """
-        Initialise le status du bot à =help.
+        Initialise le status du bot à /help.
         """
-        help_status = f"{self.bot.command_prefix}help"
+        help_status = "/help"
         await self.bot.change_presence(activity=discord.Game(help_status))
 
     @hybrid_command(name="resetstatus")
@@ -34,10 +34,10 @@ class Commands(Cog):
     @has_permissions(administrator=True)
     async def reset_status(self, ctx) -> None:
         """
-        Réinitialise le status du bot à =help.
+        Réinitialise le status du bot à /help.
         """
         await self.set_default_status()
-        await ctx.reply("Status réinitialisé à `=help`.", ephemeral=True)
+        await ctx.reply("Status réinitialisé à `/help`.", ephemeral=True)
 
     @hybrid_command(name="status")
     @guild_only()
