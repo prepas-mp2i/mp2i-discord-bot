@@ -51,7 +51,7 @@ class Help(Cog):
         """
         command = self.bot.get_command(command_name)
         embed = discord.Embed(
-            title=f"Commande `{self.prefix}{command_name}`",
+            title=f"Commande `/{command_name}`",
             description=command.help,
             color=0xEE22EE,
         )
