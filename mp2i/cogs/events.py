@@ -9,7 +9,6 @@ from mp2i.models import GuildModel
 from mp2i.utils import database
 from mp2i.wrappers.member import MemberWrapper
 from mp2i.wrappers.guild import GuildWrapper
-from mp2i.wrappers.message import MessageWrapper
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +35,6 @@ class EventsCog(Cog):
             logger.warning(f"The user {member.name} was not a registered member")
             member.register()
 
-        MessageWrapper(msg).insert()
         member.messages_count += 1
 
     @Cog.listener()

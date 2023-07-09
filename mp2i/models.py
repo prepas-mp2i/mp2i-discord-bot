@@ -31,29 +31,6 @@ class MemberModel(Base):
         return f"Member(id={self.id}, name={self.name}, role={self.role})"
 
 
-class MessageModel(Base):
-    __tablename__ = "messages"
-    __table_args__ = (
-        ForeignKeyConstraint(
-            ("author_id", "guild_id"),
-            ("members.id", "members.guild_id"),
-            ondelete="CASCADE",
-            name="messages_author_id_guild_id_fkey",
-        ),
-    )
-    id: int = Column(BigInteger, primary_key=True)
-    guild_id: int = Column(BigInteger, ForeignKey("guilds.id", ondelete="CASCADE"))
-    author_id: int = Column(BigInteger)
-    channel: str = Column(String(50))
-    date = Column(DateTime)
-    content: str = Column(Text, nullable=True)
-
-    def __repr__(self):
-        return "Message(author_id={}, channel={}, date={}, content={:30.30}".format(
-            self.author_id, self.channel, self.date, self.content
-        )
-
-
 class SuggestionModel(Base):
     __tablename__ = "suggestions"
 
@@ -67,6 +44,7 @@ class SuggestionModel(Base):
         return (
             f"Suggestion(author={self.author_id}, description={self.description:30.30}"
         )
+
 
 class SanctionModel(Base):
     __tablename__ = "sanctions"
@@ -88,6 +66,6 @@ class SanctionModel(Base):
 
     def __repr__(self):
         return (
-            f"Sanction(by={self.by_id}, to={self.to_id}, type={self.type}," 
+            f"Sanction(by={self.by_id}, to={self.to_id}, type={self.type},"
             f"description={self.description:30.30}"
         )
