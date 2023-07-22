@@ -132,7 +132,7 @@ class Commands(Cog):
         embed = discord.Embed(title="Infos du serveur", colour=0xFFA325)
         embed.set_author(name=guild.name)
         embed.set_thumbnail(url=guild.icon.url)
-        emoji_people = guild.get_emoji_by_name("people")
+        emoji_people = guild.get_emoji_by_name("silhouettes")
         embed.add_field(name=f"{emoji_people} Membres", value=len(guild.members))
 
         for role_name, role_cfg in guild.config.roles.items():
