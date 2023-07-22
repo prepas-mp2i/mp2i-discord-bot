@@ -18,6 +18,10 @@ guilds:
         id: 999760111838970007
         emoji: MPI
         choice: true
+      "Ex MPI":
+        id: 1132271180485754951
+        emoji: exMPI
+        choice: true
       "Intégré":
         id: 872150707250274355
         emoji: ecrous
@@ -54,6 +58,10 @@ guilds:
       "MPI":
         id: 999791743987884202
         emoji: MPI
+        choice: true
+      "Ex MPI":
+        id: 1132271958713704578
+        emoji: exMPI
         choice: true
       "Intégré":
         id: 939262781629276203
