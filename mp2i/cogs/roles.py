@@ -47,8 +47,8 @@ class Roles(Cog):
             embed.set_footer(text=self.bot.user.name)
             message = await ctx.send(embed=embed)
 
-        for role_cfg in guild.config.roles.values():
-            if not role_cfg.choice:
+        for qualifier, role_cfg in guild.config.roles.items():
+            if not role_cfg.choice or qualifier == "Ex MPI":
                 continue
             if emoji := guild.get_emoji_by_name(role_cfg.emoji):
                 await message.add_reaction(emoji)
@@ -63,38 +63,49 @@ class Roles(Cog):
         """
         Update role from the user selection.
         """
-        if not hasattr(payload, "guild_id") or payload.member.id == self.bot.user.id:
-            return  # Ignore DM and bot reaction
+        try:
+            if (
+                not hasattr(payload, "guild_id")
+                or payload.member.id == self.bot.user.id
+            ):
+                return  # Ignore DM and bot reaction
 
-        guild = GuildWrapper(self.bot.get_guild(payload.guild_id))
-        if guild.roles_message_id != payload.message_id:
-            return  # Ignore if it is not the good message
+            guild = GuildWrapper(self.bot.get_guild(payload.guild_id))
+            if guild.roles_message_id != payload.message_id:
+                return  # Ignore if it is not the good message
 
-        member = MemberWrapper(payload.member)
-        if not member.exists():
-            logger.warning(f"The user {member.name} was not a registered member")
-            member.register()
+            member = MemberWrapper(payload.member)
+            if not member.exists():
+                logger.warning(f"The user {member.name} was not a registered member")
+                member.register()
 
-        channel = self.bot.get_channel(payload.channel_id)
-        message = await channel.fetch_message(payload.message_id)
+            channel = self.bot.get_channel(payload.channel_id)
+            message = await channel.fetch_message(payload.message_id)
+            mpi_role = guild.get_role_by_qualifier("MPI")
+            ex_mpi_role = guild.get_role_by_qualifier("Ex MPI")
 
-        for qualifier, role_cfg in guild.config.roles.items():
-            if not role_cfg.choice:
-                continue
-            role = guild.get_role(role_cfg.id)
+            for qualifier, role_cfg in guild.config.roles.items():
+                if not role_cfg.choice:
+                    continue
+                role = guild.get_role(role_cfg.id)
 
-            if role_cfg.emoji == payload.emoji.name:
-                # Add the role
-                if qualifier == "Prof":
-                    await self._add_prof_role(member)
-                else:
+                if role_cfg.emoji == payload.emoji.name:
+                    # Add the role
+                    if qualifier == "Prof":
+                        await self._add_prof_role(member)
+                    if qualifier == "Intégré" and member.role == mpi_role:
+                        await member.add_roles(role, ex_mpi_role)
+                    else:
+                        await member.add_roles(role)
                     member.update(role=qualifier)
-                    await member.add_roles(role)
-            else:
-                # Remove the role
-                emoji = guild.get_emoji_by_name(role_cfg.emoji)
-                await message.remove_reaction(emoji, member)
-                await member.remove_roles(role)
+                else:
+                    # Remove the role
+                    if emoji := guild.get_emoji_by_name(role_cfg.emoji):
+                        await message.remove_reaction(emoji, member)
+                    await member.remove_roles(role)
+
+        except Exception as e:
+            logger.error(e)
 
     async def _add_prof_role(self, member: MemberWrapper):
         """
@@ -140,7 +151,6 @@ class Roles(Cog):
         except asyncio.TimeoutError:
             await member.send("Vous avez mis trop de temps à répondre.")
         else:
-            member.update(role="Prof")
             await member.add_roles(member.role)
             await member.send("Merci, le rôle Prof vous été attribué.")
 
