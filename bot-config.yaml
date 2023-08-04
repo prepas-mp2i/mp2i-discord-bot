@@ -20,7 +20,7 @@ guilds:
         choice: true
       "Ex MPI":
         id: 1132271180485754951
-        emoji: exMPI
+        emoji: ex
         choice: true
       "Intégré":
         id: 872150707250274355
@@ -61,7 +61,7 @@ guilds:
         choice: true
       "Ex MPI":
         id: 1132271958713704578
-        emoji: exMPI
+        emoji: ex
         choice: true
       "Intégré":
         id: 939262781629276203
