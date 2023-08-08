@@ -78,6 +78,24 @@ class Commands(Cog):
         await ctx.channel.purge(limit=int(number))
         await ctx.reply(f"{number} messages ont bien été supprimés.", ephemeral=True)
 
+    @hybrid_command(name="say")
+    @guild_only()
+    @has_permissions(manage_messages=True)
+    async def say(self, ctx, channel: discord.TextChannel, *, message: str) -> None:
+        """
+        Envoie un message dans un salon.
+
+        Parameters
+        ----------
+        channel : discord.TextChannel
+            Salon où envoyer le message.
+        message : str
+            Message à envoyer.
+        """
+        if ctx.prefix == "/":
+            await ctx.reply(f"Message envoyé dans {channel.mention}.", ephemeral=True)
+        await channel.send(message)
+
     @hybrid_command(name="profile")
     @guild_only()
     async def profile(self, ctx, member: Optional[discord.Member] = None) -> None:
