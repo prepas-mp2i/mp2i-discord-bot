@@ -63,8 +63,7 @@ class Roles(Cog):
         """
         Update role from the user selection.
         """
-        if not hasattr(payload, "guild_id") \
-            or payload.member.id == self.bot.user.id
+        if not hasattr(payload, "guild_id") or payload.member.id == self.bot.user.id:
             return  # Ignore DM and bot reaction
 
         guild = GuildWrapper(self.bot.get_guild(payload.guild_id))
