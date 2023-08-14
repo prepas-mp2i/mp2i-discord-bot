@@ -89,7 +89,7 @@ class Roles(Cog):
                 # Add the role
                 if qualifier == "Prof":
                     await self._add_prof_role(member)
-                if qualifier == "Intégré" and member.role == mpi_role:
+                elif qualifier == "Intégré" and member.role == mpi_role:
                     await member.add_roles(role, ex_mpi_role)
                 else:
                     await member.add_roles(role)
