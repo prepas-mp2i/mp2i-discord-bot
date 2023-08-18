@@ -32,6 +32,9 @@ class MemberWrapper:
     def __getattr__(self, name: str):
         return getattr(self.member, name)
 
+    def __eq__(self, member):
+        return self.id == member.id
+
     @classmethod
     async def convert(cls, ctx, member):
         member = await MemberConverter().convert(ctx, member)
