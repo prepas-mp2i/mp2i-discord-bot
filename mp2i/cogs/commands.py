@@ -203,7 +203,7 @@ class Commands(Cog):
             Rang maximal.
         """
         members = [MemberWrapper(m) for m in ctx.guild.members if not m.bot]
-        members = sorted(members, key=lambda m: m.messages_count, reverse=True)
+        members.sort(key=lambda m: m.messages_count, reverse=True)
         author = MemberWrapper(ctx.author)
         rank = members.index(author) + 1
 

@@ -33,7 +33,7 @@ class MemberWrapper:
         return getattr(self.member, name)
 
     def __eq__(self, member):
-        return self.id == member.id
+        return (self.id, self.__model.guild_id) == (member.id, member.guild.id)
 
     @classmethod
     async def convert(cls, ctx, member):
