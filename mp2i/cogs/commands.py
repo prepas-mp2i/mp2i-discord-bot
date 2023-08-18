@@ -2,17 +2,15 @@ import re
 import logging
 from typing import Optional
 from datetime import datetime
-from operator import itemgetter
+from operator import attrgetter, itemgetter
 
-from sqlalchemy import insert, select
 import discord
 from discord.ext.commands import Cog, hybrid_command, guild_only, has_permissions
-from mp2i.models import MemberModel
 
 from mp2i.wrappers.guild import GuildWrapper
 from mp2i.wrappers.member import MemberWrapper
 
-from mp2i.utils import database, youtube
+from mp2i.utils import youtube
 
 logger = logging.getLogger(__name__)
 
@@ -205,6 +203,7 @@ class Commands(Cog):
             Rang maximal.
         """
         members = [MemberWrapper(m) for m in ctx.guild.members if not m.bot]
+        members.sort(key=attrgetter("messages_count"), reverse=True)
         author = MemberWrapper(ctx.author)
         rank = members.index(author) + 1
 
