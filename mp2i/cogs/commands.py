@@ -4,13 +4,15 @@ from typing import Optional
 from datetime import datetime
 from operator import itemgetter
 
+from sqlalchemy import insert, select
 import discord
 from discord.ext.commands import Cog, hybrid_command, guild_only, has_permissions
+from mp2i.models import MemberModel
 
 from mp2i.wrappers.guild import GuildWrapper
 from mp2i.wrappers.member import MemberWrapper
 
-from mp2i.utils import youtube
+from mp2i.utils import database, youtube
 
 logger = logging.getLogger(__name__)
 
@@ -190,6 +192,31 @@ class Commands(Cog):
             timestamp=datetime.now(),
         )
         embed.set_footer(text=self.bot.user.name)
+        await ctx.send(embed=embed)
+
+    @hybrid_command(name="leaderboard")
+    async def leaderboard(self, ctx, rmax: Optional[int] = 10):
+        """
+        Affiche le classement des membres par nombre de messages.
+
+        Parameters
+        ----------
+        rmax : int
+            Rang maximal.
+        """
+        members = [MemberWrapper(m) for m in ctx.guild.members if not m.bot]
+        author = MemberWrapper(ctx.author)
+        rank = members.index(author) + 1
+
+        content = f"→ {rank}. **{author.name}** : {author.messages_count} messages\n\n"
+        for r, member in enumerate(members[:rmax], 1):
+            content += f"{r}. **{member.name}** : {member.messages_count} messages\n"
+        
+        embed = discord.Embed(
+            colour=0x2BFAFA, 
+            title=f"Top {rmax} des membres du serveur",
+            description=content
+        )
         await ctx.send(embed=embed)
 
     @Cog.listener("on_message")
