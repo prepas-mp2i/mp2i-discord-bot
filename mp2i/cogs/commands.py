@@ -200,29 +200,31 @@ class Commands(Cog):
         Parameters
         ----------
         rmax : int
-            Rang maximal.
+            Rang maximal (compris entre 0 et 100)
         """
 
         def filtered_members(ctx):
             for member in map(MemberWrapper, ctx.guild.members):
                 if (not member.bot) and member.exists():
                     yield member
-
-        members = sorted(
-            filtered_members(ctx), key=attrgetter("messages_count"), reverse=True
-        )
-        author = MemberWrapper(ctx.author)
-        rank = members.index(author) + 1
-        content = f"→ {rank}. **{author.name}** : {author.messages_count} messages\n\n"
-        for r, member in enumerate(members[:rmax], 1):
-            content += f"{r}. **{member.name}** : {member.messages_count} messages\n"
-
-        embed = discord.Embed(
-            colour=0x2BFAFA,
-            title=f"Top {rmax} des membres du serveur",
-            description=content,
-        )
-        await ctx.send(embed=embed)
+        if rmax <= 100 and rmax >= 0:
+            members = sorted(
+                filtered_members(ctx), key=attrgetter("messages_count"), reverse=True
+            )
+            author = MemberWrapper(ctx.author)
+            rank = members.index(author) + 1
+            content = f"→ {rank}. **{author.name}** : {author.messages_count} messages\n\n"
+            for r, member in enumerate(members[:rmax], 1):
+                content += f"{r}. **{member.name}** : {member.messages_count} messages\n"
+    
+            embed = discord.Embed(
+                colour=0x2BFAFA,
+                title=f"Top {rmax} des membres du serveur",
+                description=content,
+            )
+            await ctx.send(embed=embed)
+        else :
+            await ctx.reply("rmax doit être un nombre compris entre 0 et 100", ephemeral=True)
 
     @Cog.listener("on_message")
     async def unbinarize(self, msg: discord.Message):
