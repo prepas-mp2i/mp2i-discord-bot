@@ -193,6 +193,7 @@ class Commands(Cog):
         await ctx.send(embed=embed)
 
     @hybrid_command(name="leaderboard")
+    @guild_only()
     async def leaderboard(self, ctx, rmax: Optional[int] = 10):
         """
         Affiche le classement des membres par nombre de messages.
