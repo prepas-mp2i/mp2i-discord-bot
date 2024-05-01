@@ -208,7 +208,7 @@ class Commands(Cog):
             for member in map(MemberWrapper, ctx.guild.members):
                 if (not member.bot) and member.exists():
                     yield member
-        if rmax <= 100 and rmax >= 0:
+        if 0 <= rmax <= 100:
             members = sorted(
                 filtered_members(ctx), key=attrgetter("messages_count"), reverse=True
             )
@@ -217,10 +217,13 @@ class Commands(Cog):
             content = f"→ {rank}. **{author.name}** : {author.messages_count} messages\n\n"
             for r, member in enumerate(members[:rmax], 1):
                 content += f"{r}. **{member.name}** : {member.messages_count} messages\n"
-    
+            if rmax == 0:
+                title = "Votre classement dans le serveur :"
+            else:
+                title = f"Top {rmax} des membres du serveur"
             embed = discord.Embed(
                 colour=0x2BFAFA,
-                title=f"Top {rmax} des membres du serveur",
+                title=title,
                 description=content,
             )
             await ctx.send(embed=embed)
