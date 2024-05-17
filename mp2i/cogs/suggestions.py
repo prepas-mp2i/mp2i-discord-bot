@@ -122,8 +122,8 @@ class Suggestion(Cog):
 
         channel = self.bot.get_channel(payload.channel_id)
         message = await channel.fetch_message(payload.message_id)
-        pins = discord.utils.get(message.reactions, emoji="📌")
-        if pins.count != self.MINIMUM_PINS:
+        pins = discord.utils.get(message.reactions, emoji="📌", me=False)
+        if pins is None or pins.count < self.MINIMUM_PINS:
             return
 
         author = message.author
@@ -141,6 +141,8 @@ class Suggestion(Cog):
             GuildWrapper(channel.guild).config.channels.website
         )
         await website_chan.send(embed=embed)
+        # Pour ne pas envoyer le message plusieurs fois
+        await message.add_reaction("📌")
 
 
 async def setup(bot) -> None:
