@@ -20,22 +20,22 @@ class Lycee(Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        with open(STATIC_DIR / "text/Liste_lycee_MP2I.txt") as f:
+            self.lycees = f.read().splitlines()
 
-    async def choices_lycee(
+    async def autocomplete_lycee(
         self, interaction: discord.Interaction, current: str
     ) -> List[app_commands.Choice[str]]:
-        with open(STATIC_DIR / "text/Liste_lycee_MP2I.txt") as f:
-            lycees = f.read().splitlines()
         return [
             app_commands.Choice(name=choice, value=choice)
-            for choice in lycees
+            for choice in self.lycees
             if current.lower() in choice.lower()
         ]
 
-    @hybrid_command(name="choixlycee")
+    @hybrid_command(name="chooselycee")
     @guild_only
-    @app_commands.autocomplete(item=choices_lycee)
-    async def choix_lycee(self, interaction: discord.Interaction, lycee: str):
+    @app_commands.autocomplete(item=autocomplete_lycee)
+    async def choose_lycee(self, interaction: discord.Interaction, lycee: str):
         """
         Associe un lycée à soi-même
 
@@ -44,9 +44,7 @@ class Lycee(Cog):
         lycee : str
             Le lycée à associer
         """
-        with open(STATIC_DIR / "text/Liste_lycee_MP2I.txt") as f:
-            lycees = f.read().splitlines()
-        if not lycee in lycees:
+        if not lycee in self.lycees:
             await interaction.response.send_message("Le nom du lycée n'est pas valide")
             return
         member = MemberWrapper(interaction.user)
