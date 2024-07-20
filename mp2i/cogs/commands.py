@@ -113,6 +113,8 @@ class Commands(Cog):
         embed.set_thumbnail(url=member.avatar.url)
         embed.add_field(name="Pseudo", value=member.mention)
         embed.add_field(name="Membre depuis", value=f"{member.joined_at:%d/%m/%Y}")
+        if member.lycee != "Aucun":
+            embed.add_field(name="Lycée", value=member.lycee)
         embed.add_field(name="Messages", value=member.messages_count)
         embed.add_field(
             name="Rôles",

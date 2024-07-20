@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 class Lycee(Cog):
     """
-    DESCRIPTION
+    Association d'un membre et d'un lycée
     """
 
     def __init__(self, bot):
@@ -36,6 +36,14 @@ class Lycee(Cog):
     @guild_only
     @app_commands.autocomplete(item=choices_lycee)
     async def choix_lycee(self, interaction: discord.Interaction, lycee: str):
+        """
+        Associe un lycée à soi-même
+
+        Parameters
+        ----------
+        lycee : str
+            Le lycée à associer
+        """
         with open(STATIC_DIR / "text/Liste_lycee_MP2I.txt") as f:
             lycees = f.read().splitlines()
         if not lycee in lycees:
