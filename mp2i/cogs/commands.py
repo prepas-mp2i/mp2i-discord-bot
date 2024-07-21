@@ -177,7 +177,10 @@ class Commands(Cog):
         for member in guild.members:
             if not member.get_role(referent_role.id):
                 continue
-            if match := PREPA_REGEX.match(member.nick):
+            member_db = MemberWrapper(member)
+            if member_db.exists() and member_db.lycee != "Aucun":
+                referents.append((member, member_db.lycee))
+            elif match := PREPA_REGEX.match(member.nick):
                 referents.append((member, match.group(1)))
 
         content = ""
