@@ -1,7 +1,13 @@
 import logging
 
 import discord
-from discord.ext.commands import Cog, hybrid_command, guild_only, has_permissions
+from discord.ext.commands import (
+    Cog,
+    hybrid_command,
+    guild_only,
+    has_permissions,
+    command,
+)
 from discord import app_commands
 from typing import List
 
@@ -20,7 +26,7 @@ class Lycee(Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        with open(STATIC_DIR / "text/Liste_lycee_MP2I.txt") as f:
+        with open(STATIC_DIR / "text/Liste_lycee_MP2I.txt", encoding="UTF-8") as f:
             self.lycees = f.read().splitlines()
 
     async def autocomplete_lycee(
@@ -35,7 +41,7 @@ class Lycee(Cog):
     @hybrid_command(name="chooselycee")
     @guild_only()
     @app_commands.autocomplete(lycee=autocomplete_lycee)
-    async def choose_lycee(self, interaction: discord.Interaction, lycee: str):
+    async def choose_lycee(self, ctx, lycee: str):
         """
         Associe un lycée à soi-même
 
@@ -45,15 +51,12 @@ class Lycee(Cog):
             Le lycée à associer
         """
         if not lycee in self.lycees:
-            await interaction.response.send_message("Le nom du lycée n'est pas valide")
+            await ctx.reply("Le nom du lycée n'est pas valide", ephemeral=True)
             return
-        member = MemberWrapper(interaction.user)
-        if not member.exists():
-            logger.warning(f"The user {member.name} was not a registered member")
-            member.register()
+        member = MemberWrapper(ctx.author)
         member.lycee = lycee
-        await interaction.response.send_message(
-            f"Vous faites maintenant partie du lycée {lycee}"
+        await ctx.reply(
+            f"Vous faites maintenant partie du lycée {lycee}", ephemeral=True
         )
 
 
