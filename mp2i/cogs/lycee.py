@@ -1,7 +1,13 @@
 import logging
 
 import discord
-from discord.ext.commands import Cog, hybrid_command, guild_only, has_any_role
+from discord.ext.commands import (
+    Cog,
+    hybrid_command,
+    guild_only,
+    has_any_role,
+    has_permissions,
+)
 from discord import app_commands
 from typing import List
 
@@ -56,6 +62,37 @@ class Lycee(Cog):
             member.lycee = lycee
             await ctx.reply(
                 f"Vous faites maintenant partie du lycée {lycee}", ephemeral=True
+            )
+
+    @hybrid_command(name="chooselyceeforuser")
+    @guild_only()
+    @has_permissions(manage_messages=True)
+    @app_commands.autocomplete(lycee=autocomplete_lycee)
+    async def choose_lycee_for_user(self, ctx, user: discord.Member, lycee: str):
+        """
+        Associe un lycée à un membre (Aucun pour supprimer l'association)
+
+        Parameters
+        ----------
+        user : discord.Member
+            Le membre à associer avec le lycée
+        lycee : str
+            Le lycée à associer
+        """
+        if not lycee in self.lycees and lycee != "Aucun":
+            await ctx.reply("Le nom du lycée n'est pas valide", ephemeral=True)
+            return
+        member = MemberWrapper(user)
+        if lycee == "Aucun":
+            member.lycee = None
+            await ctx.reply(
+                "{user.mention} ne fait plus partie aucun lycée", ephemeral=True
+            )
+        else:
+            member.lycee = lycee
+            await ctx.reply(
+                f"{user.mention} fait maintenant partie du lycée {lycee}",
+                ephemeral=True,
             )
 
     @hybrid_command(name="lycees")
