@@ -1,13 +1,7 @@
 import logging
 
 import discord
-from discord.ext.commands import (
-    Cog,
-    hybrid_command,
-    guild_only,
-    has_permissions,
-    command,
-)
+from discord.ext.commands import Cog, hybrid_command, guild_only, has_any_role
 from discord import app_commands
 from typing import List
 
@@ -40,24 +34,56 @@ class Lycee(Cog):
 
     @hybrid_command(name="chooselycee")
     @guild_only()
+    @has_any_role("MP2I", "MPI", "Ex MPI")
     @app_commands.autocomplete(lycee=autocomplete_lycee)
     async def choose_lycee(self, ctx, lycee: str):
         """
-        Associe un lycée à soi-même
+        Associe un lycée à soi-même (Aucun pour supprimer l'association)
 
         Parameters
         ----------
         lycee : str
             Le lycée à associer
         """
-        if not lycee in self.lycees:
+        if not lycee in self.lycees and lycee != "Aucun":
             await ctx.reply("Le nom du lycée n'est pas valide", ephemeral=True)
             return
         member = MemberWrapper(ctx.author)
-        member.lycee = lycee
-        await ctx.reply(
-            f"Vous faites maintenant partie du lycée {lycee}", ephemeral=True
+        if lycee == "Aucun":
+            member.lycee = None
+            await ctx.reply("Vous ne faites plus partie aucun lycée", ephemeral=True)
+        else:
+            member.lycee = lycee
+            await ctx.reply(
+                f"Vous faites maintenant partie du lycée {lycee}", ephemeral=True
+            )
+
+    @hybrid_command(name="lycees")
+    @guild_only()
+    async def lycees(self, ctx):
+        """
+        Affiche le nombre de étudiants étant ou ayant été en MP2I/MPI réparti par lycée
+        """
+        def members_lycee(ctx):
+            for member in map(MemberWrapper, ctx.guild.members):
+                if (not member.bot) and member.exists() and member.lycee != "Aucun":
+                    yield member.lycee
+
+        count = dict((i, 0) for i in self.lycees)
+        for m in members_lycee(ctx):
+            count[m] += 1
+        content = ""
+        for lycee, nb_studient in count.items():
+            plural = "s" if nb_studient > 1 else ""
+            if nb_studient > 0:
+                content += f"**{lycee}** : {nb_studient} étudiant{plural}\n"
+        title = "Nombre de membres du serveur par lycée"
+        embed = discord.Embed(
+            colour=0x2BFAFA,
+            title=title,
+            description=content,
         )
+        await ctx.send(embed=embed)
 
 
 async def setup(bot) -> None:
