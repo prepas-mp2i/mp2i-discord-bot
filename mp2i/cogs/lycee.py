@@ -33,8 +33,8 @@ class Lycee(Cog):
         ]
 
     @hybrid_command(name="chooselycee")
-    @guild_only
-    @app_commands.autocomplete(item=autocomplete_lycee)
+    @guild_only()
+    @app_commands.autocomplete(lycee=autocomplete_lycee)
     async def choose_lycee(self, interaction: discord.Interaction, lycee: str):
         """
         Associe un lycée à soi-même
@@ -55,3 +55,7 @@ class Lycee(Cog):
         await interaction.response.send_message(
             f"Vous faites maintenant partie du lycée {lycee}"
         )
+
+
+async def setup(bot) -> None:
+    await bot.add_cog(Lycee(bot))
