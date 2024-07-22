@@ -40,7 +40,7 @@ def test_connection():
         raise err
     else:
         logger.info(
-            f"A connection to the database {engine.URL.database} "
+            f"A connection to the database {engine.url.database} "
             f"was successful established"
         )
     return True
