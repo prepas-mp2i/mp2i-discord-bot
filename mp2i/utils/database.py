@@ -39,9 +39,8 @@ def test_connection():
         logger.fatal(f"Can't connect to the database with this URL: {__database_url}")
         raise err
     else:
-        *_, database_name = __database_url.rpartition("/")
         logger.info(
-            f"A connection to the database {database_name} "
+            f"A connection to the database {engine.URL.database} "
             f"was successful established"
         )
     return True
