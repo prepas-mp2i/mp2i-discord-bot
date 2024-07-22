@@ -78,6 +78,7 @@ class MemberWrapper:
                 guild_id=self.guild.id,
                 name=self.member.name,
                 role=qualifier,
+                school=None,
             )
         )
         self.__model = self._fetch()  # Update the model
@@ -105,3 +106,11 @@ class MemberWrapper:
     @profile_color.setter
     def profile_color(self, value: str):
         self.update(profile_color=value)
+
+    @property
+    def school(self) -> str:
+        return self.__model.school or "Aucun"
+
+    @school.setter
+    def school(self, value: str):
+        return self.update(school=value)
