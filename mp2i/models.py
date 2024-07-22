@@ -26,7 +26,7 @@ class MemberModel(Base):
     role: str = Column(String(50), nullable=True)
     messages_count: int = Column(Integer, default=0)
     profile_color: str = Column(String(8), nullable=True)
-    lycee: str = Column(String(50), nullable=True, default=None)
+    school: str = Column(String(50), nullable=True, default=None)
 
     def __repr__(self):
         return f"Member(id={self.id}, name={self.name}, role={self.role})"

@@ -1,8 +1,8 @@
 import re
 import logging
 from typing import Optional
-from datetime import datetime
-from operator import attrgetter, itemgetter
+
+from operator import attrgetter
 
 import discord
 from discord.ext.commands import Cog, hybrid_command, guild_only, has_permissions
@@ -13,8 +13,6 @@ from mp2i.wrappers.member import MemberWrapper
 from mp2i.utils import youtube
 
 logger = logging.getLogger(__name__)
-
-PREPA_REGEX = re.compile(r"^.+[|@] *(?P<prepa>.*)$")
 
 
 class Commands(Cog):
@@ -113,8 +111,8 @@ class Commands(Cog):
         embed.set_thumbnail(url=member.avatar.url)
         embed.add_field(name="Pseudo", value=member.mention)
         embed.add_field(name="Membre depuis", value=f"{member.joined_at:%d/%m/%Y}")
-        if member.lycee != "Aucun":
-            embed.add_field(name="Lycée", value=member.lycee)
+        if member.school != "Aucun":
+            embed.add_field(name="Lycée", value=member.school)
         embed.add_field(name="Messages", value=member.messages_count)
         embed.add_field(
             name="Rôles",
@@ -160,41 +158,6 @@ class Commands(Cog):
                 number = len(guild.get_role(role_cfg.id).members)
                 emoji = guild.get_emoji_by_name(role_cfg.emoji)
                 embed.add_field(name=f"{emoji} {role_name}", value=number)
-        await ctx.send(embed=embed)
-
-    @hybrid_command(name="referents")
-    @guild_only()
-    async def referents(self, ctx) -> None:
-        """
-        Liste les étudiants référents du serveur.
-        """
-        guild = GuildWrapper(ctx.guild)
-        referent_role = guild.get_role_by_qualifier("Référent")
-        if referent_role is None:
-            await logger.warning("No referent role in bot config file.")
-
-        referents = []
-        for member in guild.members:
-            if not member.get_role(referent_role.id):
-                continue
-            member_db = MemberWrapper(member)
-            if member_db.exists() and member_db.lycee != "Aucun":
-                referents.append((member, member_db.lycee))
-            elif match := PREPA_REGEX.match(member.nick):
-                referents.append((member, match.group(1)))
-
-        content = ""
-        for member, prepa in sorted(referents, key=itemgetter(1)):
-            status = guild.get_emoji_by_name(f"{member.status}")
-            content += f"- **{prepa}** : `{str(member)}`・{member.mention} {status}\n"
-
-        embed = discord.Embed(
-            title=f"Liste des étudiants référents du serveur {guild.name}",
-            colour=0xFF66FF,
-            description=content,
-            timestamp=datetime.now(),
-        )
-        embed.set_footer(text=self.bot.user.name)
         await ctx.send(embed=embed)
 
     @hybrid_command(name="leaderboard")
