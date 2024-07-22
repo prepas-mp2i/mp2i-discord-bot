@@ -38,6 +38,22 @@ guilds:
         id: 983438199823142972
         emoji: MP2I
         choice: false
+      "Administrateur":
+        id: 872138521970901052
+        emoji: administration
+        choice: false
+      "Modérateur":
+        id: 934167202746232842
+        emoji: marteau
+        choice: false
+      "Gestion Association":
+        id: 1213946755322880081
+        emoji: association
+        choice: false
+      "Association":
+        id: 1214155483007557694
+        emoji: association
+        choice: false 
     channels:
       suggestion: 940718694357676042
       log: 1117429400200298558
@@ -78,6 +94,14 @@ guilds:
       "Référent":
         id: 1119189219215155253
         emoji: contact
+        choice: false
+      "Administrateur":
+        id: 939262781629276209
+        emoji: administration
+        choice: false
+      "Modérateur":
+        id: 939262781629276208
+        emoji: marteau
         choice: false
     channels:
       suggestion: 939262782073897053
