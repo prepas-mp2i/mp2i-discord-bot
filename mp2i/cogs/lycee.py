@@ -9,7 +9,7 @@ from discord.ext.commands import (
     has_permissions,
 )
 from discord import app_commands
-from typing import List
+from typing import List, Optional
 
 from mp2i import STATIC_DIR
 from mp2i.utils import database
@@ -40,60 +40,62 @@ class Lycee(Cog):
 
     @hybrid_command(name="chooselycee")
     @guild_only()
-    @has_any_role("MP2I", "MPI", "Ex MPI")
+    @has_any_role("MP2I", "MPI", "Ex MPI", "Moderateur", "Administrateur")
     @app_commands.autocomplete(lycee=autocomplete_lycee)
-    async def choose_lycee(self, ctx, lycee: str):
-        """
-        Associe un lycée à soi-même (Aucun pour supprimer l'association)
-
-        Parameters
-        ----------
-        lycee : str
-            Le lycée à associer
-        """
-        if not lycee in self.lycees and lycee != "Aucun":
-            await ctx.reply("Le nom du lycée n'est pas valide", ephemeral=True)
-            return
-        member = MemberWrapper(ctx.author)
-        if lycee == "Aucun":
-            member.lycee = None
-            await ctx.reply("Vous ne faites plus partie aucun lycée", ephemeral=True)
-        else:
-            member.lycee = lycee
-            await ctx.reply(
-                f"Vous faites maintenant partie du lycée {lycee}", ephemeral=True
-            )
-
-    @hybrid_command(name="chooselyceeforuser")
-    @guild_only()
-    @has_permissions(manage_messages=True)
-    @app_commands.autocomplete(lycee=autocomplete_lycee)
-    async def choose_lycee_for_user(self, ctx, user: discord.Member, lycee: str):
+    async def choose_lycee(
+        self, ctx, lycee: str, user: Optional[discord.Member] = None
+    ):
         """
         Associe un lycée à un membre (Aucun pour supprimer l'association)
 
         Parameters
         ----------
-        user : discord.Member
-            Le membre à associer avec le lycée
         lycee : str
             Le lycée à associer
+        user : Optional[discord.Member]
+            Réservé aux modérateurs
+            L'utilisateur à qui on associe le lycéee (avec soi-même l'argument est vide)
         """
         if not lycee in self.lycees and lycee != "Aucun":
             await ctx.reply("Le nom du lycée n'est pas valide", ephemeral=True)
             return
-        member = MemberWrapper(user)
-        if lycee == "Aucun":
-            member.lycee = None
-            await ctx.reply(
-                "{user.mention} ne fait plus partie aucun lycée", ephemeral=True
-            )
+        if user is None or user == ctx.author:
+            member = MemberWrapper(ctx.author)
+            if lycee == "Aucun":
+                member.lycee = None
+                await ctx.reply(
+                    "Vous ne faites plus partie aucun lycée", ephemeral=True
+                )
+            else:
+                member.lycee = lycee
+                await ctx.reply(
+                    f"Vous faites maintenant partie du lycée {lycee}", ephemeral=True
+                )
         else:
-            member.lycee = lycee
-            await ctx.reply(
-                f"{user.mention} fait maintenant partie du lycée {lycee}",
-                ephemeral=True,
-            )
+            if any(
+                r in ctx.author.roles
+                for r in [
+                    GuildWrapper(ctx.guild).get_role_by_qualifier("Modérateur"),
+                    GuildWrapper(ctx.guild).get_role_by_qualifier("Administrateur"),
+                ]
+            ):
+                member = MemberWrapper(user)
+                if lycee == "Aucun":
+                    member.lycee = None
+                    await ctx.reply(
+                        "{user.mention} ne fait plus partie aucun lycée", ephemeral=True
+                    )
+                else:
+                    member.lycee = lycee
+                    await ctx.reply(
+                        f"{user.mention} fait maintenant partie du lycée {lycee}",
+                        ephemeral=True,
+                    )
+            else:
+                await ctx.reply(
+                    f"Vous n'avez pas les droits suffisants pour modifier le lycée d'autres personnes",
+                    ephemeral=True,
+                )
 
     @hybrid_command(name="lycees")
     @guild_only()
