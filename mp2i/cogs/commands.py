@@ -15,6 +15,7 @@ from mp2i.utils import youtube
 logger = logging.getLogger(__name__)
 
 PREPA_REGEX = re.compile(r"^.+[|@] *(?P<prepa>.*)$")
+RANG_MAX = 50
 
 
 class Commands(Cog):
@@ -201,14 +202,14 @@ class Commands(Cog):
         Parameters
         ----------
         rmax : int
-            Rang maximal (compris entre 0 et 100)
+            Rang maximal (compris entre 0 et 50)
         """
 
         def filtered_members(ctx):
             for member in map(MemberWrapper, ctx.guild.members):
                 if (not member.bot) and member.exists():
                     yield member
-        if 0 <= rmax <= 100:
+        if 0 <= rmax <= RANG_MAX:
             members = sorted(
                 filtered_members(ctx), key=attrgetter("messages_count"), reverse=True
             )
@@ -228,7 +229,7 @@ class Commands(Cog):
             )
             await ctx.send(embed=embed)
         else :
-            await ctx.reply("rmax doit être un nombre compris entre 0 et 100", ephemeral=True)
+            await ctx.reply(f"rmax doit être un nombre compris entre 0 et {RANG_MAX}", ephemeral=True)
 
     @Cog.listener("on_message")
     async def unbinarize(self, msg: discord.Message):
