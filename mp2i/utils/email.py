@@ -1,10 +1,11 @@
-from email.message import EmailMessage
 import smtplib
 import ssl
 import logging
 import os
 import random
 import re
+
+from email.message import EmailMessage
 
 from mp2i import STATIC_DIR
 

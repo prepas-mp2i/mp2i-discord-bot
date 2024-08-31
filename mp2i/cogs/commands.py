@@ -15,7 +15,6 @@ from mp2i.utils import youtube
 logger = logging.getLogger(__name__)
 
 PREPA_REGEX = re.compile(r"^.+[|@] *(?P<prepa>.*)$")
-RANG_MAX = 50
 
 
 class Commands(Cog):
@@ -202,22 +201,27 @@ class Commands(Cog):
         Parameters
         ----------
         rmax : int
-            Rang maximal (compris entre 0 et 50)
+            Rang maximal (compris entre 0 et 100)
         """
 
         def filtered_members(ctx):
             for member in map(MemberWrapper, ctx.guild.members):
                 if (not member.bot) and member.exists():
                     yield member
-        if 0 <= rmax <= RANG_MAX:
+
+        if 0 <= rmax <= 100:
             members = sorted(
                 filtered_members(ctx), key=attrgetter("messages_count"), reverse=True
             )
             author = MemberWrapper(ctx.author)
             rank = members.index(author) + 1
-            content = f"→ {rank}. **{author.name}** : {author.messages_count} messages\n\n"
+            content = (
+                f"→ {rank}. **{author.name}** : {author.messages_count} messages\n\n"
+            )
             for r, member in enumerate(members[:rmax], 1):
-                content += f"{r}. **{member.name}** : {member.messages_count} messages\n"
+                content += (
+                    f"{r}. **{member.name}** : {member.messages_count} messages\n"
+                )
             if rmax == 0:
                 title = "Votre classement dans le serveur :"
             else:
@@ -228,8 +232,10 @@ class Commands(Cog):
                 description=content,
             )
             await ctx.send(embed=embed)
-        else :
-            await ctx.reply(f"rmax doit être un nombre compris entre 0 et {RANG_MAX}", ephemeral=True)
+        else:
+            await ctx.reply(
+                "rmax doit être un nombre compris entre 0 et 100", ephemeral=True
+            )
 
     @Cog.listener("on_message")
     async def unbinarize(self, msg: discord.Message):

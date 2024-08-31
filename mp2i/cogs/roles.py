@@ -1,3 +1,5 @@
+from typing import Optional
+
 import asyncio
 import logging
 from datetime import datetime
@@ -23,14 +25,25 @@ class Roles(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @hybrid_command(name="roleschoice", hidden=True)
+    @hybrid_command(name="roles", hidden=True)
     @is_owner()
-    async def send_selection(self, ctx) -> None:
+    async def roles(self, ctx, message_id: Optional[str] = "") -> None:
         """
-        Génère un message pour choisir ses rôles.
+        Génère ou définit le message pour choisir ses rôles.
         """
         guild = GuildWrapper(ctx.guild)
+        if message_id:
+            guild.roles_message_id = int(message_id)
+            await ctx.reply(f"Le bot écoute désormais le message `{message_id}`")
+        else:
+            guild.roles_message_id = await self._send_selection(guild, ctx.channel)
 
+    async def _send_selection(
+        self, guild: GuildWrapper, channel: discord.TextChannel
+    ) -> int:
+        """
+        Send a message to select roles in the current channel.
+        """
         with open(STATIC_DIR / "text/roles.md", encoding="utf-8") as f:
             content = f.read()
             for role_name, role_cfg in guild.config.roles.items():
@@ -45,8 +58,9 @@ class Roles(Cog):
                 timestamp=datetime.now(),
             )
             embed.set_footer(text=self.bot.user.name)
-            message = await ctx.send(embed=embed)
+            message = await channel.send(embed=embed)
 
+        # Add reactions to the message
         for qualifier, role_cfg in guild.config.roles.items():
             if not role_cfg.choice or qualifier == "Ex MPI":
                 continue
@@ -55,8 +69,7 @@ class Roles(Cog):
             else:
                 logger.error(f"{role_cfg.emoji} emoji not found")
 
-        guild.roles_message_id = message.id
-        await ctx.message.delete()
+        return message.id
 
     @Cog.listener("on_raw_reaction_add")
     async def on_selection(self, payload) -> None:
