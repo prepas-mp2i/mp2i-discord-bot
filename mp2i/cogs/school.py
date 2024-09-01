@@ -43,11 +43,11 @@ class School(Cog):
             if current.lower() in choice.lower()
         ]
 
-    @hybrid_command(name="chooseschool")
+    @hybrid_command(name="school")
     @guild_only()
     @has_any_role("MP2I", "MPI", "Ex MPI", "Moderateur", "Administrateur")
     @autocomplete(school=autocomplete_school)
-    async def choose_school(
+    async def school_selection(
         self, ctx, school: str, user: Optional[discord.Member] = None
     ):
         """
@@ -87,20 +87,23 @@ class School(Cog):
 
     @hybrid_command(name="members")
     @guild_only()
+    @autocomplete(school=autocomplete_school)
     async def school_members(self, ctx, school: str):
         """
         Affiche les étudiants d'une école donnée.
         """
         guild = GuildWrapper(ctx.guild)
-        members = [
-            member for member in guild.members if MemberWrapper(member).school == school
+        students = [
+            member
+            for member in map(MemberWrapper, guild.members)
+            if member.exists() and member.school == school
         ]
-        if not members:
+        if not students:
             await ctx.reply(f"{school} n'a aucun étudiant sur ce serveur.")
             return
 
-        content = ""
-        for member in members:
+        content = f"Nombre d'étudiants : {len(students)}\n"
+        for member in students:
             content += f"- `{member.name}`・{member.mention}\n"
 
         embed = discord.Embed(
@@ -110,7 +113,7 @@ class School(Cog):
             timestamp=datetime.now(),
         )
         embed.set_footer(text=self.bot.user.name)
-        await ctx.send(embed=embed)
+        await ctx.reply(embed=embed)
 
     @hybrid_command(name="referents")
     @guild_only()
@@ -128,15 +131,15 @@ class School(Cog):
             if not member.get_role(referent_role.id):
                 continue
             if member.exists() and member.school != "Aucun":
-                referents.append((member.name, member.school))
+                referents.append((member, member.school))
 
             elif match := SCHOOL_REGEX.match(member.nick):
-                referents.append((member.name, match.group(1)))
+                referents.append((member, match.group(1)))
 
         content = ""
         for member, school in sorted(referents, key=itemgetter(1)):
             status = guild.get_emoji_by_name(f"{member.status}")
-            content += f"- **{school}** : `{member}`・{member.mention} {status}\n"
+            content += f"- **{school}** : `{member.name}`・{member.mention} {status}\n"
 
         embed = discord.Embed(
             title=f"Liste des étudiants référents du serveur {guild.name}",

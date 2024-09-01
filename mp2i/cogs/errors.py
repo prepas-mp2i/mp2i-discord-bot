@@ -24,6 +24,16 @@ class ErrorHandler(Cog):
             )
             await ctx.send("Votre argument est invalide.")
 
+        elif hasattr(error, "handled"):
+            logger.debug(f"Local error handler for {ctx.command} has been called")
+
+        else:
+            logger.error(f"{error.original}")
+            await ctx.reply(
+                "Une erreur interne est survenue, veuillez contacter un Administrateur.",
+                ephemeral=True,
+            )
+
 
 async def setup(bot) -> None:
     """
