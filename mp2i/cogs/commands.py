@@ -118,8 +118,8 @@ class Commands(Cog):
             name="Rôles",
             value=" ".join(r.mention for r in member.roles if r.name != "@everyone"),
         )
-        if member.school != "Aucun":
-            embed.add_field(name="Lycée", value=member.school)
+        if member.high_school != "Aucun":
+            embed.add_field(name="Lycée", value=member.high_school)
 
         await ctx.send(embed=embed)
 

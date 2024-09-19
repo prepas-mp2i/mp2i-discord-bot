@@ -32,14 +32,17 @@ class School(Cog):
     def __init__(self, bot):
         self.bot = bot
         with open(STATIC_DIR / "text/cpge.txt", encoding="UTF-8") as f:
-            self.schools = f.read().splitlines()
+            self.high_schools = f.read().splitlines()
+        with open(STATIC_DIR / "text/ecole_inge.txt", encoding="UTF-8") as f:
+            self.engineering_schools = f.read().splitlines()
 
     async def autocomplete_school(
         self, interaction: discord.Interaction, current: str
     ) -> List[Choice[str]]:
+        #story_number_option = ctx.data.get("options", [{}])[0].get("valeur")
         return [
             Choice(name=choice, value=choice)
-            for choice in self.schools
+            for choice in self.high_schools
             if current.lower() in choice.lower()
         ]
 
@@ -59,26 +62,26 @@ class School(Cog):
         user: Réservé aux modérateurs
             L'utilisateur à qui on associe le lycée (par défaut, l'auteur de la commande)
         """
-        if school not in self.schools and school != "Aucun":
+        if school not in self.high_schools and school != "Aucun":
             await ctx.reply("Le nom du lycée n'est pas valide", ephemeral=True)
             return
 
         if user is None or user == ctx.author:
             member = MemberWrapper(ctx.author)
             if school == "Aucun":
-                member.school = None
+                member.high_school = None
                 response = "Vous ne faites plus partie aucun lycée"
             else:
-                member.school = school
+                member.high_school = school
                 response = f"Vous faites maintenant partie du lycée {school}."
 
         elif any(r.name in ("Administrateur", "Modérateur") for r in ctx.author.roles):
             member = MemberWrapper(user)
             if school == "Aucun":
-                member.school = None
+                member.high_school = None
                 response = "{user.mention} ne fait plus partie d'un lycée."
             else:
-                member.school = school
+                member.high_school = school
                 response = f"{user.mention} fait maintenant partie du lycée {school}"
         else:
             response = "Vous n'avez pas les droits suffisants."
@@ -96,7 +99,7 @@ class School(Cog):
         students = [
             member
             for member in map(MemberWrapper, guild.members)
-            if member.exists() and member.school == school
+            if member.exists() and member.high_school == school
         ]
         if not students:
             await ctx.reply(f"{school} n'a aucun étudiant sur ce serveur.")
@@ -130,8 +133,8 @@ class School(Cog):
         for member in map(MemberWrapper, guild.members):
             if not member.get_role(referent_role.id):
                 continue
-            if member.exists() and member.school != "Aucun":
-                referents.append((member, member.school))
+            if member.exists() and member.high_school != "Aucun":
+                referents.append((member, member.high_school))
 
             elif match := SCHOOL_REGEX.match(member.nick):
                 referents.append((member, match.group(1)))
@@ -149,6 +152,12 @@ class School(Cog):
         )
         embed.set_footer(text=self.bot.user.name)
         await ctx.send(embed=embed)
+
+    @hybrid_command(name="signin")
+    @guild_only()
+    async def signin(self,ctx) -> None:
+        for member in map(MemberWrapper, ctx.guild.members):
+            member.register()
 
 
 async def setup(bot) -> None:
