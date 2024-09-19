@@ -53,7 +53,7 @@ guilds:
       "Association":
         id: 1214155483007557694
         emoji: association
-        choice: false 
+        choice: false
     channels:
       suggestion: 940718694357676042
       log: 1117429400200298558
@@ -102,6 +102,14 @@ guilds:
       "Modérateur":
         id: 939262781629276208
         emoji: marteau
+        choice: false
+      "Gestion Association":
+        id: 1286315335989067816
+        emoji: association
+        choice: false
+      "Association":
+        id: 1286315680752209920
+        emoji: association
         choice: false
     channels:
       suggestion: 939262782073897053
