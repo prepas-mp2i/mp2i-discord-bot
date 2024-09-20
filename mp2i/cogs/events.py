@@ -23,6 +23,13 @@ class EventsCog(Cog):
         When client is connected, sync the command tree.
         """
         await self.bot.tree.sync()
+        for guild in self.bot.guilds:
+            if not GuildWrapper(guild).exists():
+                GuildWrapper(guild).register()
+            for member in map(MemberWrapper, guild.members):
+                if not member.exists():
+                    member.register()
+
         print(f"\n{' READY ':>^80}\n")
 
     @Cog.listener()

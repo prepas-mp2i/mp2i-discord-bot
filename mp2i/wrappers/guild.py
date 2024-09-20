@@ -46,6 +46,9 @@ class GuildWrapper:
         )
         self.__model = self._fetch()
 
+    def exists(self) -> bool:
+        return self.__model is not None
+
     @cache
     def get_member_by_name(self, member: str) -> Optional[discord.Member]:
         return discord.utils.get(self.members, name=member)
