@@ -48,8 +48,17 @@ ENVIRONMENT = production
 DATABASE_URL = mysql+mysqlconnector://user:password@host:port/database
 # For YouTube API (optional).
 API_DEVELOPER_KEY = <youtube_api_developer_key>
+#Optional
+COMPOSE_PROJECT_NAME = mp2i
 # Timezone
 TZ = Europe/Paris
+#For email, optional
+SMTP_SERVER = <smtp_server>
+
+EMAIL_USER = <email_user>
+
+EMAIL_PASSWORD = <password>
+
 ```
 
 - ### Using Pipenv
