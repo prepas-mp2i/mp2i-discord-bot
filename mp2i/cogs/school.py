@@ -13,7 +13,7 @@ from discord.ext.commands import (
     guild_only,
     has_any_role,
 )
-from discord.app_commands import autocomplete, Choice, choices
+from discord.app_commands import autocomplete, Choice, choices, Range
 
 from mp2i import STATIC_DIR
 from mp2i.wrappers.member import MemberWrapper
@@ -66,7 +66,7 @@ class School(Cog):
 
         Parameters
         ----------
-        type
+        type : Lycée ou école d'ingénieur
         school: Le lycée à associer.
         user: Réservé aux modérateurs
             L'utilisateur à qui on associe le lycée (par défaut, l'auteur de la commande)
@@ -110,6 +110,32 @@ class School(Cog):
             response = "Vous n'avez pas les droits suffisants."
 
         await ctx.reply(response, ephemeral=True)
+    
+    @hybrid_command(name="gen")
+    @has_any_role("MP2I", "MPI", "Ex MPI", "Moderateur", "Administrateur")
+    @guild_only()
+    async def generation(self, ctx, gen : Range[int,2021,datetime.now().year], user: Optional[discord.Member] = None):
+        """
+        Définit l'année d'arrivée en sup
+
+        Parameters
+        ----------
+        gen: L'année d'arrivée en sup
+        user: Réservé aux modérateurs
+            L'utilisateur à qui on associe la date (par défaut, l'auteur de la commande)
+        """
+        if user is None or user == ctx.author:
+            member = MemberWrapper(ctx.author)
+            member.generation = gen
+            await ctx.reply(f"Vous faites maintenant partie de la génération {gen} !")
+        elif any(r.name in ("Administrateur", "Modérateur") for r in ctx.author.roles):
+            member = MemberWrapper(user)
+            member.generation = gen
+            await ctx.reply(f"{user.mention} fait maintenant partie de la génération {gen} !")
+        else:
+            await ctx.reply("Vous n'avez pas les droits suffisants.")
+        
+
 
     @hybrid_command(name="members")
     @guild_only()
@@ -187,11 +213,6 @@ class School(Cog):
         embed.set_footer(text=self.bot.user.name)
         await ctx.send(embed=embed)
 
-    @hybrid_command(name="signin")
-    @guild_only()
-    async def signin(self,ctx) -> None:
-        for member in map(MemberWrapper, ctx.guild.members):
-            member.register()
 
 
 async def setup(bot) -> None:

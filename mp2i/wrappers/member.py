@@ -80,6 +80,7 @@ class MemberWrapper:
                 role=qualifier,
                 high_school=None,
                 engineering_school=None,
+                generation=None,
             )
         )
         self.__model = self._fetch()  # Update the model

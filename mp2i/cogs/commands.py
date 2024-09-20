@@ -120,6 +120,8 @@ class Commands(Cog):
         )
         if member.high_school != "Aucun":
             embed.add_field(name="Lycée", value=member.high_school)
+        if member.generation > 0:
+            embed.add_field(name="Génération", value=member.generation)
         if member.engineering_school != "Aucun":
             embed.add_field(name="École d'ingénieur", value=member.engineering_school)
 
