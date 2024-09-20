@@ -120,6 +120,8 @@ class Commands(Cog):
         )
         if member.high_school != "Aucun":
             embed.add_field(name="Lycée", value=member.high_school)
+        if member.engineering_school != "Aucun":
+            embed.add_field(name="École d'ingénieur", value=member.engineering_school)
 
         await ctx.send(embed=embed)
 

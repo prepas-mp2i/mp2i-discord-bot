@@ -13,7 +13,7 @@ from discord.ext.commands import (
     guild_only,
     has_any_role,
 )
-from discord.app_commands import autocomplete, Choice
+from discord.app_commands import autocomplete, Choice, choices
 
 from mp2i import STATIC_DIR
 from mp2i.wrappers.member import MemberWrapper
@@ -39,10 +39,14 @@ class School(Cog):
     async def autocomplete_school(
         self, interaction: discord.Interaction, current: str
     ) -> List[Choice[str]]:
-        #story_number_option = ctx.data.get("options", [{}])[0].get("valeur")
+        type = interaction.namespace.type
+        if type == "lycée":
+            schools = self.high_schools
+        else :
+            schools = self.engineering_schools
         return [
             Choice(name=choice, value=choice)
-            for choice in self.high_schools
+            for choice in schools
             if current.lower() in choice.lower()
         ]
 
@@ -50,39 +54,58 @@ class School(Cog):
     @guild_only()
     @has_any_role("MP2I", "MPI", "Ex MPI", "Moderateur", "Administrateur")
     @autocomplete(school=autocomplete_school)
+    @choices(type=[
+            Choice(name='lycée', value='lycée'),
+            Choice(name='école d\'ingénieur', value='école d\'ingénieur'),
+        ])
     async def school_selection(
-        self, ctx, school: str, user: Optional[discord.Member] = None
+        self, ctx, type: str, school: str, user: Optional[discord.Member] = None
     ):
         """
-        Associe un lycée à un membre (Aucun pour supprimer l'association)
+        Associe un lycée/une école à un membre (Aucun pour supprimer l'association)
 
         Parameters
         ----------
+        type
         school: Le lycée à associer.
         user: Réservé aux modérateurs
             L'utilisateur à qui on associe le lycée (par défaut, l'auteur de la commande)
         """
-        if school not in self.high_schools and school != "Aucun":
-            await ctx.reply("Le nom du lycée n'est pas valide", ephemeral=True)
+        if type == 'lycée':
+            schools = self.high_schools
+            messages = ["du lycée","aucun lycée"]
+        else:
+            schools = self.engineering_schools
+            messages = ["de l'école d'ingénieur","aucune école d'ingénieur"]
+        if school not in schools and school != "Aucun":
+            await ctx.reply(f"Le nom {messages[0]} n'est pas valide", ephemeral=True)
             return
 
         if user is None or user == ctx.author:
             member = MemberWrapper(ctx.author)
             if school == "Aucun":
-                member.high_school = None
-                response = "Vous ne faites plus partie aucun lycée"
+                member_school = None
+                response = f"Vous ne faites plus partie {messages[1]}"
             else:
-                member.high_school = school
-                response = f"Vous faites maintenant partie du lycée {school}."
+                member_school = school
+                response = f"Vous faites maintenant partie {messages[0]} {school}."
+            if type == 'lycée':
+                member.high_school = member_school
+            else:
+                member.engineering_school = member_school
 
         elif any(r.name in ("Administrateur", "Modérateur") for r in ctx.author.roles):
             member = MemberWrapper(user)
             if school == "Aucun":
-                member.high_school = None
-                response = "{user.mention} ne fait plus partie d'un lycée."
+                member_school = None
+                response = f"{user.mention} ne fait plus partie d'{messages[1]}."
             else:
-                member.high_school = school
-                response = f"{user.mention} fait maintenant partie du lycée {school}"
+                member_school = school
+                response = f"{user.mention} fait maintenant partie {messages[0]} {school}"
+            if type == 'lycée':
+                member.high_school = member_school
+            else:
+                member.engineering_school = member_school
         else:
             response = "Vous n'avez pas les droits suffisants."
 
@@ -91,16 +114,27 @@ class School(Cog):
     @hybrid_command(name="members")
     @guild_only()
     @autocomplete(school=autocomplete_school)
-    async def school_members(self, ctx, school: str):
+    @choices(type=[
+        Choice(name='lycée', value='lycée'),
+        Choice(name='école d\'ingénieur', value='école d\'ingénieur'),
+    ])
+    async def school_members(self, ctx, type:str, school: str):
         """
         Affiche les étudiants d'une école donnée.
         """
         guild = GuildWrapper(ctx.guild)
-        students = [
-            member
-            for member in map(MemberWrapper, guild.members)
-            if member.exists() and member.high_school == school
-        ]
+        if type == 'lycée':
+            students = [
+                member
+                for member in map(MemberWrapper, guild.members)
+                if member.exists() and member.high_school == school
+            ]  
+        else:
+            students = [
+                member
+                for member in map(MemberWrapper, guild.members)
+                if member.exists() and member.engineering_school == school
+            ] 
         if not students:
             await ctx.reply(f"{school} n'a aucun étudiant sur ce serveur.")
             return
