@@ -131,9 +131,9 @@ class School(Cog):
         elif any(r.name in ("Administrateur", "Modérateur") for r in ctx.author.roles):
             member = MemberWrapper(user)
             member.generation = gen
-            await ctx.reply(f"{user.mention} fait maintenant partie de la génération {gen} !")
+            await ctx.reply(f"{user.mention} fait maintenant partie de la génération {gen} !", ephemeral=True)
         else:
-            await ctx.reply("Vous n'avez pas les droits suffisants.")
+            await ctx.reply("Vous n'avez pas les droits suffisants.", ephemeral=True)
         
 
 
