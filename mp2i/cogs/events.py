@@ -27,7 +27,6 @@ class EventsCog(Cog):
             if not GuildWrapper(guild).exists():
                 GuildWrapper(guild).register()
             for member in map(MemberWrapper, guild.members):
-                print("Member : ",member)
                 if not member.exists():
                     member.register()
 
