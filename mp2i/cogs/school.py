@@ -12,12 +12,17 @@ from discord.ext.commands import (
     hybrid_command,
     guild_only,
     has_any_role,
+    has_role
 )
 from discord.app_commands import autocomplete, Choice, choices, Range
 
 from mp2i import STATIC_DIR
 from mp2i.wrappers.member import MemberWrapper
 from mp2i.wrappers.guild import GuildWrapper
+
+from mp2i.utils import database
+from mp2i.models import CpgeModel, EngineeringSchoolModel
+from sqlalchemy import insert, select, delete
 
 SCHOOL_REGEX = re.compile(r"^.+[|@] *(?P<prepa>.*)$")
 
@@ -31,10 +36,10 @@ class School(Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        with open(STATIC_DIR / "text/cpge.txt", encoding="UTF-8") as f:
-            self.high_schools = f.read().splitlines()
-        with open(STATIC_DIR / "text/ecole_inge.txt", encoding="UTF-8") as f:
-            self.engineering_schools = f.read().splitlines()
+        cpge_list = database.execute(select(CpgeModel)).scalars().all()
+        self.high_schools = [x.name for x in cpge_list]
+        engineering_school_list = database.execute(select(EngineeringSchoolModel)).scalars().all()
+        self.engineering_schools = [x.name for x in engineering_school_list]
 
     async def autocomplete_school(
         self, interaction: discord.Interaction, current: str
@@ -49,6 +54,79 @@ class School(Cog):
             for choice in schools
             if current.lower() in choice.lower()
         ]
+
+    @hybrid_command(name="add_db_one_time")
+    @guild_only()
+    @has_role("Administrateur")
+    async def addDB(self,ctx):
+        """
+        Pour ajouter les lycées et écoles qui sont dans les fichiers textes correspondant.
+        A UTILISER QU'UNE SEULE FOIS
+        """
+        with open(STATIC_DIR / "text/cpge.txt", encoding="UTF-8") as f:
+            tab = f.read().splitlines()
+            for name in tab:
+                database.execute(
+                    insert(CpgeModel).values(name=name)
+                )
+        with open(STATIC_DIR / "text/ecole_inge.txt", encoding="UTF-8") as f:
+            tab = f.read().splitlines()
+            for name in tab:
+                database.execute(
+                    insert(EngineeringSchoolModel).values(name=name)
+                )
+        await ctx.reply("OK")
+    
+    @hybrid_command(name="add_school")
+    @guild_only()
+    @has_role("Administrateur")
+    @choices(type=[
+            Choice(name='lycée', value='lycée'),
+            Choice(name='école d\'ingénieur', value='école d\'ingénieur'),
+        ])
+    async def add_school(self,ctx, type: str, school: str):
+        """
+        Ajoute un lycée/école dans la base de donnée
+        """
+        if type == 'lycée':
+            database.execute(
+                insert(CpgeModel).values(name=school)
+            )
+            cpge_list = database.execute(select(CpgeModel)).scalars().all()
+            self.high_schools = [x.name for x in cpge_list]
+        else:
+            database.execute(
+                insert(EngineeringSchoolModel).values(name=school)
+            )
+            engineering_school_list = database.execute(select(EngineeringSchoolModel)).scalars().all()
+            self.engineering_schools = [x.name for x in engineering_school_list]
+        await ctx.reply(f"{school} a bien été ajouté dans {type}")
+
+    @hybrid_command(name="del_school")
+    @guild_only()
+    @has_role("Administrateur")
+    @autocomplete(school=autocomplete_school)
+    @choices(type=[
+            Choice(name='lycée', value='lycée'),
+            Choice(name='école d\'ingénieur', value='école d\'ingénieur'),
+        ])
+    async def del_school(self,ctx, type: str, school: str):
+        """
+        Supprime un lycée/école dans la base de donnée
+        """
+        if type == 'lycée':
+            database.execute(
+                delete(CpgeModel).where(CpgeModel.name == school)
+            )
+            cpge_list = database.execute(select(CpgeModel)).scalars().all()
+            self.high_schools = [x.name for x in cpge_list]
+        else:
+            database.execute(
+                delete(EngineeringSchoolModel).where(EngineeringSchoolModel.name == school)
+            )
+            engineering_school_list = database.execute(select(EngineeringSchoolModel)).scalars().all()
+            self.engineering_schools = [x.name for x in engineering_school_list]
+        await ctx.reply(f"{school} a bien été supprimé dans {type}")
 
     @hybrid_command(name="school")
     @guild_only()
