@@ -11,11 +11,6 @@ class SchoolModel(Base):
     type: int = Column(String(50))
     name: str = Column(String(50))
 
-class EngineeringSchoolModel(Base):
-    __tablename__ = "engineering_school"
-    id: int = Column(Integer, primary_key=True)
-    name: str = Column(String(50))
-
 class GuildModel(Base):
     __tablename__ = "guilds"
 
