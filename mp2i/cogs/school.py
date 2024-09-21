@@ -21,7 +21,7 @@ from mp2i.wrappers.member import MemberWrapper
 from mp2i.wrappers.guild import GuildWrapper
 
 from mp2i.utils import database
-from mp2i.models import SchoolModel
+from mp2i.models import SchoolModel, MemberModel
 from sqlalchemy import insert, select, delete, update
 
 SCHOOL_REGEX = re.compile(r"^.+[|@] *(?P<prepa>.*)$")
@@ -98,12 +98,18 @@ class School(Cog):
         school: Le lycée/école à ajouter.
         """
         if type == 'lycée':
+            if school in self.high_schools:
+                await ctx.reply("Le lycée existe déjà",ephemeral=True)
+                return 
             database.execute(
                 insert(SchoolModel).values(type="cpge",name=school)
             )
             cpge_list = database.execute(select(SchoolModel).where(SchoolModel.type == "cpge")).scalars().all()
             self.high_schools = [x.name for x in cpge_list]
         else:
+            if school in self.engineering_schools:
+                await ctx.reply("L'école d'ingénieur existe déjà",ephemeral=True)
+                return 
             database.execute(
                 insert(SchoolModel).values(type="engineering",name=school)
             )
@@ -129,12 +135,18 @@ class School(Cog):
         school: Le lycée/école à modifier.
         """
         if type == 'lycée':
+            if new_school in self.high_schools:
+                await ctx.reply("Le lycée existe déjà",ephemeral=True)
+                return 
             database.execute(
                 update(SchoolModel).where(SchoolModel.name == old_school).where(SchoolModel.type == "cpge").values(name=new_school)
             )
             cpge_list = database.execute(select(SchoolModel).where(SchoolModel.type == "cpge")).scalars().all()
             self.high_schools = [x.name for x in cpge_list]
         else:
+            if new_school in self.engineering_schools:
+                await ctx.reply("L'école d'ingénieur existe déjà",ephemeral=True)
+                return 
             database.execute(
                 update(SchoolModel).where(SchoolModel.name == old_school).where(SchoolModel.type == "engineering").values(name=new_school)
             )
@@ -160,12 +172,28 @@ class School(Cog):
         school: Le lycée/école à supprimer.
         """
         if type == 'lycée':
+            if not school in self.high_schools:
+                await ctx.reply("Le lycée n'existe pas",ephemeral=True)
+                return 
+            members = database.execute(select(MemberModel).join(SchoolModel,MemberModel.high_school == SchoolModel.id).where(SchoolModel.name == school).where(SchoolModel.type == "cpge")).scalars().all()
+            for member in members:
+                member = MemberWrapper(ctx.guild.get_member(member.id))
+                member.high_school = None
+
             database.execute(
                 delete(SchoolModel).where(SchoolModel.name == school).where(SchoolModel.type == "cpge")
             )
             cpge_list = database.execute(select(SchoolModel).where(SchoolModel.type == "cpge")).scalars().all()
             self.high_schools = [x.name for x in cpge_list]
         else:
+            if not school in self.engineering_schools:
+                await ctx.reply("L'école n'existe pas",ephemeral=True)
+                return 
+            members = database.execute(select(MemberModel).join(SchoolModel,MemberModel.high_school == SchoolModel.id).where(SchoolModel.name == school).where(SchoolModel.type == "engineering")).scalars().all()
+            for member in members:
+                member = MemberWrapper(ctx.guild.get_member(member.id))
+                member.engineering_school = None
+
             database.execute(
                 delete(SchoolModel).where(SchoolModel.name == school).where(SchoolModel.type == "engineering")
             )
@@ -213,8 +241,12 @@ class School(Cog):
                 member_school = school
                 response = f"Vous faites maintenant partie {messages[0]} {school}."
             if type == 'lycée':
+                if not member_school is None: 
+                    member_school = database.execute(select(SchoolModel).where(SchoolModel.name == member_school).where(SchoolModel.type == "cpge")).first()[0].id
                 member.high_school = member_school
             else:
+                if not member_school is None: 
+                    member_school = database.execute(select(SchoolModel).where(SchoolModel.name == member_school).where(SchoolModel.type == "engineering")).first()[0].id
                 member.engineering_school = member_school
 
         elif any(r.name in ("Administrateur", "Modérateur") for r in ctx.author.roles):
@@ -226,8 +258,12 @@ class School(Cog):
                 member_school = school
                 response = f"{user.mention} fait maintenant partie {messages[0]} {school}"
             if type == 'lycée':
+                if not member_school is None: 
+                    member_school = database.execute(select(SchoolModel).where(SchoolModel.name == member_school).where(School.type == "cpge")).first()[0].id
                 member.high_school = member_school
             else:
+                if not member_school is None: 
+                    member_school = database.execute(select(SchoolModel).where(SchoolModel.name == member_school).where(School.type == "engineering")).first()[0].id
                 member.engineering_school = member_school
         else:
             response = "Vous n'avez pas les droits suffisants."
@@ -250,7 +286,7 @@ class School(Cog):
         if user is None or user == ctx.author:
             member = MemberWrapper(ctx.author)
             member.generation = gen
-            await ctx.reply(f"Vous faites maintenant partie de la génération {gen} !")
+            await ctx.reply(f"Vous faites maintenant partie de la génération {gen} !", ephemeral=True)
         elif any(r.name in ("Administrateur", "Modérateur") for r in ctx.author.roles):
             member = MemberWrapper(user)
             member.generation = gen
@@ -316,8 +352,9 @@ class School(Cog):
         for member in map(MemberWrapper, guild.members):
             if not member.get_role(referent_role.id):
                 continue
-            if member.exists() and member.high_school != "Aucun":
-                referents.append((member, member.high_school))
+            if member.exists() and member.high_school != -1:
+                school = database.execute(select(SchoolModel).where(SchoolModel.id == member.high_school).where(SchoolModel.type == "cpge")).first()[0].name
+                referents.append((member, school))
 
             elif match := SCHOOL_REGEX.match(member.nick):
                 referents.append((member, match.group(1)))

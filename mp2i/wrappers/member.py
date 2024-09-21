@@ -110,19 +110,19 @@ class MemberWrapper:
         self.update(profile_color=value)
 
     @property
-    def high_school(self) -> str:
-        return self.__model.high_school or "Aucun"
+    def high_school(self) -> int:
+        return self.__model.high_school or -1
 
     @high_school.setter
-    def high_school(self, value: str):
+    def high_school(self, value: int):
         return self.update(high_school=value)
     
     @property
-    def engineering_school(self) -> str:
-        return self.__model.engineering_school or "Aucun"
+    def engineering_school(self) -> int:
+        return self.__model.engineering_school or -1
 
     @engineering_school.setter
-    def engineering_school(self, value: str):
+    def engineering_school(self, value: int):
         return self.update(engineering_school=value)
 
     @property
