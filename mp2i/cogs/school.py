@@ -21,8 +21,8 @@ from mp2i.wrappers.member import MemberWrapper
 from mp2i.wrappers.guild import GuildWrapper
 
 from mp2i.utils import database
-from mp2i.models import CpgeModel, EngineeringSchoolModel
-from sqlalchemy import insert, select, delete
+from mp2i.models import SchoolModel
+from sqlalchemy import insert, select, delete, update
 
 SCHOOL_REGEX = re.compile(r"^.+[|@] *(?P<prepa>.*)$")
 
@@ -36,9 +36,9 @@ class School(Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        cpge_list = database.execute(select(CpgeModel)).scalars().all()
+        cpge_list = database.execute(select(SchoolModel).where(SchoolModel.type == "cpge")).scalars().all()
         self.high_schools = [x.name for x in cpge_list]
-        engineering_school_list = database.execute(select(EngineeringSchoolModel)).scalars().all()
+        engineering_school_list = database.execute(select(SchoolModel).where(SchoolModel.type == "engineering")).scalars().all()
         self.engineering_schools = [x.name for x in engineering_school_list]
 
     async def autocomplete_school(
@@ -67,23 +67,23 @@ class School(Cog):
             tab = f.read().splitlines()
             for name in tab:
                 database.execute(
-                    insert(CpgeModel).values({"name": name})
+                    insert(SchoolModel).values(type="cpge",name=name)
                 )
         with open(STATIC_DIR / "text/ecole_inge.txt", encoding="UTF-8") as f:
             tab = f.read().splitlines()
             for name in tab:
                 database.execute(
-                    insert(EngineeringSchoolModel).values({"name": name})
+                    insert(SchoolModel).values(type="engineering",name=name)
                 )
-        cpge_list = database.execute(select(CpgeModel)).scalars().all()
+        cpge_list = database.execute(select(SchoolModel).where(SchoolModel.type == "cpge")).scalars().all()
         self.high_schools = [x.name for x in cpge_list]
-        engineering_school_list = database.execute(select(EngineeringSchoolModel)).scalars().all()
+        engineering_school_list = database.execute(select(SchoolModel).where(SchoolModel.type == "engineering")).scalars().all()
         self.engineering_schools = [x.name for x in engineering_school_list]
         await ctx.reply("OK")
     
     @hybrid_command(name="add_school")
     @guild_only()
-    @has_role("Administrateur")
+    @has_any_role("Administrateur", "Moderateur")
     @choices(type=[
             Choice(name='lycée', value='lycée'),
             Choice(name='école d\'ingénieur', value='école d\'ingénieur'),
@@ -91,24 +91,60 @@ class School(Cog):
     async def add_school(self,ctx, type: str, school: str):
         """
         Ajoute un lycée/école dans la base de donnée
+
+        Parameters
+        ----------
+        type : Lycée ou école d'ingénieur
+        school: Le lycée/école à ajouter.
         """
         if type == 'lycée':
             database.execute(
-                insert(CpgeModel).values(name=school)
+                insert(SchoolModel).values(type="cpge",name=school)
             )
-            cpge_list = database.execute(select(CpgeModel)).scalars().all()
+            cpge_list = database.execute(select(SchoolModel).where(SchoolModel.type == "cpge")).scalars().all()
             self.high_schools = [x.name for x in cpge_list]
         else:
             database.execute(
-                insert(EngineeringSchoolModel).values(name=school)
+                insert(SchoolModel).values(type="engineering",name=school)
             )
-            engineering_school_list = database.execute(select(EngineeringSchoolModel)).scalars().all()
+            engineering_school_list = database.execute(select(SchoolModel).where(SchoolModel.type == "engineering")).scalars().all()
             self.engineering_schools = [x.name for x in engineering_school_list]
         await ctx.reply(f"{school} a bien été ajouté dans {type}")
 
+    @hybrid_command(name="update_school")
+    @guild_only()
+    @has_any_role("Administrateur", "Moderateur")
+    @autocomplete(old_school=autocomplete_school)
+    @choices(type=[
+            Choice(name='lycée', value='lycée'),
+            Choice(name='école d\'ingénieur', value='école d\'ingénieur'),
+        ])
+    async def update_school(self,ctx, type: str, old_school: str, new_school: str):
+        """
+        Update un lycée/école dans la base de donnée
+
+        Parameters
+        ----------
+        type : Lycée ou école d'ingénieur
+        school: Le lycée/école à modifier.
+        """
+        if type == 'lycée':
+            database.execute(
+                update(SchoolModel).where(SchoolModel.name == old_school).where(SchoolModel.type == "cpge").values(name=new_school)
+            )
+            cpge_list = database.execute(select(SchoolModel).where(SchoolModel.type == "cpge")).scalars().all()
+            self.high_schools = [x.name for x in cpge_list]
+        else:
+            database.execute(
+                update(SchoolModel).where(SchoolModel.name == old_school).where(SchoolModel.type == "engineering").values(name=new_school)
+            )
+            engineering_school_list = database.execute(select(SchoolModel).where(SchoolModel.type == "engineering")).scalars().all()
+            self.engineering_schools = [x.name for x in engineering_school_list]
+        await ctx.reply(f"{old_school} a bien été remplacé par {new_school} dans {type}")
+
     @hybrid_command(name="del_school")
     @guild_only()
-    @has_role("Administrateur")
+    @has_any_role("Administrateur", "Moderateur")
     @autocomplete(school=autocomplete_school)
     @choices(type=[
             Choice(name='lycée', value='lycée'),
@@ -117,18 +153,23 @@ class School(Cog):
     async def del_school(self,ctx, type: str, school: str):
         """
         Supprime un lycée/école dans la base de donnée
+
+        Parameters
+        ----------
+        type : Lycée ou école d'ingénieur
+        school: Le lycée/école à supprimer.
         """
         if type == 'lycée':
             database.execute(
-                delete(CpgeModel).where(CpgeModel.name == school)
+                delete(SchoolModel).where(SchoolModel.name == school).where(SchoolModel.type == "cpge")
             )
-            cpge_list = database.execute(select(CpgeModel)).scalars().all()
+            cpge_list = database.execute(select(SchoolModel).where(SchoolModel.type == "cpge")).scalars().all()
             self.high_schools = [x.name for x in cpge_list]
         else:
             database.execute(
-                delete(EngineeringSchoolModel).where(EngineeringSchoolModel.name == school)
+                delete(SchoolModel).where(SchoolModel.name == school).where(SchoolModel.type == "engineering")
             )
-            engineering_school_list = database.execute(select(EngineeringSchoolModel)).scalars().all()
+            engineering_school_list = database.execute(select(SchoolModel).where(SchoolModel.type == "engineering")).scalars().all()
             self.engineering_schools = [x.name for x in engineering_school_list]
         await ctx.reply(f"{school} a bien été supprimé dans {type}")
 
@@ -149,7 +190,7 @@ class School(Cog):
         Parameters
         ----------
         type : Lycée ou école d'ingénieur
-        school: Le lycée à associer.
+        school: Le lycée/école à associer.
         user: Réservé aux modérateurs
             L'utilisateur à qui on associe le lycée (par défaut, l'auteur de la commande)
         """

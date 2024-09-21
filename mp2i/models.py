@@ -5,9 +5,10 @@ from sqlalchemy.schema import PrimaryKeyConstraint, ForeignKeyConstraint
 Base = declarative_base()
 
 
-class CpgeModel(Base):
-    __tablename__ = "cpge"
+class SchoolModel(Base):
+    __tablename__ = "schools"
     id: int = Column(Integer, primary_key=True)
+    type: int = Column(String(50))
     name: str = Column(String(50))
 
 class EngineeringSchoolModel(Base):
@@ -36,8 +37,8 @@ class MemberModel(Base):
     role: str = Column(String(50), nullable=True)
     messages_count: int = Column(Integer, default=0)
     profile_color: str = Column(String(8), nullable=True)
-    high_school: str = Column(String(50), ForeignKey("cpge.id", ondelete="SET NULL"), nullable=True, default=None,)
-    engineering_school: str = Column(String(50), ForeignKey("engineering_school.id", ondelete="SET NULL"), nullable=True, default=None)
+    high_school: str = Column(String(50), nullable=True, default=None,)
+    engineering_school: str = Column(String(50), nullable=True, default=None)
     generation: int = Column(Integer,nullable=True,default=None)
 
     def __repr__(self):
