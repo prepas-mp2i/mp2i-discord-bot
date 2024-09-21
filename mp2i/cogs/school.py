@@ -67,14 +67,18 @@ class School(Cog):
             tab = f.read().splitlines()
             for name in tab:
                 database.execute(
-                    insert(CpgeModel).values(name=name)
+                    insert(CpgeModel).values({"name": name})
                 )
         with open(STATIC_DIR / "text/ecole_inge.txt", encoding="UTF-8") as f:
             tab = f.read().splitlines()
             for name in tab:
                 database.execute(
-                    insert(EngineeringSchoolModel).values(name=name)
+                    insert(EngineeringSchoolModel).values({"name": name})
                 )
+        cpge_list = database.execute(select(CpgeModel)).scalars().all()
+        self.high_schools = [x.name for x in cpge_list]
+        engineering_school_list = database.execute(select(EngineeringSchoolModel)).scalars().all()
+        self.engineering_schools = [x.name for x in engineering_school_list]
         await ctx.reply("OK")
     
     @hybrid_command(name="add_school")
