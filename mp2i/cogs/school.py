@@ -273,7 +273,7 @@ class School(Cog):
 
         await ctx.reply(response, ephemeral=True)
     
-    @hybrid_command(name="gen")
+    @hybrid_command(name="generation")
     @has_any_role("MP2I", "MPI", "Ex MPI", "Moderateur", "Administrateur")
     @guild_only()
     async def generation(self, ctx, gen : Range[int,2021,datetime.now().year], user: Optional[discord.Member] = None):
