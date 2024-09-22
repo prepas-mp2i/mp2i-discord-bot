@@ -245,9 +245,12 @@ class School(Cog):
                     member_school = database.execute(select(SchoolModel).where(SchoolModel.name == member_school).where(SchoolModel.type == "cpge")).first()[0].id
                 member.high_school = member_school
             else:
-                if not member_school is None: 
-                    member_school = database.execute(select(SchoolModel).where(SchoolModel.name == member_school).where(SchoolModel.type == "engineering")).first()[0].id
-                member.engineering_school = member_school
+                if any(r.name == "Ex MPI" for r in ctx.author.roles):
+                    if not member_school is None: 
+                        member_school = database.execute(select(SchoolModel).where(SchoolModel.name == member_school).where(SchoolModel.type == "engineering")).first()[0].id
+                    member.engineering_school = member_school
+                else:
+                    response = f"Vous n'êtes pas un Ex MPI !"
 
         elif any(r.name in ("Administrateur", "Modérateur") for r in ctx.author.roles):
             member = MemberWrapper(user)
