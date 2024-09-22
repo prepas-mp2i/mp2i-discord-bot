@@ -5,6 +5,12 @@ from sqlalchemy.schema import PrimaryKeyConstraint, ForeignKeyConstraint
 Base = declarative_base()
 
 
+class SchoolModel(Base):
+    __tablename__ = "schools"
+    id: int = Column(Integer, primary_key=True)
+    type: int = Column(String(50))
+    name: str = Column(String(50))
+
 class GuildModel(Base):
     __tablename__ = "guilds"
 
@@ -26,7 +32,9 @@ class MemberModel(Base):
     role: str = Column(String(50), nullable=True)
     messages_count: int = Column(Integer, default=0)
     profile_color: str = Column(String(8), nullable=True)
-    school: str = Column(String(50), nullable=True, default=None)
+    high_school: int = Column(Integer, ForeignKey("schools.id", ondelete="SET NULL"), nullable=True, default=None,)
+    engineering_school: int = Column(Integer, ForeignKey("schools.id", ondelete="SET NULL"), nullable=True, default=None)
+    generation: int = Column(Integer,nullable=True,default=None)
 
     def __repr__(self):
         return f"Member(id={self.id}, name={self.name}, role={self.role})"

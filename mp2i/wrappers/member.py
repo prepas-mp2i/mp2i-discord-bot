@@ -78,7 +78,9 @@ class MemberWrapper:
                 guild_id=self.guild.id,
                 name=self.member.name,
                 role=qualifier,
-                school=None,
+                high_school=None,
+                engineering_school=None,
+                generation=None,
             )
         )
         self.__model = self._fetch()  # Update the model
@@ -108,9 +110,25 @@ class MemberWrapper:
         self.update(profile_color=value)
 
     @property
-    def school(self) -> str:
-        return self.__model.school or "Aucun"
+    def high_school(self) -> int:
+        return self.__model.high_school or -1
 
-    @school.setter
-    def school(self, value: str):
-        return self.update(school=value)
+    @high_school.setter
+    def high_school(self, value: int):
+        return self.update(high_school=value)
+    
+    @property
+    def engineering_school(self) -> int:
+        return self.__model.engineering_school or -1
+
+    @engineering_school.setter
+    def engineering_school(self, value: int):
+        return self.update(engineering_school=value)
+
+    @property
+    def generation(self) -> int:
+        return self.__model.generation or 0
+
+    @generation.setter
+    def generation(self, value: int) -> None:
+        self.update(generation=value)

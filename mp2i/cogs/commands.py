@@ -9,6 +9,10 @@ from discord.ext.commands import Cog, hybrid_command, guild_only, has_permission
 from mp2i.wrappers.guild import GuildWrapper
 from mp2i.wrappers.member import MemberWrapper
 
+from mp2i.utils import database
+from mp2i.models import SchoolModel
+from sqlalchemy import insert, select, delete, update
+
 from mp2i.utils import youtube
 
 logger = logging.getLogger(__name__)
@@ -118,8 +122,14 @@ class Commands(Cog):
             name="Rôles",
             value=" ".join(r.mention for r in member.roles if r.name != "@everyone"),
         )
-        if member.school != "Aucun":
-            embed.add_field(name="Lycée", value=member.school)
+        if member.high_school != -1:
+            school = database.execute(select(SchoolModel).where(SchoolModel.id == member.high_school).where(SchoolModel.type == "cpge")).first()[0].name
+            embed.add_field(name="Lycée", value=school)
+        if member.generation > 0:
+            embed.add_field(name="Génération", value=member.generation)
+        if member.engineering_school != -1:
+            school = database.execute(select(SchoolModel).where(SchoolModel.id == member.engineering_school).where(SchoolModel.type == "engineering")).first()[0].name
+            embed.add_field(name="École d'ingénieur", value=school)
 
         await ctx.send(embed=embed)
 
