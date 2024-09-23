@@ -54,32 +54,6 @@ class School(Cog):
             for choice in schools
             if current.lower() in choice.lower()
         ]
-
-    @hybrid_command(name="add_db_one_time")
-    @guild_only()
-    @has_role("Administrateur")
-    async def addDB(self,ctx):
-        """
-        Pour ajouter les lycées et écoles qui sont dans les fichiers textes correspondant.
-        A UTILISER QU'UNE SEULE FOIS
-        """
-        with open(STATIC_DIR / "text/cpge.txt", encoding="UTF-8") as f:
-            tab = f.read().splitlines()
-            for name in tab:
-                database.execute(
-                    insert(SchoolModel).values(type="cpge",name=name)
-                )
-        with open(STATIC_DIR / "text/ecole_inge.txt", encoding="UTF-8") as f:
-            tab = f.read().splitlines()
-            for name in tab:
-                database.execute(
-                    insert(SchoolModel).values(type="engineering",name=name)
-                )
-        cpge_list = database.execute(select(SchoolModel).where(SchoolModel.type == "cpge")).scalars().all()
-        self.high_schools = [x.name for x in cpge_list]
-        engineering_school_list = database.execute(select(SchoolModel).where(SchoolModel.type == "engineering")).scalars().all()
-        self.engineering_schools = [x.name for x in engineering_school_list]
-        await ctx.reply("OK")
     
     @hybrid_command(name="add_school")
     @guild_only()
