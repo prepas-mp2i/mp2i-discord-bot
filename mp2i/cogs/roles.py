@@ -102,29 +102,8 @@ class Roles(Cog):
                 # Add the role
                 if qualifier == "Prof":
                     await self._add_prof_role(member)
-                elif qualifier == "Intégré":
-                    dm_channel = await self.bot.create_dm(member)
-                    message = await dm_channel.send('Êtes-vous un ancien MPI ?')
-
-                    thumb_up = '👍'
-                    thumb_down = '👎'
-
-                    await message.add_reaction(thumb_up)
-                    await message.add_reaction(thumb_down)
-
-                    def check(reaction, user):
-                        return user.id == member.id and reaction.message == message and str(
-                            reaction.emoji) in [thumb_up, thumb_down]                        
-                    try:
-                        reaction, user = await self.bot.wait_for("reaction_add", timeout=30.0, check=check)
-                        if reaction.emoji == thumb_up:
-                            await member.add_roles(role, ex_mpi_role)
-                            await dm_channel.send("Rôle Ex-MPI ajouté !")
-                        else:
-                            await dm_channel.send("Merci de votre réponse !")
-
-                    except asyncio.TimeoutError:
-                        await dm_channel.send("Question expirée")
+                elif qualifier == "Intégré" and member.role == mpi_role:
+                    await member.add_roles(role, ex_mpi_role)
                 else:
                     await member.add_roles(role)
                 member.update(role=qualifier)
