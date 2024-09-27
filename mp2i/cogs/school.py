@@ -45,41 +45,6 @@ class School(Cog):
             if current.lower() in choice.lower()
         ]
 
-    @hybrid_command(name="add_school")
-    @guild_only()
-    @has_any_role("Administrateur", "Moderateur")
-    @choices(
-        type=[
-            Choice(name="Lycée", value="cpge"),
-            Choice(name="École d'ingénieur", value="engineering"),
-        ]
-    )
-    async def add_school(self, ctx, type: str, school: str):
-        """
-        Ajoute un lycée/école dans la base de donnée
-
-        Parameters
-        ----------
-        type : Lycée ou École d'ingénieur
-        school: Le lycée/école à ajouter.
-        """
-        if type == "cpge":
-            if school in self.high_schools:
-                await ctx.reply(f"Le lycée {school} existe déjà", ephemeral=True)
-            else:
-                self.high_schools.append(school)
-                with open(STATIC_DIR / "text/cpge.txt", "a") as f:
-                    f.write(school + "\n")
-                await ctx.reply(f"Le lycée {school} a bien été ajouté.")
-        else:
-            if school in self.engineering_schools:
-                await ctx.reply(f"L'école {school} existe déjà", ephemeral=True)
-            else:
-                self.engineering_schools.append(school)
-                with open(STATIC_DIR / "text/engineering.txt", "a") as f:
-                    f.write(school + "\n")
-                await ctx.reply(f"L'école {school} a bien été ajoutée.")
-
     @hybrid_command(name="school")
     @guild_only()
     @has_any_role("MP2I", "MPI", "Ex MPI", "Moderateur", "Administrateur")
@@ -113,19 +78,19 @@ class School(Cog):
 
         if type == "cpge":
             if school == "Aucun":
-                response = f"{user} ne fait plus partie d'aucun lycée."
+                response = f"{member.name} ne fait plus partie d'aucun lycée."
                 member.high_school = None
             elif school in self.high_schools:
-                response = f"{user} fait maintenant partie du lycée {school}."
+                response = f"{member.name} fait maintenant partie du lycée {school}."
                 member.high_school = school
             else:
                 response = f"Le lycée {school} n'existe pas."
         else:
             if school == "Aucun":
-                response = f"{user} ne fait plus partie d'aucune école d'ingénieur."
+                response = f"{member.name} ne fait plus partie d'aucune école."
                 member.engineering_school = None
             elif school in self.engineering_schools:
-                response = f"{user} fait maintenant partie de l'école {school}."
+                response = f"{member.name} fait maintenant partie de l'école {school}."
                 member.engineering_school = school
             else:
                 response = f"L'école {school} n'existe pas"
