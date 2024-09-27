@@ -22,7 +22,8 @@ class EventsCog(Cog):
         """
         When client is connected, sync the command tree.
         """
-        await self.bot.tree.sync()
+        await self.bot.tree.sync()  # Sync the command tree
+
         for guild in self.bot.guilds:
             if not GuildWrapper(guild).exists():
                 GuildWrapper(guild).register()

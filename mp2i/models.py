@@ -11,6 +11,7 @@ class SchoolModel(Base):
     type: int = Column(String(50))
     name: str = Column(String(50))
 
+
 class GuildModel(Base):
     __tablename__ = "guilds"
 
@@ -32,9 +33,17 @@ class MemberModel(Base):
     role: str = Column(String(50), nullable=True)
     messages_count: int = Column(Integer, default=0)
     profile_color: str = Column(String(8), nullable=True)
-    high_school: int = Column(Integer, ForeignKey("schools.id", ondelete="SET NULL"), nullable=True, default=None,)
-    engineering_school: int = Column(Integer, ForeignKey("schools.id", ondelete="SET NULL"), nullable=True, default=None)
-    generation: int = Column(Integer,nullable=True,default=None)
+    high_school_id: int = Column(
+        Integer,
+        ForeignKey("schools.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    engineering_school_id: int = Column(
+        Integer,
+        ForeignKey("schools.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    generation: int = Column(Integer, nullable=True, default=None)
 
     def __repr__(self):
         return f"Member(id={self.id}, name={self.name}, role={self.role})"

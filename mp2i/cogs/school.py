@@ -7,22 +7,15 @@ from datetime import datetime
 from operator import itemgetter
 
 import discord
-from discord.ext.commands import (
-    Cog,
-    hybrid_command,
-    guild_only,
-    has_any_role,
-    has_role
-)
+from discord.ext.commands import Cog, hybrid_command, guild_only, has_any_role
 from discord.app_commands import autocomplete, Choice, choices, Range
 
-from mp2i import STATIC_DIR
 from mp2i.wrappers.member import MemberWrapper
 from mp2i.wrappers.guild import GuildWrapper
 
 from mp2i.utils import database
-from mp2i.models import SchoolModel, MemberModel
-from sqlalchemy import insert, select, delete, update
+from mp2i.models import SchoolModel
+from sqlalchemy import insert, select
 
 SCHOOL_REGEX = re.compile(r"^.+[|@] *(?P<prepa>.*)$")
 
@@ -36,153 +29,80 @@ class School(Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        cpge_list = database.execute(select(SchoolModel).where(SchoolModel.type == "cpge")).scalars().all()
+        cpge_list = (
+            database.execute(select(SchoolModel).where(SchoolModel.type == "cpge"))
+            .scalars()
+            .all()
+        )
         self.high_schools = [x.name for x in cpge_list]
-        engineering_school_list = database.execute(select(SchoolModel).where(SchoolModel.type == "engineering")).scalars().all()
+        engineering_school_list = (
+            database.execute(
+                select(SchoolModel).where(SchoolModel.type == "engineering")
+            )
+            .scalars()
+            .all()
+        )
         self.engineering_schools = [x.name for x in engineering_school_list]
 
     async def autocomplete_school(
         self, interaction: discord.Interaction, current: str
     ) -> List[Choice[str]]:
         type = interaction.namespace.type
-        if type == "lycée":
+        if type == "cpge":
             schools = self.high_schools
-        else :
+        else:
             schools = self.engineering_schools
         return [
             Choice(name=choice, value=choice)
             for choice in schools
             if current.lower() in choice.lower()
         ]
-    
+
     @hybrid_command(name="add_school")
     @guild_only()
     @has_any_role("Administrateur", "Moderateur")
-    @choices(type=[
-            Choice(name='lycée', value='lycée'),
-            Choice(name='école d\'ingénieur', value='école d\'ingénieur'),
-        ])
-    async def add_school(self,ctx, type: str, school: str):
+    @choices(
+        type=[
+            Choice(name="Lycée", value="cpge"),
+            Choice(name="École d'ingénieur", value="engineering"),
+        ]
+    )
+    async def add_school(self, ctx, type: str, school: str):
         """
         Ajoute un lycée/école dans la base de donnée
 
         Parameters
         ----------
-        type : Lycée ou école d'ingénieur
+        type : Lycée ou École d'ingénieur
         school: Le lycée/école à ajouter.
         """
-        if type == 'lycée':
+        if type == "cpge":
             if school in self.high_schools:
-                await ctx.reply("Le lycée existe déjà",ephemeral=True)
-                return 
-            database.execute(
-                insert(SchoolModel).values(type="cpge",name=school)
-            )
-            cpge_list = database.execute(select(SchoolModel).where(SchoolModel.type == "cpge")).scalars().all()
-            self.high_schools = [x.name for x in cpge_list]
+                await ctx.reply("Le lycée existe déjà", ephemeral=True)
+                return
+            database.execute(insert(SchoolModel).values(type="cpge", name=school))
+            self.high_schools.append(school)
         else:
             if school in self.engineering_schools:
-                await ctx.reply("L'école d'ingénieur existe déjà",ephemeral=True)
-                return 
+                await ctx.reply("L'école d'ingénieur existe déjà", ephemeral=True)
+                return
             database.execute(
-                insert(SchoolModel).values(type="engineering",name=school)
+                insert(SchoolModel).values(type="engineering", name=school)
             )
-            engineering_school_list = database.execute(select(SchoolModel).where(SchoolModel.type == "engineering")).scalars().all()
-            self.engineering_schools = [x.name for x in engineering_school_list]
+            self.engineering_schools.append(school)
+
         await ctx.reply(f"{school} a bien été ajouté dans {type}")
-
-    @hybrid_command(name="update_school")
-    @guild_only()
-    @has_any_role("Administrateur", "Moderateur")
-    @autocomplete(old_school=autocomplete_school)
-    @choices(type=[
-            Choice(name='lycée', value='lycée'),
-            Choice(name='école d\'ingénieur', value='école d\'ingénieur'),
-        ])
-    async def update_school(self,ctx, type: str, old_school: str, new_school: str):
-        """
-        Update un lycée/école dans la base de donnée
-
-        Parameters
-        ----------
-        type : Lycée ou école d'ingénieur
-        school: Le lycée/école à modifier.
-        """
-        if type == 'lycée':
-            if new_school in self.high_schools:
-                await ctx.reply("Le lycée existe déjà",ephemeral=True)
-                return 
-            database.execute(
-                update(SchoolModel).where(SchoolModel.name == old_school).where(SchoolModel.type == "cpge").values(name=new_school)
-            )
-            cpge_list = database.execute(select(SchoolModel).where(SchoolModel.type == "cpge")).scalars().all()
-            self.high_schools = [x.name for x in cpge_list]
-        else:
-            if new_school in self.engineering_schools:
-                await ctx.reply("L'école d'ingénieur existe déjà",ephemeral=True)
-                return 
-            database.execute(
-                update(SchoolModel).where(SchoolModel.name == old_school).where(SchoolModel.type == "engineering").values(name=new_school)
-            )
-            engineering_school_list = database.execute(select(SchoolModel).where(SchoolModel.type == "engineering")).scalars().all()
-            self.engineering_schools = [x.name for x in engineering_school_list]
-        await ctx.reply(f"{old_school} a bien été remplacé par {new_school} dans {type}")
-
-    @hybrid_command(name="del_school")
-    @guild_only()
-    @has_any_role("Administrateur", "Moderateur")
-    @autocomplete(school=autocomplete_school)
-    @choices(type=[
-            Choice(name='lycée', value='lycée'),
-            Choice(name='école d\'ingénieur', value='école d\'ingénieur'),
-        ])
-    async def del_school(self,ctx, type: str, school: str):
-        """
-        Supprime un lycée/école dans la base de donnée
-
-        Parameters
-        ----------
-        type : Lycée ou école d'ingénieur
-        school: Le lycée/école à supprimer.
-        """
-        if type == 'lycée':
-            if not school in self.high_schools:
-                await ctx.reply("Le lycée n'existe pas",ephemeral=True)
-                return 
-            members = database.execute(select(MemberModel).join(SchoolModel,MemberModel.high_school == SchoolModel.id).where(SchoolModel.name == school).where(SchoolModel.type == "cpge")).scalars().all()
-            for member in members:
-                member = MemberWrapper(ctx.guild.get_member(member.id))
-                member.high_school = None
-
-            database.execute(
-                delete(SchoolModel).where(SchoolModel.name == school).where(SchoolModel.type == "cpge")
-            )
-            cpge_list = database.execute(select(SchoolModel).where(SchoolModel.type == "cpge")).scalars().all()
-            self.high_schools = [x.name for x in cpge_list]
-        else:
-            if not school in self.engineering_schools:
-                await ctx.reply("L'école n'existe pas",ephemeral=True)
-                return 
-            members = database.execute(select(MemberModel).join(SchoolModel,MemberModel.high_school == SchoolModel.id).where(SchoolModel.name == school).where(SchoolModel.type == "engineering")).scalars().all()
-            for member in members:
-                member = MemberWrapper(ctx.guild.get_member(member.id))
-                member.engineering_school = None
-
-            database.execute(
-                delete(SchoolModel).where(SchoolModel.name == school).where(SchoolModel.type == "engineering")
-            )
-            engineering_school_list = database.execute(select(SchoolModel).where(SchoolModel.type == "engineering")).scalars().all()
-            self.engineering_schools = [x.name for x in engineering_school_list]
-        await ctx.reply(f"{school} a bien été supprimé dans {type}")
 
     @hybrid_command(name="school")
     @guild_only()
     @has_any_role("MP2I", "MPI", "Ex MPI", "Moderateur", "Administrateur")
     @autocomplete(school=autocomplete_school)
-    @choices(type=[
-            Choice(name='lycée', value='lycée'),
-            Choice(name='école d\'ingénieur', value='école d\'ingénieur'),
-        ])
+    @choices(
+        type=[
+            Choice(name="Lycée", value="cpge"),
+            Choice(name="École d'ingénieur", value="engineering"),
+        ]
+    )
     async def school_selection(
         self, ctx, type: str, school: str, user: Optional[discord.Member] = None
     ):
@@ -193,64 +113,56 @@ class School(Cog):
         ----------
         type : Lycée ou école d'ingénieur
         school: Le lycée/école à associer.
-        user: Réservé aux modérateurs
+        user: Réservé aux Administrateurs et Modérateurs
             L'utilisateur à qui on associe le lycée (par défaut, l'auteur de la commande)
         """
-        if type == 'lycée':
-            schools = self.high_schools
-            messages = ["du lycée","aucun lycée"]
+        if type == "cpge":
+            if school not in self.high_schools and school != "Aucun":
+                await ctx.reply("Le nom de lycée n'est pas valide", ephemeral=True)
+                return
         else:
-            schools = self.engineering_schools
-            messages = ["de l'école d'ingénieur","aucune école d'ingénieur"]
-        if school not in schools and school != "Aucun":
-            await ctx.reply(f"Le nom {messages[0]} n'est pas valide", ephemeral=True)
-            return
+            if school not in self.engineering_schools and school != "Aucun":
+                await ctx.reply("Le nom d'école n'est pas valide", ephemeral=True)
+                return
 
         if user is None or user == ctx.author:
             member = MemberWrapper(ctx.author)
-            if school == "Aucun":
-                member_school = None
-                response = f"Vous ne faites plus partie {messages[1]}"
-            else:
-                member_school = school
-                response = f"Vous faites maintenant partie {messages[0]} {school}."
-            if type == 'lycée':
-                if not member_school is None: 
-                    member_school = database.execute(select(SchoolModel).where(SchoolModel.name == member_school).where(SchoolModel.type == "cpge")).first()[0].id
-                member.high_school = member_school
-            else:
-                if any(r.name == "Ex MPI" for r in ctx.author.roles):
-                    if not member_school is None: 
-                        member_school = database.execute(select(SchoolModel).where(SchoolModel.name == member_school).where(SchoolModel.type == "engineering")).first()[0].id
-                    member.engineering_school = member_school
-                else:
-                    response = f"Vous n'êtes pas un Ex MPI !"
-
-        elif any(r.name in ("Administrateur", "Modérateur") for r in ctx.author.roles):
+        elif ctx.author.guild_permissions.manage_roles:
             member = MemberWrapper(user)
-            if school == "Aucun":
-                member_school = None
-                response = f"{user.mention} ne fait plus partie d'{messages[1]}."
-            else:
-                member_school = school
-                response = f"{user.mention} fait maintenant partie {messages[0]} {school}"
-            if type == 'lycée':
-                if not member_school is None: 
-                    member_school = database.execute(select(SchoolModel).where(SchoolModel.name == member_school).where(School.type == "cpge")).first()[0].id
-                member.high_school = member_school
-            else:
-                if not member_school is None: 
-                    member_school = database.execute(select(SchoolModel).where(SchoolModel.name == member_school).where(School.type == "engineering")).first()[0].id
-                member.engineering_school = member_school
         else:
-            response = "Vous n'avez pas les droits suffisants."
+            await ctx.reply("Vous n'avez pas les droits suffisants.", ephemeral=True)
+            return
+
+        if school == "Aucun":
+            response = "Vous ne faites plus partie d'aucune école."
+            school_id = -1
+        else:
+            response = f"Vous faites maintenant partie de l'école {school}."
+            school_id = (
+                database.execute(
+                    select(SchoolModel)
+                    .where(SchoolModel.name == school)
+                    .where(SchoolModel.type == type)
+                )
+                .scalar_one()
+                .id
+            )
+        if type == "cpge":
+            member.high_school = school_id
+        else:
+            member.engineering_school = school_id
 
         await ctx.reply(response, ephemeral=True)
-    
+
     @hybrid_command(name="generation")
     @has_any_role("MP2I", "MPI", "Ex MPI", "Moderateur", "Administrateur")
     @guild_only()
-    async def generation(self, ctx, gen : Range[int,2021,datetime.now().year], user: Optional[discord.Member] = None):
+    async def generation(
+        self,
+        ctx,
+        gen: Range[int, 2021, datetime.now().year],
+        user: Optional[discord.Member] = None,
+    ):
         """
         Définit l'année d'arrivée en sup
 
@@ -263,40 +175,46 @@ class School(Cog):
         if user is None or user == ctx.author:
             member = MemberWrapper(ctx.author)
             member.generation = gen
-            await ctx.reply(f"Vous faites maintenant partie de la génération {gen} !", ephemeral=True)
+            await ctx.reply(
+                f"Vous faites maintenant partie de la génération {gen} !",
+                ephemeral=True,
+            )
         elif any(r.name in ("Administrateur", "Modérateur") for r in ctx.author.roles):
             member = MemberWrapper(user)
             member.generation = gen
-            await ctx.reply(f"{user.mention} fait maintenant partie de la génération {gen} !", ephemeral=True)
+            await ctx.reply(
+                f"{user.mention} fait maintenant partie de la génération {gen} !",
+                ephemeral=True,
+            )
         else:
             await ctx.reply("Vous n'avez pas les droits suffisants.", ephemeral=True)
-        
-
 
     @hybrid_command(name="members")
     @guild_only()
     @autocomplete(school=autocomplete_school)
-    @choices(type=[
-        Choice(name='lycée', value='lycée'),
-        Choice(name='école d\'ingénieur', value='école d\'ingénieur'),
-    ])
-    async def school_members(self, ctx, type:str, school: str):
+    @choices(
+        type=[
+            Choice(name="Lycée", value="cpge"),
+            Choice(name="École d'ingénieur", value="engineering"),
+        ]
+    )
+    async def school_members(self, ctx, type: str, school: str):
         """
         Affiche les étudiants d'une école donnée.
         """
         guild = GuildWrapper(ctx.guild)
-        if type == 'lycée':
+        if type == "cpge":
             students = [
                 member
                 for member in map(MemberWrapper, guild.members)
                 if member.exists() and member.high_school == school
-            ]  
+            ]
         else:
             students = [
                 member
                 for member in map(MemberWrapper, guild.members)
                 if member.exists() and member.engineering_school == school
-            ] 
+            ]
         if not students:
             await ctx.reply(f"{school} n'a aucun étudiant sur ce serveur.")
             return
@@ -330,7 +248,15 @@ class School(Cog):
             if not member.get_role(referent_role.id):
                 continue
             if member.exists() and member.high_school != -1:
-                school = database.execute(select(SchoolModel).where(SchoolModel.id == member.high_school).where(SchoolModel.type == "cpge")).first()[0].name
+                school = (
+                    database.execute(
+                        select(SchoolModel)
+                        .where(SchoolModel.id == member.high_school)
+                        .where(SchoolModel.type == "cpge")
+                    )
+                    .first()[0]
+                    .name
+                )
                 referents.append((member, school))
 
             elif match := SCHOOL_REGEX.match(member.nick):
@@ -349,7 +275,6 @@ class School(Cog):
         )
         embed.set_footer(text=self.bot.user.name)
         await ctx.send(embed=embed)
-
 
 
 async def setup(bot) -> None:

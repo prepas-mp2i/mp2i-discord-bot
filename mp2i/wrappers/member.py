@@ -6,7 +6,7 @@ from discord.ext.commands import MemberConverter
 import sqlalchemy.exc
 from sqlalchemy import insert, select, update
 
-from mp2i.models import MemberModel
+from mp2i.models import MemberModel, SchoolModel
 from mp2i.utils import database
 from mp2i.wrappers.guild import GuildWrapper
 
@@ -78,8 +78,8 @@ class MemberWrapper:
                 guild_id=self.guild.id,
                 name=self.member.name,
                 role=qualifier,
-                high_school=None,
-                engineering_school=None,
+                high_school_id=None,
+                engineering_school_id=None,
                 generation=None,
             )
         )
@@ -110,20 +110,26 @@ class MemberWrapper:
         self.update(profile_color=value)
 
     @property
-    def high_school(self) -> int:
-        return self.__model.high_school or -1
+    def high_school(self) -> str:
+        school = database.execute(
+            select(SchoolModel).where(id == self.__model.high_school_id)
+        ).scalar_one()
+        return school.name
 
     @high_school.setter
     def high_school(self, value: int):
-        return self.update(high_school=value)
-    
+        return self.update(high_school_id=value)
+
     @property
     def engineering_school(self) -> int:
-        return self.__model.engineering_school or -1
+        school = database.execute(
+            select(SchoolModel).where(id == self.__model.engineering_school_id)
+        ).scalar_one()
+        return school.name
 
     @engineering_school.setter
     def engineering_school(self, value: int):
-        return self.update(engineering_school=value)
+        return self.update(engineering_school_id=value)
 
     @property
     def generation(self) -> int:
