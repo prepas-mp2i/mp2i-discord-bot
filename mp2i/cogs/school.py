@@ -10,12 +10,9 @@ import discord
 from discord.ext.commands import Cog, hybrid_command, guild_only, has_any_role
 from discord.app_commands import autocomplete, Choice, choices, Range
 
+from mp2i import STATIC_DIR
 from mp2i.wrappers.member import MemberWrapper
 from mp2i.wrappers.guild import GuildWrapper
-
-from mp2i.utils import database
-from mp2i.models import SchoolModel
-from sqlalchemy import insert, select
 
 SCHOOL_REGEX = re.compile(r"^.+[|@] *(?P<prepa>.*)$")
 
@@ -29,20 +26,10 @@ class School(Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        cpge_list = (
-            database.execute(select(SchoolModel).where(SchoolModel.type == "cpge"))
-            .scalars()
-            .all()
-        )
-        self.high_schools = [x.name for x in cpge_list]
-        engineering_school_list = (
-            database.execute(
-                select(SchoolModel).where(SchoolModel.type == "engineering")
-            )
-            .scalars()
-            .all()
-        )
-        self.engineering_schools = [x.name for x in engineering_school_list]
+        with open(STATIC_DIR / "text/cpge.txt") as f:
+            self.high_schools = f.read().splitlines()
+        with open(STATIC_DIR / "text/engineering.txt") as f:
+            self.engineering_schools = f.read().splitlines()
 
     async def autocomplete_school(
         self, interaction: discord.Interaction, current: str
@@ -78,20 +65,20 @@ class School(Cog):
         """
         if type == "cpge":
             if school in self.high_schools:
-                await ctx.reply("Le lycée existe déjà", ephemeral=True)
-                return
-            database.execute(insert(SchoolModel).values(type="cpge", name=school))
-            self.high_schools.append(school)
+                await ctx.reply(f"Le lycée {school} existe déjà", ephemeral=True)
+            else:
+                self.high_schools.append(school)
+                with open(STATIC_DIR / "text/cpge.txt", "a") as f:
+                    f.write(school + "\n")
+                await ctx.reply(f"Le lycée {school} a bien été ajouté.")
         else:
             if school in self.engineering_schools:
-                await ctx.reply("L'école d'ingénieur existe déjà", ephemeral=True)
-                return
-            database.execute(
-                insert(SchoolModel).values(type="engineering", name=school)
-            )
-            self.engineering_schools.append(school)
-
-        await ctx.reply(f"{school} a bien été ajouté dans {type}")
+                await ctx.reply(f"L'école {school} existe déjà", ephemeral=True)
+            else:
+                self.engineering_schools.append(school)
+                with open(STATIC_DIR / "text/engineering.txt", "a") as f:
+                    f.write(school + "\n")
+                await ctx.reply(f"L'école {school} a bien été ajoutée.")
 
     @hybrid_command(name="school")
     @guild_only()
@@ -116,15 +103,6 @@ class School(Cog):
         user: Réservé aux Administrateurs et Modérateurs
             L'utilisateur à qui on associe le lycée (par défaut, l'auteur de la commande)
         """
-        if type == "cpge":
-            if school not in self.high_schools and school != "Aucun":
-                await ctx.reply("Le nom de lycée n'est pas valide", ephemeral=True)
-                return
-        else:
-            if school not in self.engineering_schools and school != "Aucun":
-                await ctx.reply("Le nom d'école n'est pas valide", ephemeral=True)
-                return
-
         if user is None or user == ctx.author:
             member = MemberWrapper(ctx.author)
         elif ctx.author.guild_permissions.manage_roles:
@@ -133,24 +111,24 @@ class School(Cog):
             await ctx.reply("Vous n'avez pas les droits suffisants.", ephemeral=True)
             return
 
-        if school == "Aucun":
-            response = "Vous ne faites plus partie d'aucune école."
-            school_id = -1
-        else:
-            response = f"Vous faites maintenant partie de l'école {school}."
-            school_id = (
-                database.execute(
-                    select(SchoolModel)
-                    .where(SchoolModel.name == school)
-                    .where(SchoolModel.type == type)
-                )
-                .scalar_one()
-                .id
-            )
         if type == "cpge":
-            member.high_school = school_id
+            if school == "Aucun":
+                response = f"{user} ne fait plus partie d'aucun lycée."
+                member.high_school = None
+            elif school in self.high_schools:
+                response = f"{user} fait maintenant partie du lycée {school}."
+                member.high_school = school
+            else:
+                response = f"Le lycée {school} n'existe pas."
         else:
-            member.engineering_school = school_id
+            if school == "Aucun":
+                response = f"{user} ne fait plus partie d'aucune école d'ingénieur."
+                member.engineering_school = None
+            elif school in self.engineering_schools:
+                response = f"{user} fait maintenant partie de l'école {school}."
+                member.engineering_school = school
+            else:
+                response = f"L'école {school} n'existe pas"
 
         await ctx.reply(response, ephemeral=True)
 
@@ -203,18 +181,12 @@ class School(Cog):
         Affiche les étudiants d'une école donnée.
         """
         guild = GuildWrapper(ctx.guild)
+        members = [m for m in map(MemberWrapper, guild.members) if m.exists()]
         if type == "cpge":
-            students = [
-                member
-                for member in map(MemberWrapper, guild.members)
-                if member.exists() and member.high_school == school
-            ]
+            students = [m for m in members if m.high_school == school]
         else:
-            students = [
-                member
-                for member in map(MemberWrapper, guild.members)
-                if member.exists() and member.engineering_school == school
-            ]
+            students = [m for m in members if m.engineering_school == school]
+
         if not students:
             await ctx.reply(f"{school} n'a aucun étudiant sur ce serveur.")
             return
@@ -247,17 +219,8 @@ class School(Cog):
         for member in map(MemberWrapper, guild.members):
             if not member.get_role(referent_role.id):
                 continue
-            if member.exists() and member.high_school != -1:
-                school = (
-                    database.execute(
-                        select(SchoolModel)
-                        .where(SchoolModel.id == member.high_school)
-                        .where(SchoolModel.type == "cpge")
-                    )
-                    .first()[0]
-                    .name
-                )
-                referents.append((member, school))
+            if member.exists() and member.high_school is not None:
+                referents.append((member, member.high_school))
 
             elif match := SCHOOL_REGEX.match(member.nick):
                 referents.append((member, match.group(1)))

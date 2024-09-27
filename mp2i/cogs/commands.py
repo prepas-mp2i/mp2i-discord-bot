@@ -9,10 +9,6 @@ from discord.ext.commands import Cog, hybrid_command, guild_only, has_permission
 from mp2i.wrappers.guild import GuildWrapper
 from mp2i.wrappers.member import MemberWrapper
 
-from mp2i.utils import database
-from mp2i.models import SchoolModel
-from sqlalchemy import insert, select, delete, update
-
 from mp2i.utils import youtube
 
 logger = logging.getLogger(__name__)
@@ -122,14 +118,12 @@ class Commands(Cog):
             name="Rôles",
             value=" ".join(r.mention for r in member.roles if r.name != "@everyone"),
         )
-        if member.high_school != -1:
-            school = database.execute(select(SchoolModel).where(SchoolModel.id == member.high_school).where(SchoolModel.type == "cpge")).first()[0].name
-            embed.add_field(name="Lycée", value=school)
+        if member.high_school is not None:
+            embed.add_field(name="Lycée", value=member.high_school)
         if member.generation > 0:
             embed.add_field(name="Génération", value=member.generation)
-        if member.engineering_school != -1:
-            school = database.execute(select(SchoolModel).where(SchoolModel.id == member.engineering_school).where(SchoolModel.type == "engineering")).first()[0].name
-            embed.add_field(name="École d'ingénieur", value=school)
+        if member.engineering_school is not None:
+            embed.add_field(name="École d'ingénieur", value=member.engineering_school)
 
         await ctx.send(embed=embed)
 
@@ -215,7 +209,8 @@ class Commands(Cog):
             await ctx.send(embed=embed)
         else:
             await ctx.reply(
-                f"rmax doit être un nombre compris entre 0 et {RANG_MAX}", ephemeral=True
+                f"rmax doit être un nombre compris entre 0 et {RANG_MAX}",
+                ephemeral=True,
             )
 
     @Cog.listener("on_message")
