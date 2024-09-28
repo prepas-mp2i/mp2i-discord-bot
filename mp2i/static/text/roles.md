@@ -23,5 +23,5 @@ Il vous est très fortement recommandé de suivre le modèle pseudo associé.
 (Prof) Je suis un.e **professeur.e** (une vérification sera à effectuer)
 ➥ `[Nom/Pseudo] | [Lycée/École]`
 
-Pour avoir le rôle **Ex-MPI**, prenez le rôle MPI (MPI) **puis** le rôle Intégré (Intégré).**
+Pour avoir le rôle **Ex-MPI**, prenez le rôle MPI (MPI) **puis** le rôle Intégré (Intégré).
 Si vous rencontrez un quelconque problème, veuillez contacter un membre de l'équipe d'administration.
