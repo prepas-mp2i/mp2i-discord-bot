@@ -15,6 +15,7 @@ RUN apt-get update -qq \
 
 # Install project dependencies
 COPY Pipfile* ./
+RUN pipenv lock && pipenv --clear && pipenv --rm
 RUN pipenv install --system
 
 # Set a working directory

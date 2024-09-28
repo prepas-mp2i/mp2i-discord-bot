@@ -186,7 +186,6 @@ class School(Cog):
                 continue
             if member.exists() and member.high_school is not None:
                 referents.append((member, member.high_school))
-
             elif match := SCHOOL_REGEX.match(member.nick):
                 referents.append((member, match.group(1)))
 

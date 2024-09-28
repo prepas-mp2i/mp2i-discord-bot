@@ -154,11 +154,11 @@ SIGMA Clermont Auvergne
 Sup Galilée Villetaneuse
 SUPMICROTECH ENSMM
 SupOptique
-Telecom Nancy
-Telecom Paris
-Telecom Physique Strasbourg
-Telecom Saint-Etienne
-Telecom SudParis
+Télécom Nancy
+Télécom Paris
+Télécom Physique Strasbourg
+Télécom Saint-Etienne
+Télécom SudParis
 UniLaSalle Amiens
 UniLaSalle Beauvais
 UniLasalle Rennes

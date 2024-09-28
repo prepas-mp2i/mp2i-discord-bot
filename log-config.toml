@@ -35,7 +35,7 @@ version = 1
 [loggers]
     [loggers.root]  # The default logger used for production
     level = "WARNING"
-    handlers = ["console"]
+    handlers = ["file"]
 
     [loggers.discord]  # The logger used by Discord
     level = "INFO"

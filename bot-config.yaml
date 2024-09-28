@@ -21,10 +21,14 @@ guilds:
       "Ex MPI":
         id: 1132271180485754951
         emoji: ex
-        choice: true
+        choice: false
       "Intégré":
         id: 872150707250274355
         emoji: ecrous
+        choice: true
+      "Diplômé":
+        id: 1288507548546105354
+        emoji: diplome
         choice: true
       "Infiltré":
         id: 872139100805804082
@@ -78,7 +82,7 @@ guilds:
       "Ex MPI":
         id: 1132271958713704578
         emoji: ex
-        choice: true
+        choice: false
       "Intégré":
         id: 939262781629276203
         emoji: ecrous
@@ -86,6 +90,10 @@ guilds:
       "Infiltré":
         id: 939262781629276202
         emoji: ninja
+        choice: true
+      "Diplômé":
+        id: 1289586060153589842
+        emoji: diplome
         choice: true
       "Prof":
         id: 939262781629276206
