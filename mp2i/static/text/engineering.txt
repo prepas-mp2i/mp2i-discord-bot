@@ -16,9 +16,12 @@ CESI Rouen
 CESI Saint-Nazaire
 CPE Lyon
 CY TECH Cergy
+Doctorat
+Double-Licence
 ECAM LaSalle
 ECAM Rennes
 ECAM-EPMI Cergy-Pontoise
+EDHEC
 EFREI Paris
 EIDD Paris
 EIGSI Casablanca
@@ -30,9 +33,10 @@ EIVP Paris
 ELISA Aerospace Bordeaux
 ELISA Aerospace Hauts de France
 ElL Côte d'Opale - Calais
+Emlyon Business School
 ENAC Toulouse
 ENGEES Strasbourg
-ENS Lyon
+ENS de Lyon
 ENS Paris-Saclay
 ENS Rennes
 ENS ULM
@@ -122,11 +126,15 @@ ISEN Yncréa Ouest - Brest
 ISEN Yncréa Ouest - Caen
 ISEN Yncréa Ouest - Nantes
 ISEP Paris
+ISFA Lyon
 ISIMA Clermont Auvergne
 ISIS Castres
 ISTY Vélizy
 JUNIA HEI Lille
 JUNIA ISEN Lille
+Licence
+Magistère
+Master
 Mines Nancy
 Mines Paris
 Mines Saint-Etienne

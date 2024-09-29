@@ -159,9 +159,12 @@ class School(Cog):
         content = f"Nombre d'étudiants : {len(students)}\n"
         for member in students:
             content += f"- `{member.name}`・{member.mention}\n"
-
+        if type == "cpge":
+            title = f"Liste des étudiants du lycée {school}"
+        else:
+            title = f"Liste des étudiants de l'école {school}"
         embed = discord.Embed(
-            title=f"Liste des étudiants du lycée {school}",
+            title=title,
             colour=0xFF66FF,
             description=content,
             timestamp=datetime.now(),
