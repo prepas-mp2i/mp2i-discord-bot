@@ -69,7 +69,7 @@ class Suggestion(Cog):
         """
         Send result to all users when an admin add a reaction.
         """
-        if str(payload.emoji) not in ("✅", "❌"):
+        if payload.member.bot or str(payload.emoji) not in ("✅", "❌"):
             return
         try:
             channel = self.bot.get_channel(payload.channel_id)
