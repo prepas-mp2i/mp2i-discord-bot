@@ -110,7 +110,10 @@ class Commands(Cog):
         member = MemberWrapper(member or ctx.author)
         embed = discord.Embed(title="Profil", colour=int(member.profile_color, 16))
         embed.set_author(name=member.name)
-        embed.set_thumbnail(url=member.avatar.url)
+        if member.avatar is None:
+            embed.set_thumbnail(url=member.default_avatar.url)
+        else:
+            embed.set_thumbnail(member.avatar.url)
         embed.add_field(name="Pseudo", value=member.mention)
         embed.add_field(name="Membre depuis", value=f"{member.joined_at:%d/%m/%Y}")
         embed.add_field(name="Messages", value=member.messages_count)
