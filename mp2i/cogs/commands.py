@@ -113,7 +113,7 @@ class Commands(Cog):
         if member.avatar is None:
             embed.set_thumbnail(url=member.default_avatar.url)
         else:
-            embed.set_thumbnail(member.avatar.url)
+            embed.set_thumbnail(url=member.avatar.url)
         embed.add_field(name="Pseudo", value=member.mention)
         embed.add_field(name="Membre depuis", value=f"{member.joined_at:%d/%m/%Y}")
         embed.add_field(name="Messages", value=member.messages_count)
