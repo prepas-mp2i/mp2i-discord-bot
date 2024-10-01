@@ -38,9 +38,13 @@ guilds:
         id: 872148548211318856
         emoji: livre
         choice: true
-      "Référent":
+      "Référent CPGE":
         id: 983438199823142972
-        emoji: MP2I
+        emoji: contact
+        choice: false
+      "Référent École":
+        id: 1266772126946295828
+        emoji: contact
         choice: false
       "Administrateur":
         id: 872138521970901052
@@ -99,8 +103,12 @@ guilds:
         id: 939262781629276206
         emoji: livre
         choice: true
-      "Référent":
+      "Référent CPGE":
         id: 1119189219215155253
+        emoji: contact
+        choice: false
+      "Référent École":
+        id: 1289622142454861834
         emoji: contact
         choice: false
       "Administrateur":

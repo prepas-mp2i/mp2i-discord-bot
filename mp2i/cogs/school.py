@@ -141,7 +141,7 @@ class School(Cog):
             Choice(name="École d'ingénieur", value="engineering"),
         ]
     )
-    async def school_members(self, ctx, type: str, school: str):
+    async def members(self, ctx, type: str, school: str):
         """
         Affiche les étudiants d'une école donnée.
         """
@@ -149,22 +149,25 @@ class School(Cog):
         members = [m for m in map(MemberWrapper, guild.members) if m.exists()]
         if type == "cpge":
             students = [m for m in members if m.high_school == school]
+            referent_role = guild.get_role_by_qualifier("Référent CPGE")
         else:
             students = [m for m in members if m.engineering_school == school]
+            referent_role = guild.get_role_by_qualifier("Référent École")
 
         if not students:
             await ctx.reply(f"{school} n'a aucun étudiant sur ce serveur.")
             return
+        referents = [m for m in students if m.get_role(referent_role.id)]
 
         content = f"Nombre d'étudiants : {len(students)}\n"
+        for referent in referents:
+            status = guild.get_emoji_by_name(f"{referent.status}")
+            content += f"Référent : `{referent.name}`・{referent.mention} {status}\n\n"
         for member in students:
             content += f"- `{member.name}`・{member.mention}\n"
-        if type == "cpge":
-            title = f"Liste des étudiants de la CPGE {school}"
-        else:
-            title = f"Liste des étudiants à {school}"
+
         embed = discord.Embed(
-            title=title,
+            title=f"Liste des étudiants à {school}",
             colour=0xFF66FF,
             description=content,
             timestamp=datetime.now(),
