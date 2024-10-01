@@ -43,7 +43,7 @@ class School(Cog):
             Choice(name=choice, value=choice)
             for choice in schools
             if current.lower() in choice.lower()
-        ]
+        ][:20]
 
     @hybrid_command(name="school")
     @guild_only()
