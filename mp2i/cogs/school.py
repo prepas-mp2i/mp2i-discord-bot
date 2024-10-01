@@ -37,8 +37,10 @@ class School(Cog):
         type = interaction.namespace.type
         if type == "cpge":
             schools = self.high_schools
-        else:
+        elif type == "engineering":
             schools = self.engineering_schools
+        else:
+            schools = []
         return [
             Choice(name=choice, value=choice)
             for choice in schools
@@ -63,7 +65,7 @@ class School(Cog):
 
         Parameters
         ----------
-        type : CPGE ou école d'ingénieur
+        type : CPGE ou École d'ingénieur
         school: Le nom de l'école à associer.
         user: Réservé aux Administrateurs et Modérateurs
             L'utilisateur à qui on associe l'école (par défaut, l'auteur de la commande)
@@ -85,7 +87,7 @@ class School(Cog):
                 member.high_school = school
             else:
                 response = f"Le lycée {school} n'existe pas."
-        else:
+        elif type == "engineering":
             if school == "Aucun":
                 response = f"{member.name} ne fait plus partie d'aucune école."
                 member.engineering_school = None
@@ -94,6 +96,8 @@ class School(Cog):
                 member.engineering_school = school
             else:
                 response = f"L'école {school} n'existe pas"
+        else:
+            response = "Veuillez choisir un type entre `cpge` et `engineering`."
 
         await ctx.reply(response, ephemeral=True)
 
@@ -150,9 +154,12 @@ class School(Cog):
         if type == "cpge":
             students = [m for m in members if m.high_school == school]
             referent_role = guild.get_role_by_qualifier("Référent CPGE")
-        else:
+        elif type == "engineering":
             students = [m for m in members if m.engineering_school == school]
             referent_role = guild.get_role_by_qualifier("Référent École")
+        else:
+            await ctx.reply("Type: `cpge` ou `engineering`.", ephemeral=True)
+            return
 
         if not students:
             await ctx.reply(f"{school} n'a aucun étudiant sur ce serveur.")
@@ -177,14 +184,25 @@ class School(Cog):
 
     @hybrid_command(name="referents")
     @guild_only()
-    async def referents(self, ctx) -> None:
+    @choices(
+        type=[
+            Choice(name="CPGE", value="cpge"),
+            Choice(name="École d'ingénieur", value="engineering"),
+        ]
+    )
+    async def referents(self, ctx, type: Optional[str] = "cpge") -> None:
         """
         Liste les étudiants référents du serveur.
         """
         guild = GuildWrapper(ctx.guild)
-        referent_role = guild.get_role_by_qualifier("Référent")
+        referent_role = guild.get_role_by_qualifier("Référent CPGE")
+
+        if type == "engineering":
+            referent_role = guild.get_role_by_qualifier("Référent École")
+        else:
+            referent_role = guild.get_role_by_qualifier("Référent CPGE")
         if referent_role is None:
-            await logger.warning("No referent role in bot config file.")
+            raise ValueError("Corresponding referent role is not in bot config file.")
 
         referents = []
         for member in map(MemberWrapper, guild.members):
@@ -201,7 +219,7 @@ class School(Cog):
             content += f"- **{school}** : `{member.name}`・{member.mention} {status}\n"
 
         embed = discord.Embed(
-            title=f"Liste des étudiants référents du serveur {guild.name}",
+            title=f"Liste des {referent_role.name} du serveur {guild.name}",
             colour=0xFF66FF,
             description=content,
             timestamp=datetime.now(),

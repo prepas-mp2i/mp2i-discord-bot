@@ -54,6 +54,8 @@ class GuildWrapper:
         return discord.utils.get(self.members, name=member)
 
     def get_role_by_qualifier(self, qualifier: str) -> Optional[discord.Role]:
+        if self.config.roles.get(qualifier) is None:
+            return None
         return self.guild.get_role(self.config.roles[qualifier].id)
 
     def get_emoji_by_name(self, name: str) -> Optional[discord.Emoji]:
