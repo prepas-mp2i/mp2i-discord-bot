@@ -47,8 +47,9 @@ class Suggestion(Cog):
         """
         Add reactions to a suggestion message and create a thread.
         """
-        guild = GuildWrapper(msg.channel.guild)
-        if msg.author.bot or msg.channel != guild.suggestion_channel:
+        if msg.author.bot or isinstance(msg.channel, discord.DMChannel):
+            return
+        if msg.channel != GuildWrapper(msg.channel.guild).suggestion_channel:
             return
         try:
             await msg.add_reaction("✅")

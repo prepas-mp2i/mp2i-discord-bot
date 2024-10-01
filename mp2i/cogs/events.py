@@ -38,6 +38,9 @@ class EventsCog(Cog):
         """
         Log message in database and update message count
         """
+        if isinstance(msg.channel, discord.DMChannel):
+            return
+
         member = MemberWrapper(msg.author)
         if not member.exists():
             logger.warning(f"The user {member.name} was not a registered member")
