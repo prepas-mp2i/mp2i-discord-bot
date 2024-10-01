@@ -10,16 +10,6 @@ from mp2i.utils import database
 from mp2i.wrappers.guild import GuildWrapper
 
 
-def is_suggestion_channel(channel: discord.TextChannel) -> bool:
-    """
-    Check if the channel is the suggestion channel of the guild.
-    """
-    if isinstance(channel, discord.DMChannel):
-        return False
-    guild = GuildWrapper(channel.guild)
-    return guild.config.channels.suggestion == channel.id
-
-
 class Suggestion(Cog):
     """
     Offers commands to allow members to propose suggestions and interact with them
@@ -36,7 +26,8 @@ class Suggestion(Cog):
         """
         Affiche le fonctionnement des suggestions.
         """
-        if not is_suggestion_channel(ctx.channel):
+        guild = GuildWrapper(ctx.guild)
+        if ctx.channel != guild.suggestion_channel:
             return
 
         with open(STATIC_DIR / "text/suggestions.md", encoding="utf-8") as f:
@@ -47,13 +38,17 @@ class Suggestion(Cog):
             colour=0xFF66FF,
             timestamp=datetime.now(),
         )
-        embed.set_thumbnail(url=ctx.guild.icon.url)
+        embed.set_thumbnail(url=guild.icon.url)
         embed.set_footer(text=f"Généré par {self.bot.user.name}")
         await ctx.send(embed=embed)
 
     @Cog.listener("on_message")
     async def make_suggestion(self, msg) -> None:
-        if msg.author.bot or not is_suggestion_channel(msg.channel):
+        """
+        Add reactions to a suggestion message and create a thread.
+        """
+        guild = GuildWrapper(msg.channel.guild)
+        if msg.author.bot or msg.channel != guild.suggestion_channel:
             return
         try:
             await msg.add_reaction("✅")
@@ -76,7 +71,7 @@ class Suggestion(Cog):
             suggestion = await channel.fetch_message(payload.message_id)
         except discord.errors.NotFound:
             return
-        if not is_suggestion_channel(channel):
+        if channel != GuildWrapper(channel.guild).suggestion_channel:
             return
         if not payload.member.guild_permissions.administrator:
             return  # only administrator can close a suggestion

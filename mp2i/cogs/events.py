@@ -106,8 +106,8 @@ class EventsCog(Cog):
         """
         When a message is deleted, send logs in the log channel
         """
-        log_channel = GuildWrapper(msg.guild).get_log_channel()
-        if not log_channel or msg.author.bot:
+        guild = GuildWrapper(msg.guild)
+        if guild.log_channel is None or msg.author.bot:
             return
 
         embed = discord.Embed(
@@ -121,15 +121,15 @@ class EventsCog(Cog):
             name="Message original", value=f">>> {msg.content}", inline=False
         )
         embed.set_footer(text=self.bot.user.name)
-        await log_channel.send(embed=embed)
+        await guild.log_channel.send(embed=embed)
 
     @Cog.listener()
     async def on_message_edit(self, before, after) -> None:
         """
         When a message is edited, send logs in the log channel
         """
-        log_channel = GuildWrapper(before.guild).get_log_channel()
-        if not log_channel or before.author.bot:
+        guild = GuildWrapper(before.guild)
+        if guild.log_channel is None or before.author.bot:
             return
 
         embed = discord.Embed(
@@ -143,7 +143,7 @@ class EventsCog(Cog):
             name="Message original", value=f">>> {before.content}", inline=False
         )
         embed.set_footer(text=self.bot.user.name)
-        await log_channel.send(embed=embed)
+        await guild.log_channel.send(embed=embed)
 
 
 async def setup(bot) -> None:

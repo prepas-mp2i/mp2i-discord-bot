@@ -1,4 +1,4 @@
-from functools import cache
+from functools import cache, cached_property
 from typing import Optional
 
 import discord
@@ -14,7 +14,7 @@ from mp2i.utils.dotdict import DefaultDotDict
 class GuildWrapper:
     def __init__(self, guild: discord.Guild):
         self.guild = guild
-        self.config = DefaultDotDict(dict, CONFIG).guilds[guild.id]
+        self.config = DefaultDotDict(dict, CONFIG).guilds.get(guild.id, None)
         self.__model = self._fetch()
 
     def __getattr__(self, name: str):
@@ -59,8 +59,23 @@ class GuildWrapper:
     def get_emoji_by_name(self, name: str) -> Optional[discord.Emoji]:
         return discord.utils.get(self.guild.emojis, name=name)
 
-    def get_log_channel(self) -> Optional[discord.TextChannel]:
-        return discord.utils.get(self.guild.text_channels, id=self.config.channels.log)
+    @cached_property
+    def log_channel(self) -> Optional[discord.TextChannel]:
+        if self.config is None:
+            return None
+        return self.guild.get_channel(self.config.channels.log)
+
+    @cached_property
+    def suggestion_channel(self) -> Optional[discord.TextChannel]:
+        if self.config is None:
+            return None
+        return self.guild.get_channel(self.config.channels.suggestion)
+
+    @cached_property
+    def website_channel(self) -> Optional[discord.TextChannel]:
+        if self.config is None:
+            return None
+        return self.guild.get_channel(self.config.channels.website)
 
     @property
     def roles_message_id(self) -> Optional[int]:
