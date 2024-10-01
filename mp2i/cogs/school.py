@@ -51,7 +51,7 @@ class School(Cog):
     @autocomplete(school=autocomplete_school)
     @choices(
         type=[
-            Choice(name="Lycée", value="cpge"),
+            Choice(name="CPGE", value="cpge"),
             Choice(name="École d'ingénieur", value="engineering"),
         ]
     )
@@ -59,14 +59,14 @@ class School(Cog):
         self, ctx, type: str, school: str, user: Optional[discord.Member] = None
     ):
         """
-        Associe un lycée/une école à un membre (Aucun pour supprimer l'association)
+        Associe une CPGE ou une école à un membre (Aucun pour supprimer l'association)
 
         Parameters
         ----------
-        type : Lycée ou école d'ingénieur
-        school: Le lycée/école à associer.
+        type : CPGE ou école d'ingénieur
+        school: Le nom de l'école à associer.
         user: Réservé aux Administrateurs et Modérateurs
-            L'utilisateur à qui on associe le lycée (par défaut, l'auteur de la commande)
+            L'utilisateur à qui on associe l'école (par défaut, l'auteur de la commande)
         """
         if user is None or user == ctx.author:
             member = MemberWrapper(ctx.author)
@@ -78,7 +78,7 @@ class School(Cog):
 
         if type == "cpge":
             if school == "Aucun":
-                response = f"{member.name} ne fait plus partie d'aucun lycée."
+                response = f"{member.name} ne fait plus partie d'une CPGE."
                 member.high_school = None
             elif school in self.high_schools:
                 response = f"{member.name} fait maintenant partie du lycée {school}."
@@ -98,7 +98,7 @@ class School(Cog):
         await ctx.reply(response, ephemeral=True)
 
     @hybrid_command(name="generation")
-    @has_any_role("MP2I", "MPI", "Ex MPI", "Intégré",  "Moderateur", "Administrateur")
+    @has_any_role("MP2I", "MPI", "Ex MPI", "Intégré", "Moderateur", "Administrateur")
     @guild_only()
     async def generation(
         self,
@@ -137,7 +137,7 @@ class School(Cog):
     @autocomplete(school=autocomplete_school)
     @choices(
         type=[
-            Choice(name="Lycée", value="cpge"),
+            Choice(name="CPGE", value="cpge"),
             Choice(name="École d'ingénieur", value="engineering"),
         ]
     )
@@ -160,9 +160,9 @@ class School(Cog):
         for member in students:
             content += f"- `{member.name}`・{member.mention}\n"
         if type == "cpge":
-            title = f"Liste des étudiants du lycée {school}"
+            title = f"Liste des étudiants de la CPGE {school}"
         else:
-            title = f"Liste des étudiants de l'école {school}"
+            title = f"Liste des étudiants à {school}"
         embed = discord.Embed(
             title=title,
             colour=0xFF66FF,

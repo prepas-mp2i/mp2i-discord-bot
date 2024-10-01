@@ -122,7 +122,7 @@ class Commands(Cog):
             value=" ".join(r.mention for r in member.roles if r.name != "@everyone"),
         )
         if member.high_school is not None:
-            embed.add_field(name="Lycée", value=member.high_school)
+            embed.add_field(name="CPGE", value=member.high_school)
         if member.generation > 0:
             embed.add_field(name="Génération", value=member.generation)
         if member.engineering_school is not None:
