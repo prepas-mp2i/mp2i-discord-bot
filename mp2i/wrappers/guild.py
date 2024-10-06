@@ -1,5 +1,5 @@
 from functools import cache, cached_property
-from typing import Optional
+from typing import Optional, List
 
 import discord
 import sqlalchemy.exc
@@ -12,9 +12,14 @@ from mp2i.utils.dotdict import DefaultDotDict
 
 
 class GuildWrapper:
+    """
+    A class that wraps a Discord guild and offers an interface for the database
+    guild model.
+    """
+
     def __init__(self, guild: discord.Guild):
         self.guild = guild
-        self.config = DefaultDotDict(dict, CONFIG).guilds.get(guild.id, None)
+        self.config = DefaultDotDict(dict, CONFIG).guilds.get(guild.id)
         self.__model = self._fetch()
 
     def __getattr__(self, name: str):
@@ -54,7 +59,7 @@ class GuildWrapper:
         return discord.utils.get(self.members, name=member)
 
     def get_role_by_qualifier(self, qualifier: str) -> Optional[discord.Role]:
-        if self.config.roles.get(qualifier) is None:
+        if not self.config or self.config.roles.get(qualifier) is None:
             return None
         return self.guild.get_role(self.config.roles[qualifier].id)
 
@@ -62,20 +67,26 @@ class GuildWrapper:
         return discord.utils.get(self.guild.emojis, name=name)
 
     @cached_property
+    def choiceable_roles(self) -> List[str]:
+        if not self.config:
+            return []
+        return [name for name, role in self.config.roles.items() if role.choice]
+
+    @cached_property
     def log_channel(self) -> Optional[discord.TextChannel]:
-        if self.config is None:
+        if not self.config:
             return None
         return self.guild.get_channel(self.config.channels.log)
 
     @cached_property
     def suggestion_channel(self) -> Optional[discord.TextChannel]:
-        if self.config is None:
+        if not self.config:
             return None
         return self.guild.get_channel(self.config.channels.suggestion)
 
     @cached_property
     def website_channel(self) -> Optional[discord.TextChannel]:
-        if self.config is None:
+        if not self.config:
             return None
         return self.guild.get_channel(self.config.channels.website)
 

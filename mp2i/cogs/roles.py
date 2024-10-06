@@ -46,9 +46,9 @@ class Roles(Cog):
         """
         with open(STATIC_DIR / "text/roles.md", encoding="utf-8") as f:
             content = f.read()
-            for role_name, role_cfg in guild.config.roles.items():
+            for qualifier, role_cfg in guild.config.roles.items():
                 if emoji := guild.get_emoji_by_name(role_cfg.emoji):
-                    content = content.replace(f"({role_name})", str(emoji))
+                    content = content.replace(f"({qualifier})", str(emoji))
 
             emoji_rond = guild.get_emoji_by_name("rond")
             embed = discord.Embed(
@@ -61,8 +61,8 @@ class Roles(Cog):
             message = await channel.send(embed=embed)
 
         # Add reactions to the message
-        for qualifier, role_cfg in guild.config.roles.items():
-            if not role_cfg.choice or qualifier == "Ex MPI":
+        for role_cfg in guild.config.roles.values():
+            if not role_cfg.choice:
                 continue
             if emoji := guild.get_emoji_by_name(role_cfg.emoji):
                 await message.add_reaction(emoji)

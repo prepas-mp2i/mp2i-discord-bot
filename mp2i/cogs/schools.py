@@ -7,12 +7,13 @@ from datetime import datetime
 from operator import itemgetter
 
 import discord
-from discord.ext.commands import Cog, hybrid_command, guild_only, has_any_role
-from discord.app_commands import autocomplete, Choice, choices, Range
+from discord.ext.commands import Cog, hybrid_command, guild_only, has_any_role, Range
+from discord.app_commands import autocomplete, Choice, choices
 
 from mp2i import STATIC_DIR
 from mp2i.wrappers.member import MemberWrapper
 from mp2i.wrappers.guild import GuildWrapper
+from mp2i.utils.discord import defer
 
 SCHOOL_REGEX = re.compile(r"^.+[|@] *(?P<prepa>.*)$")
 
@@ -34,6 +35,11 @@ class School(Cog):
     async def autocomplete_school(
         self, interaction: discord.Interaction, current: str
     ) -> List[Choice[str]]:
+        """
+        Return a list of school corresponding to current text.
+        """
+        await interaction.response.defer()  # Defer the response to avoid timeout
+
         type = interaction.namespace.type
         if type == "cpge":
             schools = self.high_schools
@@ -41,11 +47,9 @@ class School(Cog):
             schools = self.engineering_schools
         else:
             schools = []
-        return [
-            Choice(name=choice, value=choice)
-            for choice in schools
-            if current.lower() in choice.lower()
-        ][:20]
+
+        filtered_schools = [s for s in schools if current.lower().strip() in s.lower()]
+        return [Choice(name=s, value=s) for s in filtered_schools[:20]]
 
     @hybrid_command(name="school")
     @guild_only()
@@ -107,7 +111,7 @@ class School(Cog):
     async def generation(
         self,
         ctx,
-        gen: Range[int, 2021, datetime.now().year],
+        year: Range[int, 2021, datetime.now().year],
         user: Optional[discord.Member] = None,
     ):
         """
@@ -115,22 +119,21 @@ class School(Cog):
 
         Parameters
         ----------
-        gen: L'année d'arrivée en sup
+        year: L'année d'arrivée en sup
         user: Réservé aux modérateurs
             L'utilisateur à qui on associe la date (par défaut, l'auteur de la commande)
         """
+        member = MemberWrapper(ctx.author)
         if user is None or user == ctx.author:
-            member = MemberWrapper(ctx.author)
-            member.generation = gen
+            member.generation = year
             await ctx.reply(
-                f"Vous faites maintenant partie de la génération {gen} !",
+                f"Vous faites maintenant partie de la génération {year} !",
                 ephemeral=True,
             )
-        elif any(r.name in ("Administrateur", "Modérateur") for r in ctx.author.roles):
-            member = MemberWrapper(user)
-            member.generation = gen
+        elif member.guild_permissions.manage_roles:
+            member.generation = year
             await ctx.reply(
-                f"{user.mention} fait maintenant partie de la génération {gen} !",
+                f"{user.mention} fait maintenant partie de la génération {year} !",
                 ephemeral=True,
             )
         else:
@@ -145,6 +148,7 @@ class School(Cog):
             Choice(name="École d'ingénieur", value="engineering"),
         ]
     )
+    @defer(ephemeral=False)
     async def members(self, ctx, type: str, school: str):
         """
         Affiche les étudiants d'une école donnée.
@@ -158,11 +162,11 @@ class School(Cog):
             students = [m for m in members if m.engineering_school == school]
             referent_role = guild.get_role_by_qualifier("Référent École")
         else:
-            await ctx.reply("Type: `cpge` ou `engineering`.", ephemeral=True)
+            await ctx.reply("Précisez un type entre `cpge` ou `engineering`.")
             return
 
         if not students:
-            await ctx.reply(f"{school} n'a aucun étudiant sur ce serveur.")
+            await ctx.reply(f"{school} n'a aucun étudiant sur {guild.name}.")
             return
         referents = [m for m in students if m.get_role(referent_role.id)]
 
@@ -190,6 +194,7 @@ class School(Cog):
             Choice(name="École d'ingénieur", value="engineering"),
         ]
     )
+    @defer()
     async def referents(self, ctx, type: Optional[str] = "cpge") -> None:
         """
         Liste les étudiants référents du serveur.

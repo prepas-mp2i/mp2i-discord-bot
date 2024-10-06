@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 
 class MemberWrapper:
     """
-    A class that wraps a Discord member and offers an interface
-    for the database for attributes like XP, level, roles and blacklist date
+    A class that wraps a Discord member and offers an interface for the database
+    members model.
     """
 
     DEFAULT_PROFILE_COLOR = "0000FF"
@@ -26,8 +26,11 @@ class MemberWrapper:
         Represents a member with additional attributes
         """
         self.member = member
-        self.guild = member.guild
-        self.__model = self._fetch()
+        if not isinstance(member, discord.Member):
+            self.__model = None
+        else:
+            self.guild = member.guild
+            self.__model = self._fetch()
 
     def __getattr__(self, name: str):
         return getattr(self.member, name)

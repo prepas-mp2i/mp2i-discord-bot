@@ -24,9 +24,9 @@ class EventsCog(Cog):
         """
         await self.bot.tree.sync()  # Sync the command tree
 
-        for guild in self.bot.guilds:
-            if not GuildWrapper(guild).exists():
-                GuildWrapper(guild).register()
+        for guild in map(GuildWrapper, self.bot.guilds):
+            if not guild.exists():
+                guild.register()
             for member in map(MemberWrapper, guild.members):
                 if not member.exists():
                     member.register()
@@ -38,15 +38,9 @@ class EventsCog(Cog):
         """
         Log message in database and update message count
         """
-        if isinstance(msg.channel, discord.DMChannel):
-            return
-
         member = MemberWrapper(msg.author)
-        if not member.exists():
-            logger.warning(f"The user {member.name} was not a registered member")
-            member.register()
-
-        member.messages_count += 1
+        if member.exists():
+            member.messages_count += 1
 
     @Cog.listener()
     async def on_guild_join(self, guild) -> None:
@@ -96,13 +90,12 @@ class EventsCog(Cog):
         """
         Check if a member has updated roles and modifies them in the database
         """
-        if before.roles == after.roles:
+        if before.roles == after.roles or not (member := MemberWrapper(after)).exists():
             return
-        member = MemberWrapper(after)
 
-        if not member.exists():
-            logger.warning(f"The user {after.name} was not a registered member")
-            member.register()
+        for qualifier in GuildWrapper(after.guild).choiceable_roles:
+            if discord.utils.get(after.roles, name=qualifier):
+                return member.update(role=qualifier)
 
     @Cog.listener()
     async def on_message_delete(self, msg: discord) -> None:
@@ -110,7 +103,7 @@ class EventsCog(Cog):
         When a message is deleted, send logs in the log channel
         """
         guild = GuildWrapper(msg.guild)
-        if guild.log_channel is None or msg.author.bot:
+        if not guild.log_channel or msg.author.bot:
             return
 
         embed = discord.Embed(
@@ -132,7 +125,7 @@ class EventsCog(Cog):
         When a message is edited, send logs in the log channel
         """
         guild = GuildWrapper(before.guild)
-        if guild.log_channel is None or before.author.bot:
+        if not guild.log_channel or before.author.bot:
             return
 
         embed = discord.Embed(

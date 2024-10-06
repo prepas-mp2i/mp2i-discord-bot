@@ -4,17 +4,14 @@ from typing import Optional
 from operator import attrgetter
 
 import discord
-from discord.ext.commands import Cog, hybrid_command, guild_only, has_permissions
+from discord.ext.commands import Cog, hybrid_command, guild_only, has_permissions, Range
 
 from mp2i.wrappers.guild import GuildWrapper
 from mp2i.wrappers.member import MemberWrapper
-
 from mp2i.utils import youtube
+from mp2i.utils.discord import defer
 
 logger = logging.getLogger(__name__)
-
-PREPA_REGEX = re.compile(r"^.+[|@] *(?P<prepa>.*)$")
-RANG_MAX = 50
 
 
 class Commands(Cog):
@@ -98,6 +95,7 @@ class Commands(Cog):
 
     @hybrid_command(name="profile")
     @guild_only()
+    @defer()
     async def profile(self, ctx, member: Optional[discord.Member] = None) -> None:
         """
         Consulte les infos d'un membre.
@@ -121,7 +119,7 @@ class Commands(Cog):
             name="Rôles",
             value=" ".join(r.mention for r in member.roles if r.name != "@everyone"),
         )
-        if member.high_school is not None:
+        if member.high_school:
             embed.add_field(name="CPGE", value=member.high_school)
         if member.generation > 0:
             embed.add_field(name="Génération", value=member.generation)
@@ -172,7 +170,8 @@ class Commands(Cog):
 
     @hybrid_command(name="leaderboard")
     @guild_only()
-    async def leaderboard(self, ctx, rmax: Optional[int] = 10):
+    @defer()
+    async def leaderboard(self, ctx, rmax: Optional[Range[int, 0, 50]] = 10) -> None:
         """
         Affiche le classement des membres par nombre de messages.
 
@@ -181,40 +180,23 @@ class Commands(Cog):
         rmax : int
             Rang maximal (compris entre 0 et 50)
         """
+        members = [m for m in map(MemberWrapper, ctx.guild.members) if m.exists()]
+        members.sort(key=attrgetter("messages_count"), reverse=True)
 
-        def filtered_members(ctx):
-            for member in map(MemberWrapper, ctx.guild.members):
-                if (not member.bot) and member.exists():
-                    yield member
+        author = MemberWrapper(ctx.author)
+        rank = members.index(author) + 1
+        content = f"→ {rank}. **{author.name}** : {author.messages_count} messages\n\n"
 
-        if 0 <= rmax <= RANG_MAX:
-            members = sorted(
-                filtered_members(ctx), key=attrgetter("messages_count"), reverse=True
-            )
-            author = MemberWrapper(ctx.author)
-            rank = members.index(author) + 1
-            content = (
-                f"→ {rank}. **{author.name}** : {author.messages_count} messages\n\n"
-            )
-            for r, member in enumerate(members[:rmax], 1):
-                content += (
-                    f"{r}. **{member.name}** : {member.messages_count} messages\n"
-                )
-            if rmax == 0:
-                title = "Votre classement dans le serveur :"
-            else:
-                title = f"Top {rmax} des membres du serveur"
-            embed = discord.Embed(
-                colour=0x2BFAFA,
-                title=title,
-                description=content,
-            )
-            await ctx.send(embed=embed)
+        if rmax == 0:
+            title = "Votre classement dans le serveur :"
         else:
-            await ctx.reply(
-                f"rmax doit être un nombre compris entre 0 et {RANG_MAX}",
-                ephemeral=True,
-            )
+            title = f"Top {rmax} des membres du serveur"
+
+        for r, member in enumerate(members[:rmax], 1):
+            content += f"{r}. **{member.name}** : {member.messages_count} messages\n"
+
+        embed = discord.Embed(colour=0x2BFAFA, title=title, description=content)
+        await ctx.send(embed=embed)
 
     @Cog.listener("on_message")
     async def unbinarize(self, msg: discord.Message):
