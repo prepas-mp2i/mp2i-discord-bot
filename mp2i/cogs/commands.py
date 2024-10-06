@@ -4,7 +4,7 @@ from typing import Optional
 from operator import attrgetter
 
 import discord
-from discord.ext.commands import Cog, hybrid_command, guild_only, has_permissions, Range
+from discord.ext.commands import Cog, hybrid_command, guild_only, has_permissions
 
 from mp2i.wrappers.guild import GuildWrapper
 from mp2i.wrappers.member import MemberWrapper
@@ -12,6 +12,8 @@ from mp2i.utils import youtube
 from mp2i.utils.discord import defer
 
 logger = logging.getLogger(__name__)
+
+LEADERBOARD_RANK_MAX = 50
 
 
 class Commands(Cog):
@@ -170,8 +172,7 @@ class Commands(Cog):
 
     @hybrid_command(name="leaderboard")
     @guild_only()
-    @defer()
-    async def leaderboard(self, ctx, rmax: Optional[Range[int, 0, 50]] = 10) -> None:
+    async def leaderboard(self, ctx, rmax: Optional[int] = 10) -> None:
         """
         Affiche le classement des membres par nombre de messages.
 
@@ -180,6 +181,11 @@ class Commands(Cog):
         rmax : int
             Rang maximal (compris entre 0 et 50)
         """
+        if rmax < 0 or rmax > LEADERBOARD_RANK_MAX:
+            message = f"rmax doit être compris entre 0 et {LEADERBOARD_RANK_MAX}"
+            await ctx.reply(message, ephemeral=True)
+            return
+
         members = [m for m in map(MemberWrapper, ctx.guild.members) if m.exists()]
         members.sort(key=attrgetter("messages_count"), reverse=True)
 
