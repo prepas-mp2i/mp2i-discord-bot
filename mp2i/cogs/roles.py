@@ -101,7 +101,8 @@ class Roles(Cog):
             if role_cfg.emoji == payload.emoji.name:
                 # Add the role
                 if qualifier == "Prof":
-                    await self._add_prof_role(member)
+                    prof_role = guild.get_role_by_qualifier("Prof")
+                    await self._add_prof_role(member, prof_role)
                 elif qualifier == "Intégré" and member.role == mpi_role:
                     await member.add_roles(role, ex_mpi_role)
                 else:
@@ -113,7 +114,7 @@ class Roles(Cog):
                     await message.remove_reaction(emoji, member)
                 await member.remove_roles(role)
 
-    async def _add_prof_role(self, member: MemberWrapper):
+    async def _add_prof_role(self, member: MemberWrapper, prof_role: discord.Role):
         """
         Procedure to verify a member and add the prof role.
         """
@@ -157,7 +158,7 @@ class Roles(Cog):
         except asyncio.TimeoutError:
             await member.send("Vous avez mis trop de temps à répondre.")
         else:
-            await member.add_roles(member.role)
+            await member.add_roles(prof_role)
             await member.send("Merci, le rôle Prof vous été attribué.")
 
 
