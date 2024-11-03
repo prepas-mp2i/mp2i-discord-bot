@@ -181,6 +181,7 @@ class Commands(Cog):
         rmax : int
             Rang maximal (compris entre 0 et 50)
         """
+        await ctx.defer()
         if rmax < 0 or rmax > LEADERBOARD_RANK_MAX:
             message = f"rmax doit être compris entre 0 et {LEADERBOARD_RANK_MAX}"
             await ctx.reply(message, ephemeral=True)
