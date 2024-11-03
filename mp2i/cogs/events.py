@@ -138,7 +138,7 @@ class EventsCog(Cog):
             name="Message original", value=f">>> {before.content}", inline=False
         )
         embed.set_footer(text=self.bot.user.name)
-        await channel.log_channel.send(embed=embed)
+        await log_channel.send(embed=embed)
 
 
 async def setup(bot) -> None:
