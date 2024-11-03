@@ -124,7 +124,7 @@ class EventsCog(Cog):
         """
         When a message is edited, send logs in the log channel
         """
-        if not before.guild or not (channel := GuildWrapper(before.guild).log_channel):
+        if not before.guild or not (log_chan := GuildWrapper(before.guild).log_channel):
             return
 
         embed = discord.Embed(
@@ -138,7 +138,7 @@ class EventsCog(Cog):
             name="Message original", value=f">>> {before.content}", inline=False
         )
         embed.set_footer(text=self.bot.user.name)
-        await log_channel.send(embed=embed)
+        await log_chan.send(embed=embed)
 
 
 async def setup(bot) -> None:
