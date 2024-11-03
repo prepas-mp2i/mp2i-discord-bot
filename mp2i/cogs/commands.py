@@ -172,6 +172,7 @@ class Commands(Cog):
 
     @hybrid_command(name="leaderboard")
     @guild_only()
+    @defer()
     async def leaderboard(self, ctx, rmax: Optional[int] = 10) -> None:
         """
         Affiche le classement des membres par nombre de messages.
@@ -181,7 +182,6 @@ class Commands(Cog):
         rmax : int
             Rang maximal (compris entre 0 et 50)
         """
-        await ctx.defer()
         if rmax < 0 or rmax > LEADERBOARD_RANK_MAX:
             message = f"rmax doit être compris entre 0 et {LEADERBOARD_RANK_MAX}"
             await ctx.reply(message, ephemeral=True)
