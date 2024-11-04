@@ -187,7 +187,7 @@ class Commands(Cog):
             await ctx.reply(message, ephemeral=True)
             return
 
-        members = [m for m in map(MemberWrapper, ctx.guild.members) if m.exists()]
+        members = [m for m in map(MemberWrapper, ctx.guild.members) if m.exists() and not m.bot]
         members.sort(key=attrgetter("messages_count"), reverse=True)
 
         author = MemberWrapper(ctx.author)
