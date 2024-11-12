@@ -213,8 +213,10 @@ class School(Cog):
         for member in map(MemberWrapper, guild.members):
             if not member.get_role(referent_role.id):
                 continue
-            if member.exists() and member.high_school is not None:
+            if type == "cpge" and member.exists() and member.high_school is not None:
                 referents.append((member, member.high_school))
+            elif type == "engineering" and member.exists() and member.engineering_school is not None:
+                referents.append((member, member.engineering_school))
             elif match := SCHOOL_REGEX.match(member.nick):
                 referents.append((member, match.group(1)))
 
