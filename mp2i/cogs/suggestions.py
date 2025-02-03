@@ -65,7 +65,7 @@ class Suggestion(Cog):
         """
         Send result to all users when an admin add a reaction.
         """
-        if payload.member.bot or str(payload.emoji) not in ("✅", "❌"):
+        if payload.member.bot or str(payload.emoji) not in ("✅", "❌", "🔒"):
             return
         try:
             channel = self.bot.get_channel(payload.channel_id)
@@ -79,10 +79,11 @@ class Suggestion(Cog):
 
         accept = discord.utils.get(suggestion.reactions, emoji="✅")
         decline = discord.utils.get(suggestion.reactions, emoji="❌")
+        close = discord.utils.get(suggestion.reactions, emoji="🔒")
         citation = (
             "\n> ".join(suggestion.content.split("\n"))
             + f"\n\n✅: {accept.count-1} vote(s), ❌: {decline.count-1} vote(s)"
-        )
+        ) 
         if accepted := str(payload.emoji) == accept.emoji:
             database.execute(
                 insert(SuggestionModel).values(
@@ -93,10 +94,10 @@ class Suggestion(Cog):
             )
             citation += ("\n_**Note**: Il faut parfois attendre plusieurs jours"
                          " avant qu'elle soit effective_")  # fmt: skip
-
+        declined = str(payload.emoji) == decline.emoji
         embed = discord.Embed(
-            colour=0x77B255 if accepted else 0xDD2E44,
-            title=f"Suggestion {'acceptée' if accepted else 'refusée'}",
+            colour=0x77B255 if accepted else 0xDD2E44 if declined else 0xA9A6A7,
+            title=f"Suggestion {'acceptée' if accepted else 'refusée' if declined else 'fermée'}",
             description=f"> {citation}",
         )
         file = discord.File(STATIC_DIR / "img/alert.png")
