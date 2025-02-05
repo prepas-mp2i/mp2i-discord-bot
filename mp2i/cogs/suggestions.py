@@ -190,9 +190,10 @@ class Suggestion(Cog):
 
         for i,suggestion in enumerate(suggestions):
             user = MemberWrapper(ctx.guild.get_member(suggestion.SuggestionModel.author_id))
+            description_embed = suggestion.SuggestionModel.description.replace("\n", "\n> ")
             embed.add_field(
             name=f"{i+1}. Suggestion de {user.name}  ",
-            value=f"> {suggestion.SuggestionModel.description}\n"
+            value=f"> {description_embed}\n"
                   f"Date: {suggestion.SuggestionModel.date.strftime('%d/%m/%Y')}\n",
             inline=True,
             )
