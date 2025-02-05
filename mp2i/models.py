@@ -41,6 +41,8 @@ class SuggestionModel(Base):
     author_id: int = Column(BigInteger)
     guild_id: int = Column(BigInteger, ForeignKey("guilds.id", ondelete="CASCADE"))
     date = Column(DateTime, nullable=True)
+    message_id: int = Column(BigInteger, nullable=True, unique=True)
+    state: str = Column(String(50), nullable=False, default="open")
     description: str = Column(Text)
 
     def __repr__(self):

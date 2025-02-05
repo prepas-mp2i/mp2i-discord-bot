@@ -2,6 +2,7 @@ from datetime import datetime
 
 import discord
 from discord.ext.commands import Cog, hybrid_command, is_owner, guild_only
+from discord.app_commands import Choice, choices
 from sqlalchemy import insert
 
 from mp2i import STATIC_DIR
@@ -59,6 +60,15 @@ class Suggestion(Cog):
             )
         except discord.errors.NotFound:
             pass
+        database.execute(
+                insert(SuggestionModel).values(
+                    author_id=msg.author.id,
+                    date=datetime.now(),
+                    description=msg.content,
+                    message_id=msg.id,
+                    state="open",
+                )
+            )
 
     @Cog.listener("on_raw_reaction_add")
     async def close_suggestion(self, payload) -> None:
@@ -84,17 +94,19 @@ class Suggestion(Cog):
             "\n> ".join(suggestion.content.split("\n"))
             + f"\n\n✅: {accept.count-1} vote(s), ❌: {decline.count-1} vote(s)"
         ) 
-        if accepted := str(payload.emoji) == accept.emoji:
-            database.execute(
-                insert(SuggestionModel).values(
-                    author_id=suggestion.author.id,
-                    date=datetime.now(),
-                    description=suggestion.content,
-                )
+        accepted = str(payload.emoji) == accept.emoji
+        declined = str(payload.emoji) == decline.emoji
+        database.execute(
+            SuggestionModel.update()
+            .where(SuggestionModel.message_id == suggestion.id)
+            .values(
+                state="accepted" if accepted else "declined" if declined else "closed",
+                date=datetime.now()
             )
+        )
+        if accepted:
             citation += ("\n_**Note**: Il faut parfois attendre plusieurs jours"
                          " avant qu'elle soit effective_")  # fmt: skip
-        declined = str(payload.emoji) == decline.emoji
         embed = discord.Embed(
             colour=0x77B255 if accepted else 0xDD2E44 if declined else 0xA9A6A7,
             title=f"Suggestion {'acceptée' if accepted else 'refusée' if declined else 'fermée'}",
@@ -140,7 +152,52 @@ class Suggestion(Cog):
         await website_chan.send(embed=embed)
         # Pour ne pas envoyer le message plusieurs fois
         await message.add_reaction("📌")
+    
+    @hybrid_command(name="suggestions")
+    @guild_only()
+    @choices(
+        state=[
+            Choice(name="En cours", value="open"),
+            Choice(name="Acceptés", value="accepted"),
+            Choice(name="Refusés", value="declined"),
+            Choice(name="Fermés", value="closed"),
+        ]
+    )
+    async def suggestions(self, ctx, state: str) -> None:
+        """
+        Affiche les suggestions
+        """
+        suggestions = database.execute(
+            SuggestionModel.select()
+            .where(
+            SuggestionModel.state == state,
+            SuggestionModel.guild_id == ctx.guild.id
+            )
+            .order_by(SuggestionModel.date.desc())
+            .limit(15)
+        ).fetchall()
 
+        if not suggestions:
+            await ctx.send("Aucune suggestion trouvée pour cet état.")
+            return
+
+        embed = discord.Embed(
+            title=f"Suggestions - {state.capitalize()}",
+            colour=0x77B255 if state=="accepted" else 0xDD2E44 if state=="declined" else 0xA9A6A7,
+            timestamp=datetime.now(),
+        )
+
+        for suggestion in suggestions:
+            user = await self.bot.fetch_user(suggestion.author_id)
+            embed.add_field(
+            name=f"Suggestion de {user.name}",
+            value=f"{suggestion.description}\n\n"
+                  f"Date: {suggestion.date.strftime('%d/%m/%Y')}\n"
+                  f"État: {suggestion.state.capitalize()}",
+            inline=False,
+            )
+
+        await ctx.send(embed=embed)
 
 async def setup(bot) -> None:
     await bot.add_cog(Suggestion(bot))
