@@ -3,12 +3,13 @@ from datetime import datetime
 import discord
 from discord.ext.commands import Cog, hybrid_command, is_owner, guild_only
 from discord.app_commands import Choice, choices
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, update
 
 from mp2i import STATIC_DIR
 from mp2i.models import SuggestionModel
 from mp2i.utils import database
 from mp2i.wrappers.guild import GuildWrapper
+from mp2i.wrappers.member import MemberWrapper
 
 
 class Suggestion(Cog):
@@ -64,6 +65,7 @@ class Suggestion(Cog):
                 insert(SuggestionModel).values(
                     author_id=msg.author.id,
                     date=datetime.now(),
+                    guild_id=msg.guild.id,
                     description=msg.content,
                     message_id=msg.id,
                     state="open",
@@ -86,7 +88,6 @@ class Suggestion(Cog):
             return
         if not payload.member.guild_permissions.administrator:
             return  # only administrator can close a suggestion
-
         accept = discord.utils.get(suggestion.reactions, emoji="✅")
         decline = discord.utils.get(suggestion.reactions, emoji="❌")
         close = discord.utils.get(suggestion.reactions, emoji="🔒")
@@ -97,7 +98,7 @@ class Suggestion(Cog):
         accepted = str(payload.emoji) == accept.emoji
         declined = str(payload.emoji) == decline.emoji
         database.execute(
-            SuggestionModel.update()
+            update(SuggestionModel)
             .where(SuggestionModel.message_id == suggestion.id)
             .values(
                 state="accepted" if accepted else "declined" if declined else "closed",
@@ -187,14 +188,13 @@ class Suggestion(Cog):
             timestamp=datetime.now(),
         )
 
-        for suggestion in suggestions:
-            user = await self.bot.fetch_user(suggestion.author_id)
+        for i,suggestion in enumerate(suggestions):
+            user = MemberWrapper(ctx.guild.get_member(suggestion.SuggestionModel.author_id))
             embed.add_field(
-            name=f"Suggestion de {user.name}",
-            value=f"{suggestion.description}\n\n"
-                  f"Date: {suggestion.date.strftime('%d/%m/%Y')}\n"
-                  f"État: {suggestion.state.capitalize()}",
-            inline=False,
+            name=f"{i+1}. Suggestion de {user.name}  ",
+            value=f"> {suggestion.SuggestionModel.description}\n"
+                  f"Date: {suggestion.SuggestionModel.date.strftime('%d/%m/%Y')}\n",
+            inline=True,
             )
 
         await ctx.send(embed=embed)
