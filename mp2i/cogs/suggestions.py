@@ -3,7 +3,7 @@ from datetime import datetime
 import discord
 from discord.ext.commands import Cog, hybrid_command, is_owner, guild_only
 from discord.app_commands import Choice, choices
-from sqlalchemy import insert
+from sqlalchemy import insert, select
 
 from mp2i import STATIC_DIR
 from mp2i.models import SuggestionModel
@@ -168,7 +168,7 @@ class Suggestion(Cog):
         Affiche les suggestions
         """
         suggestions = database.execute(
-            SuggestionModel.select()
+            select(SuggestionModel)
             .where(
             SuggestionModel.state == state,
             SuggestionModel.guild_id == ctx.guild.id
