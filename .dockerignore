@@ -6,8 +6,12 @@
 .env/
 .venv/
 
+# Git
 .gitignore
 .git/
+.pre-commit-config.yaml
+
+# Resources
 LICENSE
 README.md
 bot-config.yaml.example
