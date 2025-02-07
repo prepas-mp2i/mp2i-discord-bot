@@ -7,3 +7,9 @@
 .venv/
 
 .gitignore
+.git/
+LICENSE
+README.md
+bot-config.yaml.example
+Dockerfile
+docker-compose.yaml
