@@ -8,6 +8,7 @@ from sqlalchemy import insert, select, delete
 
 from mp2i.utils import database
 from mp2i.models import SanctionModel
+from mp2i.wrappers.guild import GuildWrapper
 
 logger = logging.getLogger(__name__)
 
@@ -19,12 +20,13 @@ class Sanction(Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        self.users = {}
 
     @hybrid_command(name="warn")
     @guild_only()
     @has_permissions(manage_messages=True)
-    async def warn(self, ctx, member: discord.Member, dm: str, visible: str, *,
-                   reason: Optional[str]) -> None:  # fmt: skip
+    async def warn(self, ctx, member: discord.Member, dm: str, *,
+                   reason: str) -> None:  # fmt: skip
         """
         Avertit un utilisateur pour une raison donnée.
 
@@ -34,9 +36,7 @@ class Sanction(Cog):
             L'utilisateur à avertir.
         dm : str
             Si oui, l'utilisateur sera averti par message privé.
-        visible : str
-            Si oui, l'avertissement sera visible dans le salon des sanctions.
-        reason : Optional[str]
+        reason : str
             La raison de l'avertissement.
         """
         database.execute(
@@ -49,24 +49,42 @@ class Sanction(Cog):
                 reason=reason,
             )
         )
-        if dm == "oui":
-            if reason:
-                await member.send(
-                    "Vous avez reçu un avertissement pour la raison suivante: \n"
-                    f">>> {reason}"
-                )
-            else:
-                await member.send("Vous avez reçu un avertissement.")
+        send_dm = dm == "oui"
+        message_sent = False
+        if send_dm:
+            # Au cas où l'utilisateur visé a fermé ses messages privés.
+            try:
+                if reason:
+                    await member.send(
+                        "Vous avez reçu un avertissement pour la raison suivante: \n"
+                        f">>> {reason}"
+                    )
+                else:
+                    await member.send("Vous avez reçu un avertissement.")
+                message_sent = True
+            except:
+                message_sent = False
 
         embed = discord.Embed(
-            title=f"{member.mention} a reçu un avertissement",
+            title=f"{member.name} a reçu un avertissement",
             colour=0xFF00FF,
             timestamp=datetime.now(),
         )
-        if reason:
-            embed.add_field(name="Raison", value=reason)
-        # If ephemeral is True, the message will only be visible to the author
-        await ctx.send(embed=embed, ephemeral=visible != "oui")
+        embed.add_field(name="Utilisateur", value=member.mention)
+        embed.add_field(name="Staff", value=ctx.author.mention)
+        embed.add_field(name="Raison", value=reason, inline=False)
+        if send_dm and message_sent:
+            embed.add_field(name="Message privé", value="L'utilisateur a été averti.", inline=False)
+        elif send_dm:
+            embed.add_field(name="Message privé", value="/!\ Aucun message n'a pu être envoyé à l'utilisateur.", inline=False)
+
+        await ctx.send(embed=embed, ephemeral=True)
+
+        guild = GuildWrapper(ctx.guild)
+        if not guild.sanctions_log_channel:
+            return
+        await guild.sanctions_log_channel.send(embed=embed)
+
 
     @hybrid_command(name="warnlist")
     @guild_only()
@@ -126,7 +144,120 @@ class Sanction(Cog):
             L'identifiant de l'avertissement à supprimer.
         """
         database.execute(delete(SanctionModel).where(SanctionModel.id == id))
-        await ctx.send(f"L'avertissement {id} a été supprimé.")
+        message = f"L'avertissement {id} a été supprimé."
+        await ctx.send(message)
+        guild = GuildWrapper(ctx.guild)
+        if not guild.sanctions_log_channel:
+            return
+        await guild.sanctions_log_channel.send(message)
+
+    @Cog.listener("on_member_ban")
+    async def log_ban(self, guild, user) -> None:
+        """
+        Stock le nom de l'utilisateur banni
+        """
+        self.users[user.id] = user.name
+
+    @Cog.listener("on_member_unban")
+    async def log_unban(self, guild, user) -> None:
+        """
+        Stock le nom de l'utilisateur débanni
+        """
+        self.users[user.id] = user.name
+
+    @Cog.listener("on_audit_log_entry_create")
+    @guild_only()
+    async def log_sanctions(self, entry) -> None:
+        """
+        Log les sanctions envers les utilisateurs
+
+        Parameters
+        ----------
+        entry : LogActionEntry
+            Entrée ajouté dans le journal des actions du serveur.
+        """
+        guild = GuildWrapper(entry.guild)
+        if not guild.sanctions_log_channel:
+            return
+
+        async def handle_log(title, colour, fields):
+            embed = discord.Embed(
+                title=title,
+                colour=colour,
+                timestamp=datetime.now(),
+            )
+            fields(embed)
+            await guild.sanctions_log_channel.send(embed=embed)
+
+
+        async def handle_log_ban(user, staff, reason):
+            # Le nom ne peut être récupéré de `user` si la personne n'est plus sur le serveur.
+            user_name = self.users[user.id]
+            del self.users[user.id]
+            def embed_fields(embed):
+                embed.add_field(name="Utilisateur", value=f"<@{user.id}>")
+                embed.add_field(name="Staff", value=staff.mention)
+                embed.add_field(name="Raison", value=reason, inline=False)
+            await handle_log(f"{user_name} a été banni", 0xFF0000, embed_fields)
+
+        async def handle_log_unban(user, staff):
+            # Le nom ne peut être récupéré de `user` si la personne n'est plus sur le serveur.
+            user_name = self.users[user.id]
+            del self.users[user.id]
+            def embed_fields(embed):
+                embed.add_field(name="Utilisateur", value=f"<@{user.id}>")
+                embed.add_field(name="Staff", value=staff.mention)
+            await handle_log(f"{user_name} a été débanni", 0xFA9C1B, embed_fields)
+
+        async def handle_log_to(user, staff, reason, time):
+            dm_sent = False
+            try:
+                await user.send(f"Vous avez été TO jusqu'à <t:{time}:F> pour la raison : \n>>> {reason}")
+                dm_sent = True
+            except:
+                dm_sent = False
+            def embed_fields(embed):
+                embed.add_field(name="Utilisateur", value=f"<@{user.id}>")
+                embed.add_field(name="Staff", value=staff.mention)
+                embed.add_field(name="Timestamp", value=f"<t:{time}:F>", inline=False)
+                if dm_sent:
+                    embed.add_field(name="Message Privé", value="Envoyé")
+                else:
+                    embed.add_field(name="Message Privé", value="Non envoyé")
+                embed.add_field(name="Raison", value=reason, inline=False)
+            await handle_log(f"{user} a été TO",
+                0xFDAC5B,
+                embed_fields
+                )
+
+        async def handle_log_unto(user, staff):
+            def embed_fields(embed):
+                embed.add_field(name="Utilisateur", value=f"<@{user.id}>")
+                embed.add_field(name="Staff", value=staff.mention)
+            await handle_log(f"{user.name} n'est plus TO", 0xFA9C1B, embed_fields)
+
+        action = f"{entry.action}"
+        if action == "AuditLogAction.ban":
+            await handle_log_ban(entry.target, entry.user, entry.reason)
+
+        elif action == "AuditLogAction.unban":
+            await handle_log_unban(entry.target, entry.user)
+
+        # Doit être étrangement avant la condition de TO sinon ne s'applique pas
+        elif action == "AuditLogAction.member_update" and (entry.before.timed_out_until and not entry.after.timed_out_until):
+            await handle_log_unto(
+                entry.target,
+                entry.user
+            )
+
+        elif action == "AuditLogAction.member_update" and (not entry.before.timed_out_until and entry.after.timed_out_until or entry.before.timed_out_until and entry.before.timed_out_until < entry.after.timed_out_until):
+            await handle_log_to(
+                entry.target,
+                entry.user,
+                entry.reason,
+                int(entry.after.timed_out_until.timestamp() + 60) # +60 indique la minute qui suit, mieux vaut large que pas assez
+            )
+
 
 
 async def setup(bot) -> None:

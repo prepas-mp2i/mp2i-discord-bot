@@ -79,6 +79,12 @@ class GuildWrapper:
         return self.guild.get_channel(self.config.channels.log)
 
     @cached_property
+    def sanctions_log_channel(self) -> Optional[discord.TextChannel]:
+        if not self.config:
+            return None
+        return self.guild.get_channel(self.config.channels.sanctions)
+
+    @cached_property
     def suggestion_channel(self) -> Optional[discord.TextChannel]:
         if not self.config:
             return None
