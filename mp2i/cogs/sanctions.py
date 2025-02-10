@@ -54,13 +54,10 @@ class Sanction(Cog):
         if send_dm:
             # Au cas où l'utilisateur visé a fermé ses messages privés.
             try:
-                if reason:
-                    await member.send(
-                        "Vous avez reçu un avertissement pour la raison suivante: \n"
-                        f">>> {reason}"
-                    )
-                else:
-                    await member.send("Vous avez reçu un avertissement.")
+                await member.send(
+                    "Vous avez reçu un avertissement pour la raison suivante: \n"
+                    f">>> {reason}"
+                )
                 message_sent = True
             except:
                 message_sent = False
