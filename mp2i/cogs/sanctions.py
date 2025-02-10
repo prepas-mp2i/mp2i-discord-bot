@@ -151,14 +151,14 @@ class Sanction(Cog):
     @Cog.listener("on_member_ban")
     async def log_ban(self, guild, user) -> None:
         """
-        Stock le nom de l'utilisateur banni
+        Stocke le nom de l'utilisateur banni
         """
         self.users[user.id] = user.name
 
     @Cog.listener("on_member_unban")
     async def log_unban(self, guild, user) -> None:
         """
-        Stock le nom de l'utilisateur débanni
+        Stocke le nom de l'utilisateur débanni
         """
         self.users[user.id] = user.name
 
@@ -166,18 +166,30 @@ class Sanction(Cog):
     @guild_only()
     async def log_sanctions(self, entry) -> None:
         """
-        Log les sanctions envers les utilisateurs
+        Logue les sanctions envers les utilisateurs.
 
         Parameters
         ----------
         entry : LogActionEntry
-            Entrée ajouté dans le journal des actions du serveur.
+            Entrée ajoutée dans le journal des actions du serveur.
         """
         guild = GuildWrapper(entry.guild)
         if not guild.sanctions_log_channel:
             return
 
         async def handle_log(title, colour, fields):
+            """
+            Envoie un embed dans le salon de logs des sanctions.
+
+            Parameters
+            ----------
+            title : str
+                Titre de l'embed.
+            colour: int
+                Couleur de l'embed.
+            fields: Callable[discord.Embed, None]
+                Fonction permettant d'ajouter des `fields` à l'embed.
+            """
             embed = discord.Embed(
                 title=title,
                 colour=colour,
@@ -188,25 +200,77 @@ class Sanction(Cog):
 
 
         async def handle_log_ban(user, staff, reason):
+            """
+            Logue le banissement d'un utilisateur dans le salon des logs de sanctions.
+
+            Parameters
+            ----------
+            user : Any
+                Utilisateur cible.
+            staff: discord.Member
+                Utilisateur initateur de l'action.
+            reason: str
+                Raison du bannissement.
+            """
             # Le nom ne peut être récupéré de `user` si la personne n'est plus sur le serveur.
             user_name = self.users[user.id]
             del self.users[user.id]
             def embed_fields(embed):
+                """
+                Ajoute les champs nécessaires à l'embed d'un bannissement.
+
+                Parameters
+                ----------
+                embed : discord.Embed
+                    Embed à modifier.
+                """
                 embed.add_field(name="Utilisateur", value=f"<@{user.id}>")
                 embed.add_field(name="Staff", value=staff.mention)
                 embed.add_field(name="Raison", value=reason, inline=False)
             await handle_log(f"{user_name} a été banni", 0xFF0000, embed_fields)
 
         async def handle_log_unban(user, staff):
+            """
+            Logue le débanissement d'un utilisateur dans le salon des logs de sanctions.
+
+            Parameters
+            ----------
+            user : Any
+                Utilisateur cible.
+            staff: discord.Member
+                Utilisateur initateur de l'action.
+            """
             # Le nom ne peut être récupéré de `user` si la personne n'est plus sur le serveur.
             user_name = self.users[user.id]
             del self.users[user.id]
             def embed_fields(embed):
+                """
+                Ajoute les champs nécessaires à l'embed d'un débannissement.
+
+                Parameters
+                ----------
+                embed : discord.Embed
+                    Embed à modifier.
+                """
                 embed.add_field(name="Utilisateur", value=f"<@{user.id}>")
                 embed.add_field(name="Staff", value=staff.mention)
             await handle_log(f"{user_name} a été débanni", 0xFA9C1B, embed_fields)
 
         async def handle_log_to(user, staff, reason, time):
+            """
+            Logue le time out d'un utilisateur dans le salon des logs de sanctions.
+
+            Parameters
+            ----------
+            user : Any
+                Utilisateur cible.
+            staff: discord.Member
+                Utilisateur initateur de l'action.
+            reason: str
+                Raison du time out.
+            time: int
+                Timestamp de fin de sanction.
+            """
             dm_sent = False
             try:
                 await user.send(f"Vous avez été TO jusqu'à <t:{time}:F> pour la raison : \n>>> {reason}")
@@ -214,6 +278,14 @@ class Sanction(Cog):
             except:
                 dm_sent = False
             def embed_fields(embed):
+                """
+                Ajoute les champs nécessaires à l'embed d'un time out.
+
+                Parameters
+                ----------
+                embed : discord.Embed
+                    Embed à modifier.
+                """
                 embed.add_field(name="Utilisateur", value=f"<@{user.id}>")
                 embed.add_field(name="Staff", value=staff.mention)
                 embed.add_field(name="Timestamp", value=f"<t:{time}:F>", inline=False)
@@ -228,7 +300,25 @@ class Sanction(Cog):
                 )
 
         async def handle_log_unto(user, staff):
+            """
+            Logue la révocation d'un time out d'un utilisateur dans le salon des logs de sanctions.
+
+            Parameters
+            ----------
+            user : Any
+                Utilisateur cible.
+            staff: discord.Member
+                Utilisateur initateur de l'action.
+            """
             def embed_fields(embed):
+                """
+                Ajoute les champs nécessaires à l'embed de la révocation d'un time out.
+
+                Parameters
+                ----------
+                embed : discord.Embed
+                    Embed à modifier.
+                """
                 embed.add_field(name="Utilisateur", value=f"<@{user.id}>")
                 embed.add_field(name="Staff", value=staff.mention)
             await handle_log(f"{user.name} n'est plus TO", 0xFA9C1B, embed_fields)
