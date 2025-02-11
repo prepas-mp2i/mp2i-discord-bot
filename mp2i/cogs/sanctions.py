@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Optional
 
 import discord
+from discord import AuditLogAction
 from discord.ext.commands import Cog, hybrid_command, guild_only, has_permissions
 from sqlalchemy import insert, select, delete
 
@@ -323,21 +324,20 @@ class Sanction(Cog):
                 embed.add_field(name="Staff", value=staff.mention)
             await handle_log(f"{user.name} n'est plus TO", 0xFA9C1B, embed_fields)
 
-        action = f"{entry.action}"
-        if action == "AuditLogAction.ban":
+        if entry.action == AuditLogAction.ban:
             await handle_log_ban(entry.target, entry.user, entry.reason)
 
-        elif action == "AuditLogAction.unban":
+        elif entry.action == AuditLogAction.unban:
             await handle_log_unban(entry.target, entry.user)
 
         # Doit être étrangement avant la condition de TO sinon ne s'applique pas
-        elif action == "AuditLogAction.member_update" and (entry.before.timed_out_until and not entry.after.timed_out_until):
+        elif entry.action == AuditLogAction.member_update and (entry.before.timed_out_until and not entry.after.timed_out_until):
             await handle_log_unto(
                 entry.target,
                 entry.user
             )
 
-        elif action == "AuditLogAction.member_update" and (not entry.before.timed_out_until and entry.after.timed_out_until or entry.before.timed_out_until and entry.before.timed_out_until < entry.after.timed_out_until):
+        elif entry.action == AuditLogAction.member_update and (not entry.before.timed_out_until and entry.after.timed_out_until or entry.before.timed_out_until and entry.before.timed_out_until < entry.after.timed_out_until):
             await handle_log_to(
                 entry.target,
                 entry.user,
