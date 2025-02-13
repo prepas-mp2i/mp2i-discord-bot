@@ -30,7 +30,7 @@ class ErrorHandler(Cog):
         elif hasattr(error, "handled"):
             logger.debug(f"Local error handler for {ctx.command} has been called")
 
-        else:
+        elif not isinstance(error, errors.CommandNotFound):
             logger.error(f"{error}")
             await ctx.reply(
                 "Une erreur interne est survenue, veuillez contacter un Administrateur."
