@@ -143,3 +143,4 @@ cython_debug/
 #Other
 .pid
 mail.txt
+bot-config.yaml
