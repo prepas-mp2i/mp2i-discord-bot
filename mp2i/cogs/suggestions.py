@@ -62,15 +62,15 @@ class Suggestion(Cog):
         except discord.errors.NotFound:
             pass
         database.execute(
-                insert(SuggestionModel).values(
-                    author_id=msg.author.id,
-                    date=datetime.now(),
-                    guild_id=msg.guild.id,
-                    description=msg.content,
-                    message_id=msg.id,
-                    state="open",
-                )
+            insert(SuggestionModel).values(
+                author_id=msg.author.id,
+                date=datetime.now(),
+                guild_id=msg.guild.id,
+                description=msg.content,
+                message_id=msg.id,
+                state="open",
             )
+        )
 
     @Cog.listener("on_raw_reaction_add")
     async def close_suggestion(self, payload) -> None:
@@ -159,14 +159,19 @@ class Suggestion(Cog):
     @choices(
         state=[
             Choice(name="En cours", value="open"),
-            Choice(name="Acceptés", value="accepted"),
-            Choice(name="Refusés", value="declined"),
-            Choice(name="Fermés", value="closed"),
+            Choice(name="Acceptées", value="accepted"),
+            Choice(name="Refusées", value="declined"),
+            Choice(name="Fermées", value="closed"),
         ]
     )
     async def suggestions(self, ctx, state: str) -> None:
         """
         Affiche les suggestions
+
+        Parameters
+        ----------
+        state : str
+            Le type de suggestions à afficher : En cours/Acceptées/Refusées/Fermées
         """
         suggestions = database.execute(
             select(SuggestionModel)
