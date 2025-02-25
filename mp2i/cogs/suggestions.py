@@ -206,7 +206,7 @@ class Suggestion(Cog):
             else:
                 description_embed = suggestion.description.replace("\n", "\n> ")
                 embed.add_field(
-                    name=f"{i+1} - Suggestion de {user.name} le {suggestion.date:%d/%m/%Y}",
+                    name=f"{i+1} - Suggestion de {user.name if user else 'Utilisateur inconnu'} le {suggestion.date:%d/%m/%Y}",
                     value=f"> {description_embed}",
                     inline=False,
                 )
