@@ -153,7 +153,6 @@ class Suggestion(Cog):
     
     @hybrid_command(name="suggestions")
     @guild_only()
-    @defer()
     @choices(
         state=[
             Choice(name="En cours", value="open"),
