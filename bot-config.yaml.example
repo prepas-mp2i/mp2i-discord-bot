@@ -64,8 +64,8 @@ guilds:
         choice: false
     channels:
       suggestion: 940718694357676042
-      log: 1117429400200298558
       website: 911609939728949309
+      log: 0
 
   939262781629276200:
     name: Prépas MP2I [Test]
@@ -129,5 +129,5 @@ guilds:
         choice: false
     channels:
       suggestion: 939262782073897053
-      log: 1117429934336508005
       website: 939262782342303796
+      log: 0
