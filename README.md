@@ -61,6 +61,8 @@ EMAIL_PASSWORD = <password>
 
 ```
 
+Create a `bot-config.toml` file based on the `bot-config.yaml.example` file.
+
 - ### Using Pipenv
 
 Install `pipenv` dependencies:
