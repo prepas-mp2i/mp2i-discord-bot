@@ -215,7 +215,7 @@ class Suggestion(Cog):
         )
 
         for i,suggestion in enumerate(suggestions):
-            user = MemberWrapper(ctx.guild.get_member(suggestion.author_id))
+            user = ctx.guild.get_member(suggestion.author_id)
             description_embed = suggestion.description.replace("\n", "\n> ")
             embed.add_field(
             name=f"{i+1}. Suggestion de {user.name}  ",
