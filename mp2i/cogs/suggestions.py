@@ -108,9 +108,17 @@ class Suggestion(Cog):
         if accepted:
             citation += ("\n_**Note**: Il faut parfois attendre plusieurs jours"
                          " avant qu'elle soit effective_")  # fmt: skip
+            colour = 0x77B255
+            state = 'acceptée'
+        elif declined:
+            colour = 0xDD2E44
+            state = 'refusée'
+        else:
+            colour = 0xA9A6A7
+            state = 'fermée'
         embed = discord.Embed(
-            colour=0x77B255 if accepted else 0xDD2E44 if declined else 0xA9A6A7,
-            title=f"Suggestion {'acceptée' if accepted else 'refusée' if declined else 'fermée'}",
+            colour=colour,
+            title=f"Suggestion {state}",
             description=f"> {citation}",
         )
         file = discord.File(STATIC_DIR / "img/alert.png")
@@ -180,26 +188,39 @@ class Suggestion(Cog):
             SuggestionModel.guild_id == ctx.guild.id
             )
             .order_by(SuggestionModel.date.desc())
-            .limit(15)
-        ).fetchall()
+            .limit(10)
+        ).scalars().all()
 
         if not suggestions:
             await ctx.send("Aucune suggestion trouvée pour cet état.")
             return
 
+        if state == "accepted":
+            colour = 0x77B255
+            state_fr = 'acceptée'
+        elif state == "declined":
+            colour = 0xDD2E44
+            state_fr = 'refusée'
+        elif state == "closed":
+            colour = 0xA9A6A7
+            state_fr = 'fermée'
+        else:
+            colour = 0xA9A6A7
+            state_fr = 'en cours'
+
         embed = discord.Embed(
-            title=f"Suggestions - {state.capitalize()}",
-            colour=0x77B255 if state=="accepted" else 0xDD2E44 if state=="declined" else 0xA9A6A7,
+            title=f"Suggestions - {state_fr}",
+            colour=colour,
             timestamp=datetime.now(),
         )
 
         for i,suggestion in enumerate(suggestions):
-            user = MemberWrapper(ctx.guild.get_member(suggestion.SuggestionModel.author_id))
-            description_embed = suggestion.SuggestionModel.description.replace("\n", "\n> ")
+            user = MemberWrapper(ctx.guild.get_member(suggestion.author_id))
+            description_embed = suggestion.description.replace("\n", "\n> ")
             embed.add_field(
             name=f"{i+1}. Suggestion de {user.name}  ",
             value=f"> {description_embed}\n"
-                  f"Date: {suggestion.SuggestionModel.date.strftime('%d/%m/%Y')}\n",
+                  f"Date: {suggestion.date.strftime('%d/%m/%Y')}\n",
             inline=True,
             )
 
