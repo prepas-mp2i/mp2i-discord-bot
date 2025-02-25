@@ -181,7 +181,7 @@ class Suggestion(Cog):
         ).scalars().all()
 
         if not suggestions:
-            await ctx.send("Aucune suggestion trouvée pour cet état.")
+            await ctx.reply("Aucune suggestion trouvée pour cet état.", ephemeral=True)
             return
 
         if state == "accepted":
@@ -199,7 +199,7 @@ class Suggestion(Cog):
             if state == "open":
                 message = await GuildWrapper(ctx.guild).suggestion_channel.fetch_message(suggestion.message_id)
                 embed.add_field(
-                    name=f"{i+1} - Suggestion de {user.name} le {suggestion.date:%d/%m/%Y}",
+                    name=f"{i+1} - Suggestion de {user.name if user else 'Utilisateur inconnu'} le {suggestion.date:%d/%m/%Y}",
                     value=message.jump_url,
                     inline=False,
                 )
