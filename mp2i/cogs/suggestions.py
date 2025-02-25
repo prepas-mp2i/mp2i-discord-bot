@@ -192,14 +192,13 @@ class Suggestion(Cog):
         else:
             embed = discord.Embed(title=f"Suggestions en cours", colour=0xA9A6A7, timestamp=datetime.now())
 
-        for i,suggestion in enumerate(suggestions):
+        for i, suggestion in enumerate(suggestions):
             user = ctx.guild.get_member(suggestion.author_id)
             
             description_embed = suggestion.description.replace("\n", "\n> ")
             field_value = f"> {description_embed}\nDate: {suggestion.date.strftime('%d/%m/%Y')}\n"
             if state == "open":
-                guild = GuildWrapper(ctx.guild)
-                field_value += f"\n{guild.suggestion_channel.jump_url}/{suggestion.message_id}"
+                field_value += "\n" + ctx.fetch_message(suggestion.message_id).jump_url
 
             embed.add_field(
                 name=f"{i+1}. Suggestion de {user.name}  ",
