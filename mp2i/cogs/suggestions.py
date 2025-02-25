@@ -194,10 +194,13 @@ class Suggestion(Cog):
 
         for i,suggestion in enumerate(suggestions):
             user = ctx.guild.get_member(suggestion.author_id)
+            
             description_embed = suggestion.description.replace("\n", "\n> ")
             field_value = f"> {description_embed}\nDate: {suggestion.date.strftime('%d/%m/%Y')}\n"
             if state == "open":
-                field_value += f"\nhttps://discord.com/channels/{ctx.guild.id}/{GuildWrapper(ctx.guild).suggestion_channel.id}/{suggestion.message_id}"
+                guild = GuildWrapper(ctx.guild)
+                field_value += f"\n{guild.suggestion_channel.jump_url}/{suggestion.message_id}"
+
             embed.add_field(
                 name=f"{i+1}. Suggestion de {user.name}  ",
                 value=field_value,
