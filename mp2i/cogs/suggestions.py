@@ -9,6 +9,7 @@ from mp2i import STATIC_DIR
 from mp2i.models import SuggestionModel
 from mp2i.utils import database
 from mp2i.wrappers.guild import GuildWrapper
+from mp2i.utils.discord import defer
 
 class Suggestion(Cog):
     """
@@ -152,6 +153,7 @@ class Suggestion(Cog):
     
     @hybrid_command(name="suggestions")
     @guild_only()
+    @defer()
     @choices(
         state=[
             Choice(name="En cours", value="open"),
@@ -195,16 +197,20 @@ class Suggestion(Cog):
         for i, suggestion in enumerate(suggestions):
             user = ctx.guild.get_member(suggestion.author_id)
             
-            description_embed = suggestion.description.replace("\n", "\n> ")
-            field_value = f"> {description_embed}\nDate: {suggestion.date.strftime('%d/%m/%Y')}\n"
             if state == "open":
-                field_value += "\n" + ctx.fetch_message(suggestion.message_id).jump_url
-
-            embed.add_field(
-                name=f"{i+1}. Suggestion de {user.name}  ",
-                value=field_value,
-                inline=True,
-            )
+                message = await GuildWrapper(ctx.guild).suggestion_channel.fetch_message(suggestion.message_id)
+                embed.add_field(
+                    name=f"{i+1} - Suggestion de {user.name} le {suggestion.date:%d/%m/%Y}",
+                    value=message.jump_url,
+                    inline=False,
+                )
+            else:
+                description_embed = suggestion.description.replace("\n", "\n> ")
+                embed.add_field(
+                    name=f"{i+1} - Suggestion de {user.name} le {suggestion.date:%d/%m/%Y}",
+                    value=f"> {description_embed}",
+                    inline=False,
+                )
 
         await ctx.send(embed=embed)
 
