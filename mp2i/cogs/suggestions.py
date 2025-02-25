@@ -9,8 +9,6 @@ from mp2i import STATIC_DIR
 from mp2i.models import SuggestionModel
 from mp2i.utils import database
 from mp2i.wrappers.guild import GuildWrapper
-from mp2i.wrappers.member import MemberWrapper
-
 
 class Suggestion(Cog):
     """
@@ -106,21 +104,11 @@ class Suggestion(Cog):
             )
         )
         if accepted:
-            citation += ("\n_**Note**: Il faut parfois attendre plusieurs jours"
-                         " avant qu'elle soit effective_")  # fmt: skip
-            colour = 0x77B255
-            state = 'acceptée'
+            embed = discord.Embed(colour=0x77B255, title=f"Suggestion acceptée", description=f"> {citation}\n_**Note**: Il faut parfois attendre plusieurs jours avant qu'elle soit effective_")
         elif declined:
-            colour = 0xDD2E44
-            state = 'refusée'
+            embed = discord.Embed(colour=0xDD2E44, title=f"Suggestion refusée", description=f"> {citation}")
         else:
-            colour = 0xA9A6A7
-            state = 'fermée'
-        embed = discord.Embed(
-            colour=colour,
-            title=f"Suggestion {state}",
-            description=f"> {citation}",
-        )
+            embed = discord.Embed(colour=0xA9A6A7, title=f"Suggestion fermée", description=f"> {citation}")
         file = discord.File(STATIC_DIR / "img/alert.png")
         embed.set_thumbnail(url="attachment://alert.png")
         embed.set_author(name=suggestion.author.name)
@@ -196,31 +184,23 @@ class Suggestion(Cog):
             return
 
         if state == "accepted":
-            colour = 0x77B255
-            state_fr = 'acceptée'
+            embed = discord.Embed(title=f"Suggestions acceptées", colour=0x77B255, timestamp=datetime.now())
         elif state == "declined":
-            colour = 0xDD2E44
-            state_fr = 'refusée'
+            embed = discord.Embed(title=f"Suggestions refusées", colour=0xDD2E44, timestamp=datetime.now())
         elif state == "closed":
-            colour = 0xA9A6A7
-            state_fr = 'fermée'
+            embed = discord.Embed(title=f"Suggestions fermées", colour=0xA9A6A7, timestamp=datetime.now())
         else:
-            colour = 0xA9A6A7
-            state_fr = 'en cours'
-
-        embed = discord.Embed(
-            title=f"Suggestions - {state_fr}",
-            colour=colour,
-            timestamp=datetime.now(),
-        )
+            embed = discord.Embed(title=f"Suggestions en cours", colour=0xA9A6A7, timestamp=datetime.now())
 
         for i,suggestion in enumerate(suggestions):
             user = ctx.guild.get_member(suggestion.author_id)
             description_embed = suggestion.description.replace("\n", "\n> ")
+            field_value = f"> {description_embed}\nDate: {suggestion.date.strftime('%d/%m/%Y')}\n"
+            if state == "open":
+                field_value += f"\nhttps://discord.com/channels/{ctx.guild.id}/{GuildWrapper(ctx.guild).suggestion_channel.id}/{suggestion.message_id}"
             embed.add_field(
             name=f"{i+1}. Suggestion de {user.name}  ",
-            value=f"> {description_embed}\n"
-                  f"Date: {suggestion.date.strftime('%d/%m/%Y')}\n",
+            value=field_value,
             inline=True,
             )
 
