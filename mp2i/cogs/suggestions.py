@@ -199,9 +199,9 @@ class Suggestion(Cog):
             if state == "open":
                 field_value += f"\nhttps://discord.com/channels/{ctx.guild.id}/{GuildWrapper(ctx.guild).suggestion_channel.id}/{suggestion.message_id}"
             embed.add_field(
-            name=f"{i+1}. Suggestion de {user.name}  ",
-            value=field_value,
-            inline=True,
+                name=f"{i+1}. Suggestion de {user.name}  ",
+                value=field_value,
+                inline=True,
             )
 
         await ctx.send(embed=embed)
