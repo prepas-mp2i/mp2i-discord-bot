@@ -103,7 +103,7 @@ class EventsCog(Cog):
         When a message is deleted, send logs in the log channel
         """
         guild = GuildWrapper(msg.guild)
-        if not guild.log_channel or msg.author.bot:
+        if not guild.log_channel or (guild.admin_channel and msg.channel == guild.admin_channel) or msg.author.bot:
             return
 
         embed = discord.Embed(
@@ -124,7 +124,8 @@ class EventsCog(Cog):
         """
         When a message is edited, send logs in the log channel
         """
-        if not before.guild or not (log_chan := GuildWrapper(before.guild).log_channel):
+        guild = GuildWrapper(before.guild)
+        if not before.guild or not (log_chan := guild.log_channel) or (guild.admin_channel and before.channel == guild.admin_channel) or before.author.bot:
             return
 
         embed = discord.Embed(

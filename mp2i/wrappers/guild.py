@@ -89,6 +89,12 @@ class GuildWrapper:
         if not self.config:
             return None
         return self.guild.get_channel(self.config.channels.website)
+    
+    @cached_property
+    def admin_channel(self) -> Optional[discord.TextChannel]:
+        if not self.config:
+            return None
+        return self.guild.get_channel(self.config.channels.admin)
 
     @property
     def roles_message_id(self) -> Optional[int]:

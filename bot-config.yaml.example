@@ -66,6 +66,7 @@ guilds:
       suggestion: 940718694357676042
       website: 911609939728949309
       log: 0
+      admin: 0
 
   939262781629276200:
     name: Prépas MP2I [Test]
@@ -131,3 +132,4 @@ guilds:
       suggestion: 939262782073897053
       website: 939262782342303796
       log: 0
+      admin: 0
