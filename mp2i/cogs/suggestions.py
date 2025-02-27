@@ -203,7 +203,7 @@ class Suggestion(Cog):
             user = self.bot.get_user(suggest.author_id)
             title = (
                 f"{i+1} - Suggestion de {user.name if user else '?'} "
-                f"le {suggest.date:%d/%m/%Y}",
+                f"le {suggest.date:%d/%m/%Y}"
             )
             if state == "open":
                 guild = GuildWrapper(ctx.guild)

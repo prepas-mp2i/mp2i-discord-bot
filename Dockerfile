@@ -4,8 +4,6 @@ FROM python:3.9-slim-buster
 # Set pip to have cleaner logs
 ENV PYTHONUNBUFFERED=1 \
     PIPENV_NOSPIN=1
-# Configure timezone
-ENV TZ Europe/Paris
 
 # Install git and Pipenv
 RUN apt-get update -qq \

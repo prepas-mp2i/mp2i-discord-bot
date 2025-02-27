@@ -214,8 +214,9 @@ class Commands(Cog):
             return
 
         binary = re.findall("[01]{8}", msg.content)
-        text = "".join(chr(int(b, 2)) for b in binary)
-        await msg.reply(text.replace("@", "@\u200b"))
+        # Convert to ASCII and replace @ by @\u200b to avoid mention
+        text = "".join(chr(int(b, 2)) for b in binary).replace("@", "@\u200b")
+        await msg.reply(text)
 
 
 async def setup(bot) -> None:
