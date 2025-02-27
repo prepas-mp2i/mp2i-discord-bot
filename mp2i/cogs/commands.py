@@ -214,9 +214,9 @@ class Commands(Cog):
             return
 
         binary = re.findall("[01]{8}", msg.content)
-        # Convert to ASCII and replace @ by @\u200b to avoid mention
-        text = "".join(chr(int(b, 2)) for b in binary).replace("@", "@\u200b")
-        await msg.reply(text)
+        text = "".join(chr(int(b, 2)) for b in binary)
+        # DIsable mentions in the reply
+        await msg.reply(text, allowed_mentions=discord.AllowedMentions.none())
 
 
 async def setup(bot) -> None:
