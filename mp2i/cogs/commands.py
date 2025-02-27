@@ -210,8 +210,10 @@ class Commands(Cog):
         """
         Vérifie si le message est un texte binaire et le convertit en ASCII.
         """
+        if msg.author.bot:
+            return  # Ignore bot
         if not re.fullmatch(r"([01]{8}\s?)+", msg.content):
-            return
+            return  # Ignore non binary messages
 
         binary = re.findall("[01]{8}", msg.content)
         text = "".join(chr(int(b, 2)) for b in binary)
