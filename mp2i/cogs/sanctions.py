@@ -7,7 +7,7 @@ from discord.ext.commands import Cog, hybrid_command, guild_only, has_permission
 from sqlalchemy import insert, select, delete
 
 from mp2i.utils import database
-from mp2i.models import SanctionModel
+from mp2i.models import SanctionModel as SM
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ class Sanction(Cog):
             La raison de l'avertissement.
         """
         database.execute(
-            insert(SanctionModel).values(
+            insert(SM).values(
                 by_id=ctx.author.id,
                 to_id=member.id,
                 guild_id=ctx.guild.id,
@@ -81,16 +81,12 @@ class Sanction(Cog):
             Le membre dont on veut lister les sanctions.
         """
         if member:
-            request = select(SanctionModel).where(
-                SanctionModel.to_id == member.id,
-                SanctionModel.guild_id == ctx.guild.id,
-                SanctionModel.type == "warn",
+            request = select(SM).where(
+                SM.to_id == member.id, SM.guild_id == ctx.guild.id, SM.type == "warn"
             )
             title = f"Liste des avertissements de {member.name}"
         else:
-            request = select(SanctionModel).where(
-                SanctionModel.guild_id == ctx.guild.id, SanctionModel.type == "warn"
-            )
+            request = select(SM).where(SM.guild_id == ctx.guild.id, SM.type == "warn")
             title = "Liste des avertissements du serveur"
 
         sanctions = database.execute(request).scalars().all()
@@ -125,7 +121,7 @@ class Sanction(Cog):
         id : int
             L'identifiant de l'avertissement à supprimer.
         """
-        database.execute(delete(SanctionModel).where(SanctionModel.id == id))
+        database.execute(delete(SM).where(SM.id == id))
         await ctx.send(f"L'avertissement {id} a été supprimé.")
 
 
