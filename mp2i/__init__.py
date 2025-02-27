@@ -12,6 +12,8 @@ __all__ = ["STATIC_DIR", "CONFIG"]
 
 _BOT_DIR = Path(__file__).parent
 STATIC_DIR = _BOT_DIR / "static"
+MODEL_DIR = _BOT_DIR / "model"
+
 with open(_BOT_DIR.parent / "bot-config.yaml", encoding="utf-8") as f:
     CONFIG = yaml.safe_load(f)  # Global dict which contains bot config
 

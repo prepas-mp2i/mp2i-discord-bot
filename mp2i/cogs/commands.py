@@ -5,11 +5,10 @@ from operator import attrgetter
 
 import discord
 from discord.ext.commands import Cog, hybrid_command, guild_only, has_permissions
-from profanity import profanity
 
 from mp2i.wrappers.guild import GuildWrapper
 from mp2i.wrappers.member import MemberWrapper
-from mp2i.utils import youtube
+from mp2i.utils import youtube, automod
 from mp2i.utils.discord import defer
 
 logger = logging.getLogger(__name__)
@@ -218,9 +217,10 @@ class Commands(Cog):
 
         binary = re.findall("[01]{8}", msg.content)[:2000]  # Limit to 2000 characters
         text = "".join(chr(int(b, 2)) for b in binary)
-        censored_text = profanity.censor(text)
-
-        await msg.reply(censored_text, allowed_mentions=discord.AllowedMentions.none())
+        if automod.is_toxic(text):
+            await msg.delete()
+        else:
+            await msg.reply(text, allowed_mentions=discord.AllowedMentions.none())
 
 
 async def setup(bot) -> None:

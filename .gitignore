@@ -1,6 +1,9 @@
 # Pipfile
 Pipfile.lock
 
+# ML models
+models/
+
 # IDE config folder
 .vs/
 .vscode/
@@ -140,7 +143,7 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-#Other
+# Other
 .pid
 mail.txt
 bot-config.yaml
