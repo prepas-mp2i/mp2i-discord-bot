@@ -3,11 +3,11 @@ from datetime import datetime
 import discord
 from discord.ext.commands import Cog, hybrid_command, is_owner, guild_only
 from discord.app_commands import Choice, choices
-from sqlalchemy import insert, select, update, delete
+from sqlalchemy import insert, select, update
 
 from mp2i import STATIC_DIR
-from mp2i.models import SuggestionModel as SM
-from mp2i.utils import database as db
+from mp2i.models import SuggestionModel
+from mp2i.utils import database
 from mp2i.wrappers.guild import GuildWrapper
 from mp2i.utils.discord import defer
 
@@ -62,8 +62,8 @@ class Suggestion(Cog):
             )
         except discord.errors.NotFound:
             pass
-        db.execute(
-            insert(SM).values(
+        database.execute(
+            insert(SuggestionModel).values(
                 author_id=msg.author.id,
                 date=datetime.now(),
                 guild_id=msg.guild.id,
@@ -117,10 +117,11 @@ class Suggestion(Cog):
         embed.set_thumbnail(url="attachment://alert.png")
         embed.set_author(name=suggestion.author.name)
 
-        db.execute(
-            update(SM).where(SM.message_id == suggestion.id)
-                      .values(state=state, date=datetime.now())
-        )  # fmt: skip
+        database.execute(
+            update(SuggestionModel)
+            .where(SuggestionModel.message_id == suggestion.id)
+            .values(state=state, date=datetime.now())
+        )
         await channel.send(file=file, embed=embed)
         await suggestion.delete()
 
@@ -178,10 +179,15 @@ class Suggestion(Cog):
         state : str
             Le type de suggestions à afficher : En cours/Acceptées/Refusées/Fermées
         """
-        suggestions = db.execute(
-            select(SM).where(SM.state == state, SM.guild_id == ctx.guild.id)
-                      .order_by(SM.date.desc()).limit(10)
-        ).scalars().all()  # fmt: skip
+        guild = GuildWrapper(ctx.guild)
+        request = (
+            select(SuggestionModel)
+            .where(SuggestionModel.state == state, SuggestionModel.guild_id == guild.id)
+            .order_by(SuggestionModel.date.desc())
+            .limit(10)
+        )
+        suggestions = database.execute(request).scalars().all()
+
         if not suggestions:
             await ctx.reply("Aucune suggestion trouvée pour cet état.", ephemeral=True)
             return
@@ -201,11 +207,11 @@ class Suggestion(Cog):
             f"le {suggest.date:%d/%m/%Y}"
 
             if state == "open":
-                suggestion_channel = GuildWrapper(ctx.guild).suggestion_channel
+                suggestion_channel = guild.suggestion_channel
                 try:
                     msg = await suggestion_channel.fetch_message(suggest.message_id)
                 except discord.errors.NotFound:
-                    db.execute(delete(SM).where(SM.message_id == suggest.message_id))
+                    continue
                 else:
                     embed.add_field(name=title, value=msg.jump_url, inline=False)
             else:
