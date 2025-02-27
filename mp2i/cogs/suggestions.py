@@ -6,7 +6,7 @@ from discord.app_commands import Choice, choices
 from sqlalchemy import insert, select, update
 
 from mp2i import STATIC_DIR
-from mp2i.models import SuggestionModel as SM
+from mp2i.models import SuggestionModel
 from mp2i.utils import database
 from mp2i.wrappers.guild import GuildWrapper
 from mp2i.utils.discord import defer
@@ -62,7 +62,7 @@ class Suggestion(Cog):
         except discord.errors.NotFound:
             pass
         database.execute(
-            insert(SM).values(
+            insert(SuggestionModel).values(
                 author_id=msg.author.id,
                 date=datetime.now(),
                 guild_id=msg.guild.id,
@@ -100,7 +100,7 @@ class Suggestion(Cog):
             embed = discord.Embed(
                 colour=0x77B255,
                 title="Suggestion acceptée",
-                description=f"> {citation}\n _**Note**:vIl faut parfois attendre"
+                description=f"> {citation}\n _**Note**: Il faut parfois attendre"
                 " plusieurs jours avant qu'elle soit effective_",
             )
         elif str(payload.emoji) == decline.emoji:
@@ -118,8 +118,8 @@ class Suggestion(Cog):
         embed.set_author(name=suggestion.author.name)
 
         database.execute(
-            update(SM)
-            .where(SM.message_id == suggestion.id)
+            update(SuggestionModel)
+            .where(SuggestionModel.message_id == suggestion.id)
             .values(state=state, date=datetime.now())
         )
         await channel.send(file=file, embed=embed)
@@ -180,9 +180,11 @@ class Suggestion(Cog):
             Le type de suggestions à afficher : En cours/Acceptées/Refusées/Fermées
         """
         stmt = (
-            select(SM)
-            .where(SM.state == state, SM.guild_id == ctx.guild.id)
-            .order_by(SM.date.desc())
+            select(SuggestionModel)
+            .where(
+                SuggestionModel.state == state, SuggestionModel.guild_id == ctx.guild.id
+            )
+            .order_by(SuggestionModel.date.desc())
             .limit(10)
         )
         suggestions = database.execute(stmt).scalars().all()

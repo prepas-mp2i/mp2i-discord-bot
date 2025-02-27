@@ -6,7 +6,7 @@ from discord.ext.commands import MemberConverter
 import sqlalchemy.exc
 from sqlalchemy import insert, select, update
 
-from mp2i.models import MemberModel as MM
+from mp2i.models import MemberModel
 from mp2i.utils import database
 from mp2i.wrappers.guild import GuildWrapper
 
@@ -43,15 +43,15 @@ class MemberWrapper:
         member = await MemberConverter().convert(ctx, member)
         return cls(member)
 
-    def _fetch(self) -> Optional[MM]:
+    def _fetch(self) -> Optional[MemberModel]:
         """
         Fetch from the database and returns the member if exists
         """
         try:
             return database.execute(
-                select(MM).where(
-                    MM.id == self.member.id,
-                    MM.guild_id == self.guild.id,
+                select(MemberModel).where(
+                    MemberModel.id == self.member.id,
+                    MemberModel.guild_id == self.guild.id,
                 )
             ).scalar_one()
         except sqlalchemy.exc.NoResultFound:
@@ -62,8 +62,10 @@ class MemberWrapper:
         Accept keyword arguments only matching with a column in members table
         """
         database.execute(
-            update(MM)
-            .where(MM.id == self.member.id, MM.guild_id == self.guild.id)
+            update(MemberModel)
+            .where(
+                MemberModel.id == self.member.id, MemberModel.guild_id == self.guild.id
+            )
             .values(**kwargs)
         )
         self.__model = self._fetch()
@@ -73,7 +75,7 @@ class MemberWrapper:
         Insert the member in table, with optionals attributes
         """
         database.execute(
-            insert(MM).values(
+            insert(MemberModel).values(
                 id=self.member.id,
                 guild_id=self.guild.id,
                 name=self.member.name,
