@@ -6,7 +6,7 @@ from discord.ext.commands import Cog
 from sqlalchemy import delete
 
 from mp2i.models import GuildModel
-from mp2i.utils import database as db
+from mp2i.utils import database
 from mp2i.wrappers.member import MemberWrapper
 from mp2i.wrappers.guild import GuildWrapper
 
@@ -58,7 +58,7 @@ class EventsCog(Cog):
         """
         When client is removed from a guild
         """
-        db.execute(delete(GuildModel).where(GuildModel.id == guild.id))
+        database.execute(delete(GuildModel).where(GuildModel.id == guild.id))
 
     @Cog.listener()
     async def on_member_join(self, member) -> None:
