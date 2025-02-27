@@ -7,7 +7,7 @@ from sqlalchemy import insert, select, update
 
 from mp2i import CONFIG
 from mp2i.utils import database
-from mp2i.models import GuildModel
+from mp2i.models import GuildModel as GM
 from mp2i.utils.dotdict import DefaultDotDict
 
 
@@ -25,30 +25,26 @@ class GuildWrapper:
     def __getattr__(self, name: str):
         return getattr(self.guild, name)
 
-    def _fetch(self) -> Optional[GuildModel]:
+    def _fetch(self) -> Optional[GM]:
         """
         Fetch from the database and returns the guild if exists
         """
         try:
             return database.execute(
-                select(GuildModel).where(GuildModel.id == self.guild.id)
+                select(GM).where(GM.id == self.guild.id)
             ).scalar_one()
         except sqlalchemy.exc.NoResultFound:
             return None
 
     def register(self) -> None:
-        database.execute(
-            insert(GuildModel).values(id=self.guild.id, name=self.guild.name)
-        )
+        database.execute(insert(GM).values(id=self.guild.id, name=self.guild.name))
         self.__model = self._fetch()  # Update the model
 
     def update(self, **kwargs) -> None:
         """
         Accept keyword arguments only matching with a column in members table
         """
-        database.execute(
-            update(GuildModel).where(GuildModel.id == self.guild.id).values(**kwargs)
-        )
+        database.execute(update(GM).where(GM.id == self.guild.id).values(**kwargs))
         self.__model = self._fetch()
 
     def exists(self) -> bool:
@@ -89,7 +85,7 @@ class GuildWrapper:
         if not self.config:
             return None
         return self.guild.get_channel(self.config.channels.website)
-    
+
     @cached_property
     def admin_channel(self) -> Optional[discord.TextChannel]:
         if not self.config:

@@ -187,7 +187,7 @@ class Commands(Cog):
             await ctx.reply(message, ephemeral=True)
             return
 
-        members = [m for m in map(MemberWrapper, ctx.guild.members) if m.exists() and not m.bot]
+        members = [MemberWrapper(m) for m in ctx.guild.members if not m.bot]
         members.sort(key=attrgetter("messages_count"), reverse=True)
 
         author = MemberWrapper(ctx.author)
@@ -204,6 +204,7 @@ class Commands(Cog):
 
         embed = discord.Embed(colour=0x2BFAFA, title=title, description=content)
         await ctx.send(embed=embed)
+
 
 async def setup(bot) -> None:
     await bot.add_cog(Commands(bot))
