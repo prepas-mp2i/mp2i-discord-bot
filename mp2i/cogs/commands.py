@@ -205,6 +205,18 @@ class Commands(Cog):
         embed = discord.Embed(colour=0x2BFAFA, title=title, description=content)
         await ctx.send(embed=embed)
 
+    @Cog.listener("on_message")
+    async def unbinarize(self, msg: discord.Message):
+        """
+        Vérifie si le message est un texte binaire et le convertit en ASCII.
+        """
+        if not re.fullmatch(r"([01]{8}\s?)+", msg.content):
+            return
+
+        binary = re.findall("[01]{8}", msg.content)
+        text = "".join(chr(int(b, 2)) for b in binary)
+        await msg.reply(text.replace("@", "@\u200b"))
+
 
 async def setup(bot) -> None:
     await bot.add_cog(Commands(bot))
