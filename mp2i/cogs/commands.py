@@ -217,8 +217,18 @@ class Commands(Cog):
 
         binary = re.findall("[01]{8}", msg.content)[:2000]  # Limit to 2000 characters
         text = "".join(chr(int(b, 2)) for b in binary)
-        if automod.is_toxic(text):
+
+        if automod.is_toxic(text, treshold=0.9):
             await msg.delete()
+            embed = discord.Embed(
+                title="Message modéré pour contenu inapproprié.",
+                colour=0xFFA325,
+            )
+            embed.add_field(name="Auteur", value=msg.author.mention)
+            embed.add_field(name="Salon", value=msg.channel.mention)
+            embed.add_field(name="Message décodé", value=f">>> {text}", inline=False)
+            guild = GuildWrapper(msg.guild)
+            await guild.log_channel.send(embed=embed)
         else:
             await msg.reply(text, allowed_mentions=discord.AllowedMentions.none())
 
