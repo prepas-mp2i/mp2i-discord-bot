@@ -4,7 +4,7 @@ from typing import Optional
 from operator import attrgetter
 
 import discord
-from discord.ext.commands import Cog, hybrid_command, guild_only, has_permissions
+from discord.ext.commands import Cog, hybrid_command, guild_only, has_permissions, has_any_role
 
 from mp2i.wrappers.guild import GuildWrapper
 from mp2i.wrappers.member import MemberWrapper
@@ -79,7 +79,7 @@ class Commands(Cog):
 
     @hybrid_command(name="say")
     @guild_only()
-    @has_permissions(manage_messages=True)
+    @has_any_role("Moderateur", "Administrateur")
     async def say(self, ctx, channel: discord.TextChannel, *, message: str) -> None:
         """
         Envoie un message dans un salon.

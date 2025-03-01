@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional
 
 import discord
-from discord.ext.commands import Cog, hybrid_command, guild_only, has_permissions
+from discord.ext.commands import Cog, hybrid_command, guild_only, has_any_role
 from sqlalchemy import insert, select, delete
 
 from mp2i.utils import database
@@ -22,7 +22,7 @@ class Sanction(Cog):
 
     @hybrid_command(name="warn")
     @guild_only()
-    @has_permissions(manage_messages=True)
+    @has_any_role("Moderateur", "Administrateur")
     async def warn(self, ctx, member: discord.Member, dm: str, visible: str, *,
                    reason: Optional[str]) -> None:  # fmt: skip
         """
@@ -70,7 +70,7 @@ class Sanction(Cog):
 
     @hybrid_command(name="warnlist")
     @guild_only()
-    @has_permissions(manage_messages=True)
+    @has_any_role("Moderateur", "Administrateur")
     async def warnlist(self, ctx, member: Optional[discord.Member]) -> None:
         """
         Liste les sanctions reçues par un membre.
@@ -115,7 +115,7 @@ class Sanction(Cog):
 
     @hybrid_command(name="unwarn")
     @guild_only()
-    @has_permissions(manage_messages=True)
+    @has_any_role("Moderateur", "Administrateur")
     async def unwarn(self, ctx, id: int) -> None:
         """
         Supprime un avertissement.
