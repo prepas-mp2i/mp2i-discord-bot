@@ -27,7 +27,7 @@ class ErrorHandler(Cog):
             )
             await ctx.reply("Votre argument est invalide.")
 
-        elif hasattr(error, "handled"):
+        elif ctx.command.has_error_handler():
             logger.debug(f"Local error handler for {ctx.command} has been called")
         
         elif isinstance(error, errors.MissingAnyRole):
