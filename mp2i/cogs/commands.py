@@ -4,7 +4,14 @@ from typing import Optional
 from operator import attrgetter
 
 import discord
-from discord.ext.commands import Cog, hybrid_command, guild_only, has_permissions
+from discord.ext.commands import Cog, Range
+from discord.ext.commands import (
+    hybrid_command,
+    guild_only,
+    has_permissions,
+    has_any_role,
+    errors,
+)
 
 from mp2i.wrappers.guild import GuildWrapper
 from mp2i.wrappers.member import MemberWrapper
@@ -65,21 +72,30 @@ class Commands(Cog):
     @hybrid_command(name="clear")
     @guild_only()
     @has_permissions(manage_messages=True)
-    async def clear(self, ctx, number: int = 1) -> None:
+    async def clear(self, ctx, number: Range[int, 1, 100]) -> None:
         """
-        Supprime les n derniers messages du salon
+        Supprime les n derniers messages du salon.
 
         Parameters
         ----------
         number : int
             Nombre de messages à supprimer.
         """
-        await ctx.channel.purge(limit=int(number))
+        await ctx.channel.purge(limit=int(number) + (ctx.prefix != "/"))
         await ctx.reply(f"{number} messages ont bien été supprimés.", ephemeral=True)
+
+    @clear.error
+    async def clear_error(self, ctx, error) -> None:
+        """
+        Local error handler for clear command.
+        """
+        if isinstance(error, errors.RangeError):
+            msg = f"Le nombre de messages doit être compris entre 1 et {error.maximum}."
+        await ctx.reply(msg, ephemeral=True)
 
     @hybrid_command(name="say")
     @guild_only()
-    @has_permissions(manage_messages=True)
+    @has_any_role("Modérateur", "Administrateur")
     async def say(self, ctx, channel: discord.TextChannel, *, message: str) -> None:
         """
         Envoie un message dans un salon.
@@ -184,8 +200,7 @@ class Commands(Cog):
         """
         if rmax < 0 or rmax > LEADERBOARD_RANK_MAX:
             message = f"rmax doit être compris entre 0 et {LEADERBOARD_RANK_MAX}"
-            await ctx.reply(message, ephemeral=True)
-            return
+            return await ctx.reply(message, ephemeral=True)
 
         members = [MemberWrapper(m) for m in ctx.guild.members if not m.bot]
         members.sort(key=attrgetter("messages_count"), reverse=True)
