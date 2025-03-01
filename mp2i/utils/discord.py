@@ -1,5 +1,8 @@
 from functools import wraps
+from discord.ext.commands.errors import NoPrivateMessage, MissingAnyRole
+from discord.ext.commands import check
 
+from mp2i.wrappers.guild import GuildWrapper
 
 def defer(ephemeral: bool = False):
     """
@@ -15,3 +18,23 @@ def defer(ephemeral: bool = False):
         return command_wrapper
 
     return decorator
+
+def has_any_role(*items: str):
+    """
+    Decorator that check if the user has any of the specified roles.
+    """
+
+    def predicate(ctx):
+        if ctx.guild is None:
+            raise NoPrivateMessage()
+
+        # ctx.guild is None doesn't narrow ctx.author to Member
+        guild = GuildWrapper(ctx.guild)
+        if any(
+            guild.get_role_by_qualifier(item) is not None
+            for item in items
+        ):
+            return True
+        raise MissingAnyRole(list(items))
+
+    return check(predicate)
