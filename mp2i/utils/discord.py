@@ -30,8 +30,9 @@ def has_any_role(*items: str):
 
         # ctx.guild is None doesn't narrow ctx.author to Member
         guild = GuildWrapper(ctx.guild)
+        roles_id = {role.id for role in ctx.author.roles}
         if any(
-            guild.get_role_by_qualifier(item) in ctx.author.roles
+            guild.get_role_by_qualifier(item) is not None and guild.get_role_by_qualifier(item).id in roles_id
             for item in items
         ):
             return True

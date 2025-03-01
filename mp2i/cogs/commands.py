@@ -220,6 +220,13 @@ class Commands(Cog):
         embed = discord.Embed(colour=0x2BFAFA, title=title, description=content)
         await ctx.send(embed=embed)
 
+    @hybrid_command(name="g")
+    @has_any_role("Gestion Association")
+    async def g(self, ctx) -> None:
+        """
+        Commande réservée aux membres du rôle Gestion Association.
+        """
+        await ctx.send("Vous avez le rôle Gestion Association.")
 
 async def setup(bot) -> None:
     await bot.add_cog(Commands(bot))
