@@ -22,7 +22,7 @@ class Sanction(Cog):
 
     @hybrid_command(name="warn")
     @guild_only()
-    @has_any_role("Moderateur", "Administrateur")
+    @has_any_role("Modérateur", "Administrateur")
     async def warn(self, ctx, member: discord.Member, dm: str, visible: str, *,
                    reason: Optional[str]) -> None:  # fmt: skip
         """
@@ -70,7 +70,7 @@ class Sanction(Cog):
 
     @hybrid_command(name="warnlist")
     @guild_only()
-    @has_any_role("Moderateur", "Administrateur")
+    @has_any_role("Modérateur", "Administrateur")
     async def warnlist(self, ctx, member: Optional[discord.Member]) -> None:
         """
         Liste les sanctions reçues par un membre.
@@ -115,7 +115,7 @@ class Sanction(Cog):
 
     @hybrid_command(name="unwarn")
     @guild_only()
-    @has_any_role("Moderateur", "Administrateur")
+    @has_any_role("Modérateur", "Administrateur")
     async def unwarn(self, ctx, id: int) -> None:
         """
         Supprime un avertissement.

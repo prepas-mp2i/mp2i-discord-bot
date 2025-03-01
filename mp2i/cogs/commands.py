@@ -79,7 +79,7 @@ class Commands(Cog):
 
     @hybrid_command(name="say")
     @guild_only()
-    @has_any_role("Moderateur", "Administrateur")
+    @has_any_role("Modérateur", "Administrateur")
     async def say(self, ctx, channel: discord.TextChannel, *, message: str) -> None:
         """
         Envoie un message dans un salon.

@@ -53,7 +53,7 @@ class School(Cog):
 
     @hybrid_command(name="school")
     @guild_only()
-    @has_any_role("MP2I", "MPI", "Ex MPI", "Intégré", "Moderateur", "Administrateur")
+    @has_any_role("MP2I", "MPI", "Ex MPI", "Intégré", "Modérateur", "Administrateur")
     @autocomplete(school=autocomplete_school)
     @choices(
         type=[
@@ -106,7 +106,7 @@ class School(Cog):
         await ctx.reply(response, ephemeral=True)
 
     @hybrid_command(name="generation")
-    @has_any_role("MP2I", "MPI", "Ex MPI", "Intégré", "Moderateur", "Administrateur")
+    @has_any_role("MP2I", "MPI", "Ex MPI", "Intégré", "Modérateur", "Administrateur")
     @guild_only()
     async def generation(
         self,
