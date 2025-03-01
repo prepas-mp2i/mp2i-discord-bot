@@ -13,16 +13,15 @@ RUN apt-get update -qq \
 
 # Install project dependencies
 COPY Pipfile* ./
-RUN pipenv install --clear --system \
+RUN pipenv lock \
+    && pipenv install --clear --system \
     && pipenv --clear
 
 # Set a working directory
 WORKDIR /home/
 
 # Copy the source code into the image
-COPY mp2i/ ./mp2i
-COPY log-config.toml ./log-config.toml
-COPY bot-config.yaml ./bot-config.yaml
+COPY . .
 
 # Run the bot
 CMD ["python", "-m", "mp2i"]
