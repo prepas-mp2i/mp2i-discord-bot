@@ -4,12 +4,12 @@ from typing import Optional
 from operator import attrgetter
 
 import discord
-from discord.ext.commands import Cog, hybrid_command, guild_only, has_permissions, has_any_role
+from discord.ext.commands import Cog, hybrid_command, guild_only, has_permissions
 
 from mp2i.wrappers.guild import GuildWrapper
 from mp2i.wrappers.member import MemberWrapper
 from mp2i.utils import youtube
-from mp2i.utils.discord import defer
+from mp2i.utils.discord import defer, has_any_role
 
 logger = logging.getLogger(__name__)
 

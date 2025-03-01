@@ -7,13 +7,13 @@ from datetime import datetime
 from operator import itemgetter
 
 import discord
-from discord.ext.commands import Cog, hybrid_command, guild_only, has_any_role, Range
+from discord.ext.commands import Cog, hybrid_command, guild_only, Range
 from discord.app_commands import autocomplete, Choice, choices
 
 from mp2i import STATIC_DIR
 from mp2i.wrappers.member import MemberWrapper
 from mp2i.wrappers.guild import GuildWrapper
-from mp2i.utils.discord import defer
+from mp2i.utils.discord import defer, has_any_role
 
 SCHOOL_REGEX = re.compile(r"^.+[|@] *(?P<prepa>.*)$")
 
