@@ -236,7 +236,7 @@ class Commands(Cog):
         if automod.is_toxic(text, treshold=0.9):
             await msg.delete()
             embed = discord.Embed(
-                title="Message modéré pour contenu inapproprié.",
+                title="Message modéré pour contenu inapproprié",
                 colour=0xFFA325,
             )
             embed.add_field(name="Auteur", value=msg.author.mention)

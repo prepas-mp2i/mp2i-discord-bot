@@ -11,17 +11,16 @@ RUN apt-get update -qq \
     && pip install --no-cache-dir -U pipenv \
     && rm -rf /var/lib/apt/lists/*
 
-# Install project dependencies
-COPY Pipfile* ./
-RUN pipenv lock \
-    && pipenv install --clear --system \
-    && pipenv --clear
-
 # Set a working directory
-WORKDIR /home/
+WORKDIR /bot
 
 # Copy the source code into the image
 COPY . .
+
+# Install the dependencies
+RUN pipenv lock \
+    && pipenv install --clear --system \
+    && pipenv --clear
 
 # Run the bot
 CMD ["python", "-m", "mp2i"]

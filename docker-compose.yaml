@@ -17,8 +17,9 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ./logs:/home/logs
-      - ./models:/home/models
+      - ./mp2i:/bot/mp2i
+      - ./logs:/bot/logs
+      - ./models:/bot/models
     env_file:
       - .env
     environment:
