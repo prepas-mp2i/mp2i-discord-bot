@@ -15,7 +15,6 @@ from discord.ext.commands import (
 
 from mp2i.wrappers.guild import GuildWrapper
 from mp2i.wrappers.member import MemberWrapper
-from mp2i.utils import youtube
 from mp2i.utils.discord import defer, has_any_role
 
 logger = logging.getLogger(__name__)
@@ -44,30 +43,6 @@ class Commands(Cog):
         """
         await self.set_default_status()
         await ctx.reply("Status réinitialisé à `/help`.", ephemeral=True)
-
-    @hybrid_command(name="status")
-    @guild_only()
-    @has_permissions(administrator=True)
-    async def change_status(self, ctx, *, query: str) -> None:
-        """
-        Change le status du bot par une vidéo correspondante à la recherche.
-
-        Parameters
-        ----------
-        query : str
-            Mots clés de la vidéo.
-        """
-        try:
-            video = next(youtube.search(query, n=1))
-            activity = discord.Streaming(**video)
-            await self.bot.change_presence(activity=activity)
-            await ctx.reply("Status changé.", ephemeral=True)
-
-        except StopIteration:
-            await ctx.reply("Changement de statut du bot impossible.", ephemeral=True)
-
-        except discord.errors.HTTPException:
-            logger.error("Can't change bot presence")
 
     @hybrid_command(name="clear")
     @guild_only()
