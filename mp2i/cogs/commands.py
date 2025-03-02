@@ -9,14 +9,14 @@ from discord.ext.commands import (
     hybrid_command,
     guild_only,
     has_permissions,
-    has_any_role,
     errors,
 )
+
 
 from mp2i.wrappers.guild import GuildWrapper
 from mp2i.wrappers.member import MemberWrapper
 from mp2i.utils import youtube, automod
-from mp2i.utils.discord import defer
+from mp2i.utils.discord import defer, has_any_role
 
 logger = logging.getLogger(__name__)
 
