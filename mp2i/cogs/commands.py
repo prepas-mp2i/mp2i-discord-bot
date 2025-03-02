@@ -9,14 +9,14 @@ from discord.ext.commands import (
     hybrid_command,
     guild_only,
     has_permissions,
-    has_any_role,
     errors,
 )
+
 
 from mp2i.wrappers.guild import GuildWrapper
 from mp2i.wrappers.member import MemberWrapper
 from mp2i.utils import youtube
-from mp2i.utils.discord import defer
+from mp2i.utils.discord import defer, has_any_role
 
 logger = logging.getLogger(__name__)
 
@@ -219,7 +219,6 @@ class Commands(Cog):
 
         embed = discord.Embed(colour=0x2BFAFA, title=title, description=content)
         await ctx.send(embed=embed)
-
 
 async def setup(bot) -> None:
     await bot.add_cog(Commands(bot))

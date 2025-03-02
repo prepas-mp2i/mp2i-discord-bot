@@ -3,11 +3,12 @@ from datetime import datetime
 from typing import Optional
 
 import discord
-from discord.ext.commands import Cog, hybrid_command, guild_only, has_any_role
+from discord.ext.commands import Cog, hybrid_command, guild_only
 from sqlalchemy import insert, select, delete
 
 from mp2i.utils import database
 from mp2i.models import SanctionModel
+from mp2i.utils.discord import has_any_role
 
 logger = logging.getLogger(__name__)
 
