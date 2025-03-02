@@ -130,7 +130,6 @@ class EventsCog(Cog):
         guild = GuildWrapper(before.guild)
         if not before.guild or not (log_chan := guild.log_channel):
             return
-        
         if before.channel == guild.admin_channel or before.author.bot:
             return
 

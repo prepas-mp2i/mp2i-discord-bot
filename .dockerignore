@@ -11,6 +11,12 @@
 .git/
 .pre-commit-config.yaml
 
+# Folders
+models/
+
+# Python
+__pycache__/
+
 # Resources
 LICENSE
 README.md

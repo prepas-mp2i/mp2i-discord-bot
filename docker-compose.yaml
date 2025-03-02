@@ -2,6 +2,8 @@ services:
   postgres:
     image: postgres
     container_name: MP2I_PostgreSQL
+    volumes:
+      - pg_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=MP2I
       - POSTGRES_USER=root
@@ -15,7 +17,9 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ./logs:/MP2I/logs
+      - ./mp2i:/bot/mp2i
+      - ./logs:/bot/logs
+      - ./models:/bot/models
     env_file:
       - .env
     environment:
@@ -23,3 +27,6 @@ services:
       DATABASE_URL: postgresql+psycopg2://root:root@postgres:5432/MP2I
     depends_on:
       - postgres
+
+volumes:
+  pg_data:

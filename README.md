@@ -58,12 +58,11 @@ SMTP_SERVER = <smtp_server>
 EMAIL_USER = <email_user>
 
 EMAIL_PASSWORD = <password>
-
 ```
 
 Create a `bot-config.toml` file based on the `bot-config.yaml.example` file.
 
-- ### Using Pipenv
+### Using Pipenv
 
 Install `pipenv` dependencies:
 
@@ -78,10 +77,17 @@ It will install packages in the virtual environment (recommended).
 pipenv install
 ```
 
-Run the command `python3 -m mp2i` on Linux or `py -m mp2i` on Windows.
+Run the command `python3 -m mp2i` on Linux or `py -m mp2i` on Windows to start the bot.
 
-- ### Using Docker
+### Using Docker
 
 ```sh
 docker-compose up --build
 ```
+
+Now, the bot should be running. After modifying the code,
+you can update the bot using the command `docker-compose up`.
+
+## License
+
+This project is licensed under the Mozilla Public License 2.0 - see the [LICENSE](LICENSE) file for details.

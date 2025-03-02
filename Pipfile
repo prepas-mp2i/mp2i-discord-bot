@@ -1,7 +1,12 @@
 [[source]]
+name = "pypi"
 url = "https://pypi.python.org/simple"
 verify_ssl = true
-name = "pypi"
+
+[[source]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+verify_ssl = true
 
 [dev-packages]
 pre-commit = "==3.3.3"
@@ -16,7 +21,9 @@ sqlalchemy = ">=1.4.7,<2.0"
 toml = "<1.0"
 psycopg2-binary = ">=2.9.3, <3.0"
 PyYAML = ">=6.0, <7.0"
-youtube-dl = ">=2021, <2022"
+youtube_dl = ">=2021, <2022"
+detoxify = ">=0.5.0, <1.0"
+torch = {version = ">=2.6.0, <3.0", index="pytorch-cpu"}
 
 [requires]
 python_version = "3.9"

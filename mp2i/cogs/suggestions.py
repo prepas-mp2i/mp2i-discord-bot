@@ -11,6 +11,7 @@ from mp2i.utils import database
 from mp2i.wrappers.guild import GuildWrapper
 from mp2i.utils.discord import defer
 
+
 class Suggestion(Cog):
     """
     Offers commands to allow members to propose suggestions and interact with them
@@ -33,6 +34,7 @@ class Suggestion(Cog):
 
         with open(STATIC_DIR / "text/suggestions.md", encoding="utf-8") as f:
             content = f.read()
+
         embed = discord.Embed(
             title="Fonctionnement des suggestions",
             description=content,
@@ -87,33 +89,39 @@ class Suggestion(Cog):
             return
         if not payload.member.guild_permissions.administrator:
             return  # only administrator can close a suggestion
+
         accept = discord.utils.get(suggestion.reactions, emoji="✅")
         decline = discord.utils.get(suggestion.reactions, emoji="❌")
-        close = discord.utils.get(suggestion.reactions, emoji="🔒")
-        citation = (
-            "\n> ".join(suggestion.content.split("\n"))
-            + f"\n\n✅: {accept.count-1} vote(s), ❌: {decline.count-1} vote(s)"
-        ) 
-        accepted = str(payload.emoji) == accept.emoji
-        declined = str(payload.emoji) == decline.emoji
-        database.execute(
-            update(SuggestionModel)
-            .where(SuggestionModel.message_id == suggestion.id)
-            .values(
-                state="accepted" if accepted else "declined" if declined else "closed",
-                date=datetime.now()
+        citation = "\n> ".join(suggestion.content.split("\n"))
+        citation += f"\n\n✅: {accept.count-1} vote(s), ❌: {decline.count-1} vote(s)"
+
+        if str(payload.emoji) == accept.emoji:
+            state = "accepted"
+            embed = discord.Embed(
+                colour=0x77B255,
+                title="Suggestion acceptée",
+                description=f"> {citation}\n _**Note**: Il faut parfois attendre"
+                " plusieurs jours avant qu'elle soit effective_",
             )
-        )
-        if accepted:
-            embed = discord.Embed(colour=0x77B255, title=f"Suggestion acceptée", description=f"> {citation}\n_**Note**: Il faut parfois attendre plusieurs jours avant qu'elle soit effective_")
-        elif declined:
-            embed = discord.Embed(colour=0xDD2E44, title=f"Suggestion refusée", description=f"> {citation}")
+        elif str(payload.emoji) == decline.emoji:
+            state = "declined"
+            embed = discord.Embed(
+                colour=0xDD2E44, title="Suggestion refusée", description=f"> {citation}"
+            )
         else:
-            embed = discord.Embed(colour=0xA9A6A7, title=f"Suggestion fermée", description=f"> {citation}")
+            state = "closed"
+            embed = discord.Embed(
+                colour=0xA9A6A7, title="Suggestion fermée", description=f"> {citation}"
+            )
         file = discord.File(STATIC_DIR / "img/alert.png")
         embed.set_thumbnail(url="attachment://alert.png")
         embed.set_author(name=suggestion.author.name)
 
+        database.execute(
+            update(SuggestionModel)
+            .where(SuggestionModel.message_id == suggestion.id)
+            .values(state=state, date=datetime.now())
+        )
         await channel.send(file=file, embed=embed)
         await suggestion.delete()
 
@@ -150,7 +158,7 @@ class Suggestion(Cog):
         await website_chan.send(embed=embed)
         # Pour ne pas envoyer le message plusieurs fois
         await message.add_reaction("📌")
-    
+
     @hybrid_command(name="suggestions")
     @guild_only()
     @defer()
@@ -171,48 +179,49 @@ class Suggestion(Cog):
         state : str
             Le type de suggestions à afficher : En cours/Acceptées/Refusées/Fermées
         """
-        suggestions = database.execute(
+        guild = GuildWrapper(ctx.guild)
+        request = (
             select(SuggestionModel)
-            .where(
-            SuggestionModel.state == state,
-            SuggestionModel.guild_id == ctx.guild.id
-            )
+            .where(SuggestionModel.state == state, SuggestionModel.guild_id == guild.id)
             .order_by(SuggestionModel.date.desc())
             .limit(10)
-        ).scalars().all()
+        )
+        suggestions = database.execute(request).scalars().all()
 
         if not suggestions:
             await ctx.reply("Aucune suggestion trouvée pour cet état.", ephemeral=True)
             return
 
         if state == "accepted":
-            embed = discord.Embed(title=f"Suggestions acceptées", colour=0x77B255, timestamp=datetime.now())
+            embed = discord.Embed(title="Suggestions acceptées", colour=0x77B255)
         elif state == "declined":
-            embed = discord.Embed(title=f"Suggestions refusées", colour=0xDD2E44, timestamp=datetime.now())
+            embed = discord.Embed(title="Suggestions refusées", colour=0xDD2E44)
         elif state == "closed":
-            embed = discord.Embed(title=f"Suggestions fermées", colour=0xA9A6A7, timestamp=datetime.now())
+            embed = discord.Embed(title="Suggestions fermées", colour=0xA9A6A7)
         else:
-            embed = discord.Embed(title=f"Suggestions en cours", colour=0xA9A6A7, timestamp=datetime.now())
+            embed = discord.Embed(title="Suggestions en cours", colour=0xA9A6A7)
 
-        for i, suggestion in enumerate(suggestions):
-            user = ctx.guild.get_member(suggestion.author_id)
-            
+        for i, suggest in enumerate(suggestions):
+            user = self.bot.get_user(suggest.author_id)
+            title = f"{i+1} - Suggestion de {user.name if user else '?'} "
+            f"le {suggest.date:%d/%m/%Y}"
+
             if state == "open":
-                message = await GuildWrapper(ctx.guild).suggestion_channel.fetch_message(suggestion.message_id)
-                embed.add_field(
-                    name=f"{i+1} - Suggestion de {user.name if user else 'Utilisateur inconnu'} le {suggestion.date:%d/%m/%Y}",
-                    value=message.jump_url,
-                    inline=False,
-                )
+                suggestion_channel = guild.suggestion_channel
+                try:
+                    msg = await suggestion_channel.fetch_message(suggest.message_id)
+                except discord.errors.NotFound:
+                    continue
+                else:
+                    embed.add_field(name=title, value=msg.jump_url, inline=False)
             else:
-                description_embed = suggestion.description.replace("\n", "\n> ")
-                embed.add_field(
-                    name=f"{i+1} - Suggestion de {user.name if user else 'Utilisateur inconnu'} le {suggestion.date:%d/%m/%Y}",
-                    value=f"> {description_embed}",
-                    inline=False,
-                )
+                desc = suggest.description.replace("\n", "\n> ")
+                embed.add_field(name=title, value=f"> {desc}", inline=False)
 
+        embed.timestamp = datetime.now()
+        embed.set_footer(text=self.bot.user.name)
         await ctx.send(embed=embed)
+
 
 async def setup(bot) -> None:
     await bot.add_cog(Suggestion(bot))
