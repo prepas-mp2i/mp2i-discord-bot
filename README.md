@@ -21,7 +21,6 @@
 It provides some features like:
 
 - Roles selection
-- Music player
 - Suggestion automation
 - Custom commands (clear, profile ...)
 - Moderation
@@ -46,8 +45,6 @@ DISCORD_TOKEN = <discord_bot_token>
 ENVIRONMENT = production
 # Optional, a SQLite database will be created otherwise.
 DATABASE_URL = mysql+mysqlconnector://user:password@host:port/database
-# For YouTube API (optional).
-API_DEVELOPER_KEY = <youtube_api_developer_key>
 #Optional
 COMPOSE_PROJECT_NAME = mp2i
 # Timezone
