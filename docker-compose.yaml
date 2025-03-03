@@ -8,8 +8,8 @@ services:
       - POSTGRES_DB=MP2I
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
-    ports:
-      - "2345:5432"
+#    ports:
+#      - "2345:5432"
 
   bot:
     container_name: MP2I_Bot
