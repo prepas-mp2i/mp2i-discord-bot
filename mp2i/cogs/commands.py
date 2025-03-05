@@ -9,7 +9,7 @@ from discord.ext.commands import hybrid_command, guild_only, has_permissions, er
 
 from mp2i.wrappers.guild import GuildWrapper
 from mp2i.wrappers.member import MemberWrapper
-from mp2i.utils import automod, youtube
+from mp2i.utils import youtube
 from mp2i.utils.discord import defer, has_any_role
 
 logger = logging.getLogger(__name__)
@@ -213,24 +213,6 @@ class Commands(Cog):
 
         embed = discord.Embed(colour=0x2BFAFA, title=title, description=content)
         await ctx.send(embed=embed)
-
-    @Cog.listener("on_message")
-    async def unbinarize(self, msg: discord.Message):
-        """
-        Vérifie si le message est un texte binaire et le convertit en ASCII.
-        """
-        if msg.author.bot:
-            return  # Ignore bot
-        if not re.fullmatch(r"([01]{8}\s?)+", msg.content):
-            return  # Ignore non binary messages
-
-        binary = re.findall("[01]{8}", msg.content)[:2000]  # Limit to 2000 characters
-        text = "".join(chr(int(b, 2)) for b in binary)
-
-        if automod.is_toxic(text):
-            await automod.moderate(msg)
-        else:
-            await msg.reply(text, allowed_mentions=discord.AllowedMentions.none())
 
 
 async def setup(bot) -> None:
