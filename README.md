@@ -36,6 +36,10 @@ It's required to have python 3.9 or more installed on your system.
 You can also use Docker to deploy the environment in one command.
 [Get started with Docker](https://www.docker.com/get-started)
 
+**Git LFS** <br>
+This project uses Git LFS to store large files like images and sounds.
+[Download Git LFS](https://git-lfs.github.com/)
+
 ## Installation
 
 First set variables in .env file:
