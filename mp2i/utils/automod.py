@@ -3,11 +3,13 @@ from typing import Dict
 import logging
 from pathlib import Path
 
+import discord
 import numpy as np
 import onnxruntime as ort
 from tokenizers import Tokenizer
 
 from mp2i import MODEL_DIR
+from mp2i.wrappers.guild import GuildWrapper
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +20,27 @@ def softmax(x, axis=None):
     """
     e_x = np.exp(x - np.max(x, axis=axis, keepdims=True))
     return e_x / e_x.sum(axis=axis, keepdims=True)
+
+
+def is_toxic(msg: discord.Message) -> bool:
+    """
+    Check if a message is toxic or not.
+    """
+    return _classifier.predict(msg.content, treshold=0.9)
+
+
+async def moderate(msg: discord.Message) -> None:
+    """
+    Moderates a message by deleting it and sending logs.
+    """
+    await msg.delete()  # Will trigger on_message_delete event
+    embed = discord.Embed(
+        title="Message modéré pour contenu inapproprié",
+        description=f">>> {msg.content}",
+        colour=0xFFA325,
+    )
+    guild = GuildWrapper(msg.guild)
+    await guild.log_channel.send(embed=embed)
 
 
 class ToxicityClassifier:
@@ -92,6 +115,6 @@ class ToxicityClassifier:
         )
 
 
-classifier = ToxicityClassifier(
+_classifier = ToxicityClassifier(
     "citizenlab/distilbert-base-multilingual-cased-toxicity", MODEL_DIR
 )

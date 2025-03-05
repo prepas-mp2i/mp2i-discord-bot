@@ -6,7 +6,7 @@ from discord.ext.commands import Cog
 from sqlalchemy import delete
 
 from mp2i.models import GuildModel
-from mp2i.utils import database
+from mp2i.utils import automod, database
 from mp2i.wrappers.member import MemberWrapper
 from mp2i.wrappers.guild import GuildWrapper
 
@@ -38,6 +38,9 @@ class EventsCog(Cog):
         """
         Log message in database and update message count
         """
+        if automod.is_toxic(msg):
+            return await automod.moderate(msg)
+
         member = MemberWrapper(msg.author)
         if member.exists():
             member.messages_count += 1
@@ -77,7 +80,7 @@ class EventsCog(Cog):
             timestamp=datetime.now(),
         )
         embed.set_thumbnail(url=member.avatar.url)
-        embed.set_author(name=member.mention)
+        embed.set_author(name=member.name)
         embed.set_footer(text=f"{self.bot.user.name}")
 
         if member.guild.system_channel:
@@ -104,10 +107,10 @@ class EventsCog(Cog):
         """
         guild = GuildWrapper(msg.guild)
         if not guild.log_channel:
-            return
+            return logging.warning("No log channel set")
 
-        if msg.channel == guild.admin_channel or msg.author.bot:
-            return
+        if msg.author.bot or msg.channel == guild.admin_channel:
+            return  # Ignore bot and admin channel
 
         embed = discord.Embed(
             title="Message supprimé",
@@ -129,9 +132,13 @@ class EventsCog(Cog):
         """
         guild = GuildWrapper(before.guild)
         if not before.guild or not (log_chan := guild.log_channel):
-            return
+            return logging.warning("No log channel set")
+
         if before.channel == guild.admin_channel or before.author.bot:
-            return
+            return  # Ignore bot and admin channel
+
+        if automod.is_toxic(after.content):
+            return await automod.moderate(after)
 
         embed = discord.Embed(
             title="Message modifié",
