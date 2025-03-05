@@ -233,7 +233,7 @@ class Commands(Cog):
         binary = re.findall("[01]{8}", msg.content)[:2000]  # Limit to 2000 characters
         text = "".join(chr(int(b, 2)) for b in binary)
 
-        if automod.is_toxic(text, treshold=0.9):
+        if automod.classifier.predict(text, treshold=0.9):
             await msg.delete()
             embed = discord.Embed(
                 title="Message modéré pour contenu inapproprié",

@@ -1,9 +1,6 @@
 # Pipfile
 Pipfile.lock
 
-# ML models
-models/
-
 # IDE config folder
 .vs/
 .vscode/
