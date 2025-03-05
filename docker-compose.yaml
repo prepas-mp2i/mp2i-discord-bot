@@ -35,3 +35,6 @@ services:
       postgres:
         condition: service_healthy
         restart: true
+
+volumes:
+  pg_data:

@@ -57,7 +57,7 @@ class ToxicityClassifier:
             model_dir: The directory containing the model and tokenizer files.
         """
         self.name = name
-        self.model_dir = model_dir / name.rpartition("/")[2]
+        self.model_dir = model_dir
         self._tokenizer = self._load_tokenizer()
         self._session = self._load_onnx_session()
 
@@ -116,5 +116,6 @@ class ToxicityClassifier:
 
 
 _classifier = ToxicityClassifier(
-    "citizenlab/distilbert-base-multilingual-cased-toxicity", MODEL_DIR
+    "citizenlab/distilbert-base-multilingual-cased-toxicity",
+    MODEL_DIR / "distilbert-toxicity",
 )
