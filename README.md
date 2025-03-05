@@ -86,7 +86,7 @@ Run the command `python3 -m mp2i` on Linux or `py -m mp2i` on Windows to start t
 ### Using Docker
 
 ```sh
-docker-compose up --build
+docker compose up --build
 ```
 
 Now, the bot should be running. After modifying the code,
