@@ -42,6 +42,16 @@ This project uses Git LFS to store large files like images and sounds.
 
 ## Installation
 
+### Clone the repository
+
+```sh
+git clone https://github.com/prepas-mp2i/mp2i-discord-bot.git
+cd mp2i-discord-bot
+git lfs install && git lfs pull  # Download large files
+```
+
+### Configuration
+
 First set variables in .env file:
 
 ```ini

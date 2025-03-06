@@ -24,6 +24,7 @@ class Suggestion(Cog):
 
     @hybrid_command(name="suggestionsrules")
     @is_owner()
+    @guild_only()
     async def send_suggestions_rules(self, ctx) -> None:
         """
         Affiche le fonctionnement des suggestions.

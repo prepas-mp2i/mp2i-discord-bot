@@ -5,7 +5,7 @@ import logging
 from datetime import datetime
 
 import discord
-from discord.ext.commands import Cog, hybrid_command, is_owner
+from discord.ext.commands import Cog, hybrid_command, is_owner, guild_only
 
 from mp2i import STATIC_DIR
 from mp2i.wrappers.member import MemberWrapper
@@ -27,6 +27,7 @@ class Roles(Cog):
 
     @hybrid_command(name="roles", hidden=True)
     @is_owner()
+    @guild_only()
     async def roles(self, ctx, message_id: Optional[str] = "") -> None:
         """
         Génère ou définit le message pour choisir ses rôles.

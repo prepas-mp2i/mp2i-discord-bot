@@ -18,7 +18,7 @@ def is_toxic(msg: discord.Message) -> bool:
     """
     Check if a message is toxic or not.
     """
-    return _classifier.predict(msg.content, threshold=0.9)
+    return _classifier.predict(msg.content, treshold=0.9)
 
 
 async def moderate(msg: discord.Message) -> None:
@@ -33,6 +33,9 @@ async def moderate(msg: discord.Message) -> None:
     )
     guild = GuildWrapper(msg.guild)
     await guild.log_channel.send(embed=embed)
+    await msg.author.send(
+        f"Votre message a été modéré pour contenu inapproprié :\n>>> {msg.content}"
+    )
 
 
 class ToxicityClassifier:
