@@ -90,7 +90,7 @@ docker compose up --build
 ```
 
 Now, the bot should be running. After modifying the code,
-you can update the bot using the command `docker-compose up`.
+you can update the bot using the command `docker compose up`.
 
 ## License
 
