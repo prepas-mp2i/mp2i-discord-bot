@@ -11,8 +11,10 @@ verify_ssl = true
 [dev-packages]
 pre-commit = ">=3.3, <4.0"
 pipenv = ">=2022.1.8"
-torch = {version = ">=1.10.0, <2.0", index = "pytorch-cpu"}
 optimum = ">=1.1, <2.0"
+onnx = ">=1.10.0, <2.0"
+torch = {version=">=2.4, <3.0", index="pytorch-cpu"}
+transformers = {version="<5.0", extras=["accelerate", "sentencepiece"]}
 
 [packages]
 "discord.py" = ">=2.0, <3.0"

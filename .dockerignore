@@ -8,6 +8,7 @@
 
 # Git
 .gitignore
+.gitattributes
 .git/
 .pre-commit-config.yaml
 

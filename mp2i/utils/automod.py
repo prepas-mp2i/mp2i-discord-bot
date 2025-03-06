@@ -14,14 +14,6 @@ from mp2i.wrappers.guild import GuildWrapper
 logger = logging.getLogger(__name__)
 
 
-def softmax(x, axis=None):
-    """
-    Applies the softmax function to the model's raw output.
-    """
-    e_x = np.exp(x - np.max(x, axis=axis, keepdims=True))
-    return e_x / e_x.sum(axis=axis, keepdims=True)
-
-
 def is_toxic(msg: discord.Message) -> bool:
     """
     Check if a message is toxic or not.
@@ -48,15 +40,13 @@ class ToxicityClassifier:
     A class for handling text toxicity classification using an ONNX model.
     """
 
-    def __init__(self, name: str, model_dir: Path) -> None:
+    def __init__(self, model_dir: Path) -> None:
         """
         Initializes the classifier by loading the tokenizer and the ONNX session.
 
         Args:
-            model_name: The name of the model used for classification.
             model_dir: The directory containing the model and tokenizer files.
         """
-        self.name = name
         self.model_dir = model_dir
         self._tokenizer = self._load_tokenizer()
         self._session = self._load_onnx_session()
@@ -74,6 +64,34 @@ class ToxicityClassifier:
             raise FileNotFoundError(f"ONNX model file not found at {onnx_path}")
 
         return ort.InferenceSession(onnx_path.as_posix())
+
+    @staticmethod
+    def export_model(model_name: str, export_dir: Path) -> None:
+        """
+        Exports a pre-trained model to the ONNX format.
+        """
+        from transformers import AutoModelForSequenceClassification, AutoTokenizer
+        from optimum.exporters.onnx import onnx_export_from_model
+
+        model = AutoModelForSequenceClassification.from_pretrained(model_name)
+        onnx_export_from_model(
+            model.half().eval(),
+            export_dir,
+            task="text-classification",
+            optimize=None,
+            opset=14,
+        )
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        tokenizer.save_pretrained(export_dir)
+
+    @staticmethod
+    def softmax(x, axis=None):
+        e_x = np.exp(x - np.max(x, axis=axis, keepdims=True))
+        return e_x / e_x.sum(axis=axis, keepdims=True)
+
+    @staticmethod
+    def sigmoid(x):
+        return 1 / (1 + np.exp(-x))
 
     def encode_text(self, text: str, max_length=32) -> Dict:
         """
@@ -97,25 +115,12 @@ class ToxicityClassifier:
             bool: True if the text is toxic, otherwise False.
         """
         inputs = self.encode_text(text)
-        outputs = self._session.run(None, inputs)
-        results = softmax(outputs[0], axis=1)
+        output = self._session.run(None, inputs)[0]
+        if output.shape[1] > 1:
+            results = self.softmax(output, axis=1)
+        else:
+            results = self.sigmoid(output)
         return results[0][0] >= treshold
 
-    @classmethod
-    def export_model(cls, name: str, export_dir: Path) -> None:
-        """
-        Exports a pre-trained model to the ONNX format.
-        """
-        from transformers import AutoModelForSequenceClassification
-        from optimum.exporters.onnx import onnx_export_from_model
 
-        model = AutoModelForSequenceClassification.from_pretrained(name)
-        onnx_export_from_model(
-            model, export_dir, task="text-classification", optimize=None, opset=14
-        )
-
-
-_classifier = ToxicityClassifier(
-    "citizenlab/distilbert-base-multilingual-cased-toxicity",
-    MODEL_DIR / "distilbert-toxicity",
-)
+_classifier = ToxicityClassifier(MODEL_DIR / "multilingual-toxic-xlm-roberta")

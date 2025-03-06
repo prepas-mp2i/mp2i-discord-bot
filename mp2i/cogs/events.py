@@ -38,6 +38,8 @@ class EventsCog(Cog):
         """
         Log message in database and update message count
         """
+        if msg.author.bot:
+            return  # Ignore bot messages
         if automod.is_toxic(msg):
             return await automod.moderate(msg)
 
