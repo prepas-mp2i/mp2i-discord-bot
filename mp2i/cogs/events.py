@@ -139,8 +139,8 @@ class EventsCog(Cog):
         if before.channel == guild.admin_channel or before.author.bot:
             return  # Ignore bot and admin channel
 
-        if automod.is_toxic(after.content):
-            return await automod.moderate(after)
+        if automod.is_toxic(after):
+            return await automod.moderate(before)
 
         embed = discord.Embed(
             title="Message modifié",

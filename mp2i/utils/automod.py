@@ -18,7 +18,7 @@ def is_toxic(msg: discord.Message) -> bool:
     """
     Check if a message is toxic or not.
     """
-    return _classifier.predict(msg.content, treshold=0.9)
+    return _classifier.predict(msg.content, treshold=0.7)
 
 
 async def moderate(msg: discord.Message) -> None:
