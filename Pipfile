@@ -26,7 +26,7 @@ psycopg2-binary = ">=2.9.3, <3.0"
 PyYAML = ">=6.0, <7.0"
 youtube_dl = ">=2021, <2022"
 numpy = "<2.0"
-onnxruntime = "~=1.10.0"
+onnxruntime = ">=1.19.0, <2.0"
 tokenizers = ">=0.21, <1.0"
 
 [requires]

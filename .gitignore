@@ -1,6 +1,12 @@
 # Pipfile
 Pipfile.lock
 
+# ML models
+models/
+!models/**/model.onnx
+!models/**/config.json
+!models/**/tokenizer.json
+
 # IDE config folder
 .vs/
 .vscode/

@@ -1,6 +1,7 @@
+from typing import Any, Iterator
+
 from importlib import import_module
 from pkgutil import walk_packages
-from typing import Any, Iterator
 
 from mp2i import cogs
 

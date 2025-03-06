@@ -66,23 +66,25 @@ class ToxicityClassifier:
         return ort.InferenceSession(onnx_path.as_posix())
 
     @staticmethod
-    def export_model(model_name: str, export_dir: Path) -> None:
+    def export_model(model_name: str) -> None:
         """
-        Exports a pre-trained model to the ONNX format.
+        Exports a pre-trained model to the ONNX format and quantizes it.
         """
-        from transformers import AutoModelForSequenceClassification, AutoTokenizer
+        from transformers import AutoModelForSequenceClassification
         from optimum.exporters.onnx import onnx_export_from_model
+        from onnxruntime.quantization import quantize_dynamic
 
+        export_dir = MODEL_DIR / model_name.rpartition("/")[2]
         model = AutoModelForSequenceClassification.from_pretrained(model_name)
         onnx_export_from_model(
-            model.half().eval(),
-            export_dir,
+            model,
+            output=export_dir,
             task="text-classification",
-            optimize=None,
-            opset=14,
+            monolith=True,
+            optimize="O1",
+            opset=15,
         )
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-        tokenizer.save_pretrained(export_dir)
+        quantize_dynamic(export_dir / "model.onnx", export_dir / "model.onnx")
 
     @staticmethod
     def softmax(x, axis=None):
@@ -93,15 +95,21 @@ class ToxicityClassifier:
     def sigmoid(x):
         return 1 / (1 + np.exp(-x))
 
-    def encode_text(self, text: str, max_length=32) -> Dict:
+    def _encode_text(self, text: str, max_length=256) -> Dict:
         """
         Encodes a text input into a representation with token IDs and an attention mask.
         """
         encoded = self._tokenizer.encode(text)
-        input_ids = np.zeros((1, max_length), dtype=np.int64)
-        input_ids[0, : min(max_length, len(encoded.ids))] = encoded.ids[:max_length]
-        attention_mask = (input_ids != 0).astype(np.int64)
-        return dict(input_ids=input_ids, attention_mask=attention_mask)
+        input_ids = np.array(encoded.ids[:max_length])[np.newaxis, :]
+        return dict(
+            input_ids=input_ids.astype(np.int64),
+            attention_mask=(input_ids != 0).astype(np.int64),
+        )
+
+    def _probabilities(self, logits: np.ndarray) -> np.ndarray:
+        if logits.shape[1] == 1:
+            return self.sigmoid(logits)
+        return self.softmax(logits, axis=1)
 
     def predict(self, text: str, treshold=0.9) -> bool:
         """
@@ -110,17 +118,11 @@ class ToxicityClassifier:
         Args:
             text: The text to classify.
             threshold: The probability threshold to determine if the text is toxic.
-
-        Returns:
-            bool: True if the text is toxic, otherwise False.
         """
-        inputs = self.encode_text(text)
-        output = self._session.run(None, inputs)[0]
-        if output.shape[1] > 1:
-            results = self.softmax(output, axis=1)
-        else:
-            results = self.sigmoid(output)
-        return results[0][0] >= treshold
+        inputs = self._encode_text(text)
+        output = self._session.run(None, inputs)
+        probs = self._probabilities(output[0])
+        return probs[0][0] >= treshold
 
 
 _classifier = ToxicityClassifier(MODEL_DIR / "multilingual-toxic-xlm-roberta")
