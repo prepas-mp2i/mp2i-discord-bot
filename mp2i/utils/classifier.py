@@ -3,39 +3,13 @@ from typing import Dict
 import logging
 from pathlib import Path
 
-import discord
 import numpy as np
 import onnxruntime as ort
 from tokenizers import Tokenizer
 
 from mp2i import MODEL_DIR
-from mp2i.wrappers.guild import GuildWrapper
 
 logger = logging.getLogger(__name__)
-
-
-def is_toxic(msg: discord.Message) -> bool:
-    """
-    Check if a message is toxic or not.
-    """
-    return _classifier.predict(msg.content, treshold=0.7)
-
-
-async def moderate(msg: discord.Message) -> None:
-    """
-    Moderates a message by deleting it and sending logs.
-    """
-    await msg.delete()  # Will trigger on_message_delete event
-    embed = discord.Embed(
-        title="Message modéré pour contenu inapproprié",
-        description=f">>> {msg.content}",
-        colour=0xFFA325,
-    )
-    guild = GuildWrapper(msg.guild)
-    await guild.log_channel.send(embed=embed)
-    await msg.author.send(
-        f"Votre message a été modéré pour contenu inapproprié :\n>>> {msg.content}"
-    )
 
 
 class ToxicityClassifier:
@@ -114,7 +88,7 @@ class ToxicityClassifier:
             return self.sigmoid(logits)
         return self.softmax(logits, axis=1)
 
-    def predict(self, text: str, treshold=0.9) -> bool:
+    def predict(self, text: str, threshold=0.9) -> bool:
         """
         Predict whether the given text is toxic or not based on a probability threshold.
 
@@ -125,7 +99,4 @@ class ToxicityClassifier:
         inputs = self._encode_text(text)
         output = self._session.run(None, inputs)
         probs = self._probabilities(output[0])
-        return probs[0][0] >= treshold
-
-
-_classifier = ToxicityClassifier(MODEL_DIR / "multilingual-toxic-xlm-roberta")
+        return probs[0][0] >= threshold

@@ -6,7 +6,7 @@ from discord.ext.commands import Cog
 from sqlalchemy import delete
 
 from mp2i.models import GuildModel
-from mp2i.utils import automod, database
+from mp2i.utils import database
 from mp2i.wrappers.member import MemberWrapper
 from mp2i.wrappers.guild import GuildWrapper
 
@@ -32,20 +32,6 @@ class EventsCog(Cog):
                     member.register()
 
         print(f"\n{' READY ':>^80}\n")
-
-    @Cog.listener()
-    async def on_message(self, msg: discord.Message) -> None:
-        """
-        Log message in database and update message count
-        """
-        if msg.author.bot:
-            return  # Ignore bot messages
-        if automod.is_toxic(msg):
-            return await automod.moderate(msg)
-
-        member = MemberWrapper(msg.author)
-        if member.exists():
-            member.messages_count += 1
 
     @Cog.listener()
     async def on_guild_join(self, guild) -> None:
@@ -126,34 +112,6 @@ class EventsCog(Cog):
         )
         embed.set_footer(text=self.bot.user.name)
         await guild.log_channel.send(embed=embed)
-
-    @Cog.listener()
-    async def on_message_edit(self, before, after) -> None:
-        """
-        When a message is edited, send logs in the log channel
-        """
-        guild = GuildWrapper(before.guild)
-        if not before.guild or not (log_chan := guild.log_channel):
-            return logging.warning("No log channel set")
-
-        if before.channel == guild.admin_channel or before.author.bot:
-            return  # Ignore bot and admin channel
-
-        if automod.is_toxic(after):
-            return await automod.moderate(before)
-
-        embed = discord.Embed(
-            title="Message modifié",
-            colour=0x6DD7FF,
-            timestamp=datetime.now(),
-        )
-        embed.add_field(name="Auteur", value=before.author.mention)
-        embed.add_field(name="Lien du nouveau message", value=after.jump_url)
-        embed.add_field(
-            name="Message original", value=f">>> {before.content}", inline=False
-        )
-        embed.set_footer(text=self.bot.user.name)
-        await log_chan.send(embed=embed)
 
 
 async def setup(bot) -> None:
