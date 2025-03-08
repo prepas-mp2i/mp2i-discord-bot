@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 class Automod(Cog):
     XLM_ROBERTA_MODEL = "multilingual-toxic-xlm-roberta"
+    DEFAULT_THRESHOLD = 0.9
 
     def __init__(self, bot):
         self.bot = bot
@@ -34,7 +35,7 @@ class Automod(Cog):
         for exc in self.exceptions:
             msg.content = re.sub(exc, self.exceptions[exc], msg.content)
 
-        return self.classifier.predict(msg.content, threshold=0.75)
+        return self.classifier.predict(msg.content, threshold=self.DEFAULT_THRESHOLD)
 
     @Cog.listener()
     async def on_message(self, msg: discord.Message) -> None:
