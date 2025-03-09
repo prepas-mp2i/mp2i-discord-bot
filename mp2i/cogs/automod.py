@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 class Automod(Cog):
     XLM_ROBERTA_MODEL = "multilingual-toxic-xlm-roberta"
-    DEFAULT_THRESHOLD = 0.9
+    DEFAULT_THRESHOLD = 0.95
 
     def __init__(self, bot):
         self.bot = bot
@@ -33,8 +33,9 @@ class Automod(Cog):
         Check if a message is toxic or not.
         """
         for exc in self.exceptions:
-            msg.content = re.sub(exc, self.exceptions[exc], msg.content)
-
+            msg.content = re.sub(
+                exc, self.exceptions[exc], msg.content, flags=re.IGNORECASE
+            )
         return self.classifier.predict(msg.content, threshold=self.DEFAULT_THRESHOLD)
 
     @Cog.listener()
