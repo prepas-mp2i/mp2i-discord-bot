@@ -23,6 +23,7 @@ class Automod(Cog):
         self.bot = bot
         self.classifier = ToxicityClassifier(MODEL_DIR / self.XLM_ROBERTA_MODEL)
         self.exceptions = self._load_exceptions()
+        self.active = False
 
     def _load_exceptions(self) -> dict:
         with open(STATIC_DIR / "text/exceptions.json") as f:
@@ -45,7 +46,7 @@ class Automod(Cog):
         """
         if msg.author.bot:
             return  # Ignore bot messages
-        if self.is_toxic(msg):
+        if self.is_toxic(msg) and self.active:
             return await self.moderate(msg)
 
         member = MemberWrapper(msg.author)
@@ -64,7 +65,7 @@ class Automod(Cog):
         if before.channel == guild.admin_channel or before.author.bot:
             return  # Ignore bot and admin channel
 
-        if self.is_toxic(after):
+        if self.is_toxic(after) and self.active:
             return await self.moderate(before)
 
         embed = discord.Embed(
