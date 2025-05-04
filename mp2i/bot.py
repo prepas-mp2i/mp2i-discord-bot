@@ -31,4 +31,7 @@ async def run(token=None) -> None:
     for cog in resolver.find_available_cogs():
         await bot.load_extension(cog.__name__)
 
+    # Explicitly unload the automod cog
+    await bot.unload_extension("mp2i.cogs.automod")
+
     await bot.start(token or TOKEN)  # raise LoginFailure if the token is invalid

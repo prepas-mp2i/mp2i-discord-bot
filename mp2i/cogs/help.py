@@ -41,7 +41,7 @@ class Help(Cog):
         embed = discord.Embed(
             title=f"Liste des commandes du serveur {ctx.guild.name}",
             description=content,
-            color=0xEE22EE,
+            colour=0xEE22EE,
         )
         await ctx.reply(embed=embed, ephemeral=True)
 
@@ -53,7 +53,7 @@ class Help(Cog):
         embed = discord.Embed(
             title=f"Commande `/{command_name}`",
             description=command.help,
-            color=0xEE22EE,
+            colour=0xEE22EE,
         )
         await ctx.reply(embed=embed, ephemeral=True)
 

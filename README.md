@@ -35,7 +35,21 @@ It's required to have python 3.9 or more installed on your system.
 You can also use Docker to deploy the environment in one command.
 [Get started with Docker](https://www.docker.com/get-started)
 
+**Git LFS** <br>
+This project uses Git LFS to store large files like images and sounds.
+[Download Git LFS](https://git-lfs.github.com/)
+
 ## Installation
+
+### Clone the repository
+
+```sh
+git clone https://github.com/prepas-mp2i/mp2i-discord-bot.git
+cd mp2i-discord-bot
+git lfs install && git lfs pull  # Download large files
+```
+
+### Configuration
 
 First set variables in .env file:
 
@@ -55,12 +69,11 @@ SMTP_SERVER = <smtp_server>
 EMAIL_USER = <email_user>
 
 EMAIL_PASSWORD = <password>
-
 ```
 
 Create a `bot-config.toml` file based on the `bot-config.yaml.example` file.
 
-- ### Using Pipenv
+### Using Pipenv
 
 Install `pipenv` dependencies:
 
@@ -75,10 +88,17 @@ It will install packages in the virtual environment (recommended).
 pipenv install
 ```
 
-Run the command `python3 -m mp2i` on Linux or `py -m mp2i` on Windows.
+Run the command `python3 -m mp2i` on Linux or `py -m mp2i` on Windows to start the bot.
 
-- ### Using Docker
+### Using Docker
 
 ```sh
 docker compose up --build
 ```
+
+Now, the bot should be running. After modifying the code,
+you can update the bot using the command `docker compose up`.
+
+## License
+
+This project is licensed under the Mozilla Public License 2.0 - see the [LICENSE](LICENSE) file for details.

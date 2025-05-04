@@ -2,12 +2,14 @@ services:
   postgres:
     image: postgres
     container_name: MP2I_PostgreSQL
+    volumes:
+      - pg_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=MP2I
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
-#    ports:
-#      - "2345:5432"
+    # ports:
+    #  - "2345:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d MP2I"]
       interval: 5s
@@ -21,7 +23,9 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ./logs:/MP2I/logs
+      - ./mp2i:/bot/mp2i
+      - ./logs:/bot/logs
+      - ./models:/bot/models
     env_file:
       - .env
     environment:
@@ -31,3 +35,6 @@ services:
       postgres:
         condition: service_healthy
         restart: true
+
+volumes:
+  pg_data:

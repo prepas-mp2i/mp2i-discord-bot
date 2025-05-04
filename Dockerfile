@@ -4,23 +4,23 @@ FROM python:3.9-slim-buster
 # Set pip to have cleaner logs
 ENV PYTHONUNBUFFERED=1 \
     PIPENV_NOSPIN=1
-# Configure timezone
-ENV TZ Europe/Paris
 
 # Install git and Pipenv
 RUN apt-get update -qq \
     && apt-get install -y -qq --no-install-recommends git \
-    && pip install -U pipenv \
+    && pip install --no-cache-dir -U pipenv \
     && rm -rf /var/lib/apt/lists/*
 
-# Install project dependencies
-COPY Pipfile* ./
-RUN pipenv lock && pipenv --clear && pipenv --rm
-RUN pipenv install --system
-
 # Set a working directory
-WORKDIR /MP2I
+WORKDIR /bot
+
 # Copy the source code into the image
 COPY . .
+
+# Install the dependencies
+RUN pipenv lock \
+    && pipenv install --clear --system \
+    && pipenv --clear
+
 # Run the bot
 CMD ["python", "-m", "mp2i"]

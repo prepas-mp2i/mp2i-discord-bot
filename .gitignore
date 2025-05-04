@@ -1,6 +1,11 @@
 # Pipfile
 Pipfile.lock
 
+# ML models
+models/
+!models/**/model.onnx
+!models/**/tokenizer.json
+
 # IDE config folder
 .vs/
 .vscode/
@@ -140,7 +145,7 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-#Other
+# Other
 .pid
 mail.txt
 bot-config.yaml

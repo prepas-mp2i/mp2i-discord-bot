@@ -5,13 +5,7 @@ from operator import attrgetter
 
 import discord
 from discord.ext.commands import Cog, Range
-from discord.ext.commands import (
-    hybrid_command,
-    guild_only,
-    has_permissions,
-    errors,
-)
-
+from discord.ext.commands import hybrid_command, guild_only, has_permissions, errors
 
 from mp2i.wrappers.guild import GuildWrapper
 from mp2i.wrappers.member import MemberWrapper
@@ -55,8 +49,10 @@ class Commands(Cog):
         Local error handler for clear command.
         """
         if isinstance(error, errors.RangeError):
-            msg = f"Le nombre de messages doit être compris entre 1 et {error.maximum}."
-        await ctx.reply(msg, ephemeral=True)
+            await ctx.reply(
+                f"Le nombre de messages doit être compris entre 1 et {error.maximum}.",
+                ephemeral=True,
+            )
 
     @hybrid_command(name="say")
     @guild_only()
@@ -184,6 +180,7 @@ class Commands(Cog):
 
         embed = discord.Embed(colour=0x2BFAFA, title=title, description=content)
         await ctx.send(embed=embed)
+
 
 async def setup(bot) -> None:
     await bot.add_cog(Commands(bot))

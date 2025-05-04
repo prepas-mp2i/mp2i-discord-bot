@@ -55,12 +55,10 @@ class School(Cog):
     @guild_only()
     @has_any_role("MP2I", "MPI", "Ex MPI", "Intégré", "Modérateur", "Administrateur")
     @autocomplete(school=autocomplete_school)
-    @choices(
-        type=[
-            Choice(name="CPGE", value="cpge"),
-            Choice(name="École d'ingénieur", value="engineering"),
-        ]
-    )
+    @choices(type=[
+        Choice(name="CPGE", value="cpge"),
+        Choice(name="École d'ingénieur", value="engineering"),
+    ])  # fmt: skip
     async def school_selection(
         self, ctx, type: str, school: str, user: Optional[discord.Member] = None
     ):
@@ -108,12 +106,9 @@ class School(Cog):
     @hybrid_command(name="generation")
     @has_any_role("MP2I", "MPI", "Ex MPI", "Intégré", "Modérateur", "Administrateur")
     @guild_only()
-    async def generation(
-        self,
-        ctx,
-        year: Range[int, 2021, datetime.now().year],
-        user: Optional[discord.Member] = None,
-    ):
+    async def generation(self, ctx,
+                         year: Range[int, 2021, datetime.now().year],
+                         user: Optional[discord.Member] = None):  # fmt: skip
         """
         Définit l'année d'arrivée en sup
 
@@ -142,12 +137,10 @@ class School(Cog):
     @hybrid_command(name="members")
     @guild_only()
     @autocomplete(school=autocomplete_school)
-    @choices(
-        type=[
-            Choice(name="CPGE", value="cpge"),
-            Choice(name="École d'ingénieur", value="engineering"),
-        ]
-    )
+    @choices(type=[
+        Choice(name="CPGE", value="cpge"),
+        Choice(name="École d'ingénieur", value="engineering"),
+    ])  # fmt: skip
     @defer(ephemeral=False)
     async def members(self, ctx, type: str, school: str):
         """
@@ -211,11 +204,11 @@ class School(Cog):
 
         referents = []
         for member in map(MemberWrapper, guild.members):
-            if not member.get_role(referent_role.id):
+            if not member.exists() or not member.get_role(referent_role.id):
                 continue
-            if type == "cpge" and member.exists() and member.high_school is not None:
+            if type == "cpge" and member.high_school is not None:
                 referents.append((member, member.high_school))
-            elif type == "engineering" and member.exists() and member.engineering_school is not None:
+            elif type == "engineering" and member.engineering_school is not None:
                 referents.append((member, member.engineering_school))
             elif match := SCHOOL_REGEX.match(member.nick):
                 referents.append((member, match.group(1)))

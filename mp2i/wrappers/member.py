@@ -64,8 +64,7 @@ class MemberWrapper:
         database.execute(
             update(MemberModel)
             .where(
-                MemberModel.id == self.member.id,
-                MemberModel.guild_id == self.guild.id,
+                MemberModel.id == self.member.id, MemberModel.guild_id == self.guild.id
             )
             .values(**kwargs)
         )
